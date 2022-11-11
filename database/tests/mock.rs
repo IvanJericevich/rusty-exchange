@@ -1,6 +1,6 @@
 mod prepare;
+use database::{post, Mutation, Query};
 use prepare::prepare_mock_db;
-use database::{Mutation, Query, post};
 
 #[async_std::test]
 async fn main() {
