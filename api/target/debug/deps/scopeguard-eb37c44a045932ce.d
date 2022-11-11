@@ -1,0 +1,5 @@
+/Users/ivanjericevich/Personal/api/target/debug/deps/scopeguard-eb37c44a045932ce.rmeta: /Users/ivanjericevich/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs
+
+/Users/ivanjericevich/Personal/api/target/debug/deps/scopeguard-eb37c44a045932ce.d: /Users/ivanjericevich/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs
+
+/Users/ivanjericevich/.cargo/registry/src/github.com-1ecc6299db9ec823/scopeguard-1.1.0/src/lib.rs:
