@@ -277,13 +277,9 @@ dependencies = [
  "actix-service",
  "actix-web",
  "database",
- "dotenvy",
- "env_logger",
- "listenfd",
  "serde",
  "serde_json",
  "tera",
- "tracing-subscriber",
  "utoipa",
  "utoipa-swagger-ui",
 ]
@@ -1010,19 +1006,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "env_logger"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
-dependencies = [
- "atty",
- "humantime",
- "log",
- "regex",
- "termcolor",
-]
-
-[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1392,12 +1375,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02296996cb8796d7c6e3bc2d9211b7802812d36999a51bb754123ead7d37d026"
 
 [[package]]
-name = "humantime"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
-
-[[package]]
 name = "iana-time-zone"
 version = "0.1.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1556,17 +1533,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9272ab7b96c9046fbc5bc56c06c117cb639fe2d509df0c421cad82d2915cf369"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "listenfd"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c02b14f35d9f5f082fd0b1b34aa0ef32e3354c859c721d7f3325b3f79a42ba54"
-dependencies = [
- "libc",
- "uuid 0.8.2",
- "winapi",
 ]
 
 [[package]]
@@ -2385,7 +2351,7 @@ dependencies = [
  "time",
  "tracing",
  "url",
- "uuid 1.2.1",
+ "uuid",
 ]
 
 [[package]]
@@ -2461,7 +2427,7 @@ dependencies = [
  "sea-query-derive",
  "serde_json",
  "time",
- "uuid 1.2.1",
+ "uuid",
 ]
 
 [[package]]
@@ -2476,7 +2442,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "time",
- "uuid 1.2.1",
+ "uuid",
 ]
 
 [[package]]
@@ -2812,7 +2778,7 @@ dependencies = [
  "thiserror",
  "time",
  "url",
- "uuid 1.2.1",
+ "uuid",
  "whoami",
 ]
 
@@ -3269,12 +3235,6 @@ dependencies = [
  "utoipa",
  "zip",
 ]
-
-[[package]]
-name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 
 [[package]]
 name = "uuid"

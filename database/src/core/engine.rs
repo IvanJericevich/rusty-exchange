@@ -13,7 +13,7 @@ impl Engine {
         // Get credentials from environment
         let db_url = env::var("DB_URL").unwrap_or_else(|_e| {
             let name = env::var("DB_NAME").expect("DB_NAME environment variable not found");
-            let host = env::var("DB_HOST").unwrap_or_else(|_| "localhost".to_owned());
+            let host = env::var("DB_HOST").unwrap_or_else(|_| "postgres".to_owned());
             let password =
                 env::var("DB_PASSWORD").expect("DB_PASSWORD environment variable not found");
             let username = env::var("DB_USERNAME").unwrap_or_else(|_| "postgres".to_owned());

@@ -1,10 +1,11 @@
+use database::{post, DatabaseConnection, Engine, Migrator, MigratorTrait, Mutation, Query};
+
 use actix_files::Files as Fs;
 use actix_web::{
-    error, get, middleware, post, web, App, Error, HttpRequest, HttpResponse, HttpServer, Result,
+    error, get, middleware::Logger, post, web, App, Error, HttpRequest, HttpResponse, HttpServer,
+    Result,
 };
-use database::{post, Database, DatabaseConnection, Migrator, MigratorTrait, Mutation, Query};
 
-use listenfd::ListenFd;
 use serde::{Deserialize, Serialize};
 use std::env;
 use tera::Tera;
@@ -14,7 +15,7 @@ const DEFAULT_POSTS_PER_PAGE: u64 = 5;
 #[derive(Debug, Clone)]
 struct AppState {
     templates: tera::Tera,
-    conn: DatabaseConnection,
+    db: DatabaseConnection,
 }
 
 #[derive(Debug, Deserialize)]
@@ -32,7 +33,7 @@ struct FlashData {
 #[get("/")]
 async fn list(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpResponse, Error> {
     let template = &data.templates;
-    let conn = &data.conn;
+    let conn = &data.db;
 
     // get params
     let params = web::Query::<Params>::from_query(req.query_string()).unwrap();
@@ -71,7 +72,7 @@ async fn create(
     data: web::Data<AppState>,
     post_form: web::Form<post::Model>,
 ) -> Result<HttpResponse, Error> {
-    let conn = &data.conn;
+    let conn = &data.db;
 
     let form = post_form.into_inner();
 
@@ -86,7 +87,7 @@ async fn create(
 
 #[get("/{id}")]
 async fn edit(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
-    let conn = &data.conn;
+    let conn = &data.db;
     let template = &data.templates;
     let id = id.into_inner();
 
@@ -110,7 +111,7 @@ async fn update(
     id: web::Path<i32>,
     post_form: web::Form<post::Model>,
 ) -> Result<HttpResponse, Error> {
-    let conn = &data.conn;
+    let conn = &data.db;
     let form = post_form.into_inner();
     let id = id.into_inner();
 
@@ -125,7 +126,7 @@ async fn update(
 
 #[post("/delete/{id}")]
 async fn delete(data: web::Data<AppState>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
-    let conn = &data.conn;
+    let conn = &data.db;
     let id = id.into_inner();
 
     Mutation::delete_post(conn, id)
@@ -152,42 +153,30 @@ async fn not_found(data: web::Data<AppState>, request: HttpRequest) -> Result<Ht
 #[actix_web::main]
 async fn start() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
-    tracing_subscriber::fmt::init();
-
-    // get env vars
-    dotenvy::dotenv().ok();
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
-    // let host = env::var("HOST").expect("HOST is not set in .env file");
-    // let port = env::var("PORT").expect("PORT is not set in .env file");
-    let server_url = "localhost:8080";
+    std::env::set_var("RUST_BACKTRACE", "1");
 
     // establish connection to database and apply migrations
-    // -> create post table if not exists
-    let conn = Database::connect(&db_url).await.unwrap();
-    Migrator::up(&conn, None).await.unwrap();
+    let db = Engine::connect().await.unwrap();
+    Migrator::up(&db, None).await.unwrap();
 
     // load tera templates and build app state
     let templates = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap();
-    let state = AppState { templates, conn };
+    let state = AppState { templates, db };
 
-    // create server and try to serve over socket if possible
-    let mut listenfd = ListenFd::from_env();
-    let mut server = HttpServer::new(move || {
+    HttpServer::new(move || {
+        let logger = Logger::new("%r %s (%Ts)");
+
         App::new()
             .service(Fs::new("/static", "./api/static"))
+            .wrap(logger)
             .app_data(web::Data::new(state.clone()))
-            .wrap(middleware::Logger::default()) // enable logger
             .default_service(web::route().to(not_found))
             .configure(init)
-    });
-
-    server = match listenfd.take_tcp_listener(0)? {
-        Some(listener) => server.listen(listener)?,
-        None => server.bind(&server_url)?,
-    };
-
-    println!("Starting server at {}", server_url);
-    server.run().await?;
+    })
+    .bind(("127.0.0.1", 8080))?
+    .workers(1)
+    .run()
+    .await?;
 
     Ok(())
 }
