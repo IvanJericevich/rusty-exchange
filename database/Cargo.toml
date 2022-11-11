@@ -14,9 +14,8 @@ path = "src/lib.rs"
 
 [dependencies]
 async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
-futures = "^0.3.25" # Asynchrnous utilities
 sea-orm = { version = "^0.10.0", features = ["sqlx-postgres", "runtime-async-std-native-tls", "debug-print"] } # Support for postgres and standard async library with macros and mock features, "mock"
-sea-orm-migration = "^0.10.0" # For database migrations
+sea-orm-migration = { version = "^0.10.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
 serde = { version = "1", features = ["derive"] } # Serialization and deserialization of entities
 
@@ -24,6 +23,7 @@ serde = { version = "1", features = ["derive"] } # Serialization and deserializa
 mock = ["sea-orm/mock"]
 
 [dev-dependencies]
+futures = "^0.3.25" # Asynchronous utilities
 sea-orm-cli = "^0.10.1"
 
 [[test]]

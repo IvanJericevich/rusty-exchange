@@ -61,7 +61,7 @@ For more information regarding a more granular management of migrations, refer t
 
 <!-- CLI -->
 ### Migrator CLI
-The following commands can be executed to perform more granular migrations functions. Ensure that you export the URL of the running database before you execute any of the commands below.
+The following commands can be executed to perform more granular migrations functions. Ensure that you export the URL of the running database before you execute any of the commands below - otherwise the `-u` option is required in the commands below.
 ```sh
 export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME>"
 ```
@@ -72,47 +72,68 @@ export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB
   ```
 - Apply all pending migrations
   ```sh
-  sea-orm-cli migrate
+  sea-orm-cli migrate \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
   ```sh
-  sea-orm-cli migrate -- up
+  sea-orm-cli migrate up \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Apply first 10 pending migrations
   ```sh
-  sea-orm-cli migrate -- up -n 10
+  sea-orm-cli migrate up \
+    -n 10 \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Rollback last applied migrations
   ```sh
-  sea-orm-cli migrate -- down
+  sea-orm-cli migrate down \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Rollback last 10 applied migrations
   ```sh
-  sea-orm-cli migrate -- down -n 10
+  sea-orm-cli migrate down \
+    -n 10 \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Drop all tables from the database, then reapply all migrations
   ```sh
-  sea-orm-cli migrate -- fresh
+  sea-orm-cli migrate fresh \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Rollback all applied migrations, then reapply all migrations
   ```sh
-  sea-orm-cli migrate -- refresh
+  sea-orm-cli migrate refresh \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Rollback all applied migrations
   ```sh
-  sea-orm-cli migrate -- reset
+  sea-orm-cli migrate reset \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 - Check the status of all migrations
   ```sh
-  sea-orm-cli migrate -- status
+  sea-orm-cli migrate status \
+    -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
+    -d .
   ```
 
 <!-- CODEGEN -->
 ## Generate models/entities
 Once the database has been successfully migrated, the updated models/entities can be generated. This is done by the `sea-orm` cli which looks at the table schemas on the connected postgresql server. You may be required run `cargo install sea-orm-cli` if not done already (see dev-dependencies in [Cargo.toml](Cargo.toml)). The command below generates entities/models in the [entities](src/entities) directory.
 ```sh
-sea-orm-cli generate entity \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME> \
-    -o src/entities
+sea-orm-cli generate entity --with-serde both \
+  -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME> \
+  -o src/entities
+  -d .
 ```
 The user may also run the `generate_entities.sh` script to do the same thing with the proper environment variables set.
 

@@ -1,30 +1,16 @@
-use futures::executor::block_on;
-
-use sea_orm::DbErr;
+use database::Migrator;
 use sea_orm_migration::prelude::*;
-
-use database::{Engine, Migrator};
-
-async fn run() -> Result<(), DbErr> {
-    // Run migrations
-    let db = Engine::connect().await?;
-
-    let schema_manager = SchemaManager::new(&db); // To investigate the schema
-
-    Migrator::refresh(&db).await?; // Run migrator
-    assert!(schema_manager.has_table("post").await?); // Check if successful
-
-    Ok(())
-}
 
 #[async_std::main]
 async fn main() {
-    block_on(run()).unwrap(); // Block async function; panic if unsuccessful
+    cli::run_cli(Migrator).await;
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use database::Engine;
+
+    use futures::executor::block_on;
 
     #[test]
     fn test_connection() {
