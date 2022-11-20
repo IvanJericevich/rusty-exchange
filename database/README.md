@@ -131,7 +131,7 @@ export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB
 Once the database has been successfully migrated, the updated models/entities can be generated. This is done by the `sea-orm` cli which looks at the table schemas on the connected postgresql server. You may be required run `cargo install sea-orm-cli` if not done already (see dev-dependencies in [Cargo.toml](Cargo.toml)). The command below generates entities/models in the [entities](src/entities) directory.
 ```sh
 sea-orm-cli generate entity --with-serde both \
-  -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME> \
+  -u postgresql://postgres:Fluffydog1996@localhost:5432/Rust \
   -o src/entities
   -d .
 ```
@@ -143,4 +143,4 @@ Run `cargo build` to build the [target](target) library and binary.
 
 <!-- TESTING -->
 ## Testing
-To run all unit tests and integrations tests run `cargo test`. Unit tests are found in [main.rs](src/main.rs) while all integration tests can be found in the [tests](tests) directory. Integration tests are conducted with a 'mock' database (a feature of `sea-orm`).
+To run all unit tests and integrations tests run `cargo test --features mock`. Unit tests are found in [main.rs](src/main.rs) while all integration tests can be found in the [tests](tests) directory. Integration tests are conducted with a 'mock' database (a feature of `sea-orm`). This requires the optional 'mock' feature.

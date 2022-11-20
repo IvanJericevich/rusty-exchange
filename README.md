@@ -20,3 +20,18 @@
 ## Crates
 * [api](api)
 * [database](database)
+
+## Contribution
+brew install commitizen, 
+prerequisites:
+pre-commit install
+Commit:
+cz c
+
+bump semantic version
+cz bump
+
+cz changelog # generate CHANGELOG.md
+
+
+pre-commit run --all-files

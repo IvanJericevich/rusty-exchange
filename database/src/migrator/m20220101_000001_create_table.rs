@@ -1,6 +1,8 @@
 use sea_orm::sea_query::extension::postgres::Type;
 use sea_orm_migration::prelude::*;
 
+// ----------------------------------------------------------------------
+
 pub struct Migration;
 
 impl MigrationName for Migration {
@@ -18,8 +20,7 @@ impl MigrationTrait for Migration {
                     .as_enum(OrderSide::Table)
                     .values([OrderSide::Buy, OrderSide::Sell])
                     .to_owned(),
-            )
-            .await?;
+            ).await?;
 
         manager
             .create_type(
@@ -27,8 +28,7 @@ impl MigrationTrait for Migration {
                     .as_enum(OrderType::Table)
                     .values([OrderType::Market, OrderType::Limit])
                     .to_owned(),
-            )
-            .await?;
+            ).await?;
 
         manager
             .create_type(
@@ -36,8 +36,24 @@ impl MigrationTrait for Migration {
                     .as_enum(OrderStatus::Table)
                     .values([OrderStatus::Open, OrderStatus::Closed])
                     .to_owned(),
-            )
-            .await?;
+            ).await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Clients::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Clients::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Clients::Email).string().not_null())
+                    .col(ColumnDef::new(Clients::CreatedAt).timestamp().not_null())
+                    .to_owned(),
+            ).await?;
 
         manager
             .create_table(
@@ -51,14 +67,13 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Markets::Name).string().not_null())
                     .col(ColumnDef::new(Markets::BaseCurrency).string().not_null())
                     .col(ColumnDef::new(Markets::QuoteCurrency).string().not_null())
-                    .col(ColumnDef::new(Markets::PriceIncrement).tiny_unsigned().not_null())
-                    .col(ColumnDef::new(Markets::SizeIncrement).tiny_unsigned().not_null())
+                    .col(ColumnDef::new(Markets::PriceIncrement).float().not_null())
+                    .col(ColumnDef::new(Markets::SizeIncrement).float().not_null())
+                    .col(ColumnDef::new(Markets::CreatedAt).timestamp().not_null())
                     .to_owned(),
-            )
-            .await?;
+            ).await?;
 
         manager
             .create_table(
@@ -73,9 +88,16 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(SubAccounts::Name).string().not_null())
+                    .col(ColumnDef::new(SubAccounts::CreatedAt).timestamp().not_null())
+                    .col(ColumnDef::new(SubAccounts::ClientId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("client_id")
+                            .from(SubAccounts::Table, SubAccounts::ClientId)
+                            .to(Clients::Table, Clients::Id),
+                    )
                     .to_owned(),
-            )
-            .await?;
+            ).await?;
 
         manager
             .create_table(
@@ -94,7 +116,6 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Orders::FilledSize).float())
                     .col(ColumnDef::new(Orders::Side).enumeration(OrderSide::Table, [OrderSide::Buy, OrderSide::Sell]).not_null())
                     .col(ColumnDef::new(Orders::Type).enumeration(OrderType::Table, [OrderType::Market, OrderType::Limit]).not_null())
-                    .col(ColumnDef::new(Orders::ClientId).string())
                     .col(ColumnDef::new(Orders::Status).enumeration(OrderStatus::Table, [OrderStatus::Open, OrderStatus::Closed]).not_null())
                     .col(ColumnDef::new(Orders::OpenAt).timestamp().not_null())
                     .col(ColumnDef::new(Orders::ClosedAt).timestamp())
@@ -152,6 +173,14 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
+        .drop_foreign_key(
+            ForeignKey::drop()
+                .table(SubAccounts::Table)
+                .name("client_id")
+                .to_owned(),
+        ).await?;
+
+        manager
             .drop_foreign_key(
                 ForeignKey::drop()
                     .table(Orders::Table)
@@ -172,6 +201,7 @@ impl MigrationTrait for Migration {
         manager
             .drop_table(
                 Table::drop()
+                    .table(Clients::Table)
                     .table(Markets::Table)
                     .table(SubAccounts::Table)
                     .table(Orders::Table)
@@ -204,15 +234,25 @@ impl MigrationTrait for Migration {
     }
 }
 
+// ----------------------------------------------------------------------
+
+#[derive(Iden)]
+enum Clients {
+    Table,
+    Id, // Primary key
+    Email,
+    CreatedAt
+}
+
 #[derive(Iden)]
 enum Markets {
     Table,
     Id, // Primary key
-    Name,
     BaseCurrency,
     QuoteCurrency,
     PriceIncrement,
     SizeIncrement,
+    CreatedAt
 }
 
 #[derive(Iden)]
@@ -220,6 +260,8 @@ enum SubAccounts {
     Table,
     Id, // Primary key
     Name,
+    CreatedAt,
+    ClientId // Foreign key
 }
 
 #[derive(Iden)]
@@ -258,7 +300,6 @@ enum Orders {
     FilledSize,
     Side,
     Type,
-    ClientId,
     Status,
     OpenAt,
     ClosedAt,

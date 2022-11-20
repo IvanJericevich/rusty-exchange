@@ -3,35 +3,35 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "markets")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub name: String,
     pub base_currency: String,
     pub quote_currency: String,
-    pub price_increment: i16,
-    pub size_increment: i16,
+    pub price_increment: f32,
+    pub size_increment: f32,
+    pub created_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::orders::Entity")]
-    Orders,
     #[sea_orm(has_many = "super::positions::Entity")]
     Positions,
-}
-
-impl Related<super::orders::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Orders.def()
-    }
+    #[sea_orm(has_many = "super::orders::Entity")]
+    Orders,
 }
 
 impl Related<super::positions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Positions.def()
+    }
+}
+
+impl Related<super::orders::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Orders.def()
     }
 }
 

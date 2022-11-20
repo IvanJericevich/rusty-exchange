@@ -1,77 +1,105 @@
 mod prepare;
-use database::{post, Mutation, Query};
+use database::{clients, markets, sub_accounts, Query, Order, sea_orm_active_enums::{OrderSide, OrderType, OrderStatus}};
 use prepare::prepare_mock_db;
+
+// ----------------------------------------------------------------------
 
 #[async_std::test]
 async fn main() {
     let db = &prepare_mock_db();
 
+    // Clients
     {
-        let post = Query::find_post_by_id(db, 1).await.unwrap().unwrap();
-
-        assert_eq!(post.id, 1);
-    }
-
-    {
-        let post = Query::find_post_by_id(db, 5).await.unwrap().unwrap();
-
-        assert_eq!(post.id, 5);
-    }
-
-    {
-        let post = Mutation::create_post(
-            db,
-            post::Model {
-                id: 0,
-                title: "Title D".to_owned(),
-                text: "Text D".to_owned(),
-            },
-        )
-        .await
-        .unwrap();
-
         assert_eq!(
-            post,
-            post::ActiveModel {
-                id: sea_orm::ActiveValue::Unchanged(6),
-                title: sea_orm::ActiveValue::Unchanged("Title D".to_owned()),
-                text: sea_orm::ActiveValue::Unchanged("Text D".to_owned())
+            Query::find_client_by_id(db, 1).await.unwrap().unwrap(),
+            clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
             }
         );
     }
 
     {
-        let post = Mutation::update_post_by_id(
-            db,
-            1,
-            post::Model {
-                id: 1,
-                title: "New Title A".to_owned(),
-                text: "New Text A".to_owned(),
-            },
-        )
-        .await
-        .unwrap();
-
         assert_eq!(
-            post,
-            post::Model {
+            Query::find_client_by_email(db, "ivanjericevich96@gmail.com".to_owned()).await.unwrap().unwrap(),
+            clients::Model {
                 id: 1,
-                title: "New Title A".to_owned(),
-                text: "New Text A".to_owned(),
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+    }
+    // ----------------------------------------------------------------------
+
+    // Markets
+    {
+        assert_eq!(
+            Query::find_market_by_id(db, 1).await.unwrap().unwrap(),
+            markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
             }
         );
     }
 
     {
-        let result = Mutation::delete_post(db, 5).await.unwrap();
+        assert_eq!(
+            Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned()).await.unwrap().unwrap(),
+            markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+    }
+    // ----------------------------------------------------------------------
 
-        assert_eq!(result.rows_affected, 1);
+    // SubAccounts
+    {
+        assert_eq!(
+            Query::find_sub_account_by_id(db, 1).await.unwrap().unwrap(),
+            sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+            }
+        );
     }
 
     {
-        let result = Mutation::delete_all_posts(db).await.unwrap();
+        assert_eq!(
+            Query::find_sub_account_by_client_id(db, 1).await.unwrap(),
+            vec![(
+                clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                },
+                vec![
+                    sub_accounts::Model {
+                        id: 1,
+                        name: "Test".to_owned(),
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                        client_id: 1,
+                    }
+                ]
+            )]
 
-        assert_eq!(result.rows_affected, 5);
+        );
     }
+    // ----------------------------------------------------------------------
+
+    // Orders
+    // ----------------------------------------------------------------------
+
+    // TODO: Create tests for failures (e.g. None returns)
 }

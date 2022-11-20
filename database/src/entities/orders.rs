@@ -16,7 +16,6 @@ pub struct Model {
     pub filled_size: Option<f32>,
     pub side: OrderSide,
     pub r#type: OrderType,
-    pub client_id: Option<String>,
     pub status: OrderStatus,
     pub open_at: DateTime,
     pub closed_at: Option<DateTime>,
