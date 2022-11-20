@@ -12,7 +12,6 @@
         <li><a href="#overview">Overview</a></li>
         <ol>
           <li><a href="#stack">Stack</a></li>
-          <li><a href="#prerequisites">Prerequisites</a></li>
         </ol>
         <li><a href="#usage">Usage</a></li>
     </ol>
@@ -21,13 +20,14 @@
 
 <!-- OVERVIEW -->
 # Overview
+Routes can be found in the routes directory. All models and ORM operations are imported from the database library crate.
+Middleware can be found in the middleware directory. To view the OpenAPI schema navigate to ... To view the swagger docs navigate to ...
 
 <!-- STACK -->
 ## Stack
-
-<!-- PREREQUISITES -->
-## Prerequisites
-* Rust
+* Actix-Web
+* OpenAPI
+* JWT
 
 <!-- USAGE -->
 # Usage

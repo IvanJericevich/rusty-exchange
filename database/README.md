@@ -37,7 +37,6 @@
 
 <!-- PREREQUISITES -->
 ## Prerequisites
-* Rust
 * postgresql@14
 * (Optional) A UI for viewing/editing/managing databases such as PgAdmin or DBeaver
 

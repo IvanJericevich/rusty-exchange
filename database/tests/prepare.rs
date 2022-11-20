@@ -57,37 +57,5 @@ pub fn prepare_mock_db() -> DatabaseConnection {
                 }
             )],
         ])
-        // .append_query_results(vec![
-        //     vec![
-        //         sub_accounts::Model {
-        //             id: 1,
-        //             name: "Test".to_owned(),
-        //             created_at: "2022-01-01T00:00:00".parse().unwrap(),
-        //             client_id: 1,
-        //         }
-        //     ],
-        // ])
-        // .append_query_results(vec![
-        //     vec![
-        //         markets::Model {
-        //             id: 1,
-        //             base_currency: "BTC".to_owned(),
-        //             quote_currency: "USD".to_owned(),
-        //             price_increment: 0.01,
-        //             size_increment: 0.01,
-        //             created_at: "2022-01-01T00:00:00".parse().unwrap(),
-        //         }
-        //     ]
-        // ])
-        // .append_exec_results(vec![
-        //     MockExecResult {
-        //         last_insert_id: 6,
-        //         rows_affected: 1,
-        //     },
-        //     MockExecResult {
-        //         last_insert_id: 6,
-        //         rows_affected: 5,
-        //     },
-        // ])
         .into_connection()
 }

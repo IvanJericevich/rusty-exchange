@@ -154,6 +154,10 @@ async fn not_found(data: web::Data<AppState>, request: HttpRequest) -> Result<Ht
 async fn start() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     std::env::set_var("RUST_BACKTRACE", "1");
+    // tracing_subscriber::fmt()
+    // .with_max_level(tracing::Level::DEBUG)
+    // .with_test_writer()
+    // .init();
 
     // establish connection to database and apply migrations
     let db = Engine::connect().await.unwrap();
