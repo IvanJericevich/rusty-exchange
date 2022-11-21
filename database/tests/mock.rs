@@ -1,5 +1,9 @@
 mod prepare;
-use database::{clients, markets, sub_accounts, Query, Order, sea_orm_active_enums::{OrderSide, OrderType, OrderStatus}};
+use database::{
+    clients, markets,
+    sea_orm_active_enums::{OrderSide, OrderStatus, OrderType},
+    sub_accounts, Order, Query,
+};
 use prepare::prepare_mock_db;
 
 // ----------------------------------------------------------------------
@@ -22,7 +26,10 @@ async fn main() {
 
     {
         assert_eq!(
-            Query::find_client_by_email(db, "ivanjericevich96@gmail.com".to_owned()).await.unwrap().unwrap(),
+            Query::find_client_by_email(db, "ivanjericevich96@gmail.com".to_owned())
+                .await
+                .unwrap()
+                .unwrap(),
             clients::Model {
                 id: 1,
                 email: "ivanjericevich96@gmail.com".to_owned(),
@@ -49,7 +56,10 @@ async fn main() {
 
     {
         assert_eq!(
-            Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned()).await.unwrap().unwrap(),
+            Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned())
+                .await
+                .unwrap()
+                .unwrap(),
             markets::Model {
                 id: 1,
                 base_currency: "BTC".to_owned(),
@@ -84,16 +94,13 @@ async fn main() {
                     email: "ivanjericevich96@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                vec![
-                    sub_accounts::Model {
-                        id: 1,
-                        name: "Test".to_owned(),
-                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                        client_id: 1,
-                    }
-                ]
+                vec![sub_accounts::Model {
+                    id: 1,
+                    name: "Test".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    client_id: 1,
+                }]
             )]
-
         );
     }
     // ----------------------------------------------------------------------

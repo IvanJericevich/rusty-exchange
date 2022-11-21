@@ -1,9 +1,9 @@
 [package]
-name = "fullstack"
-version = "0.0.1"
+name = "fullstack-rs"
+version = "0.0.0"
 edition = "2021"
 authors = ["ivanjericevich96@gmail.com"]
-description = "A crate for the management of a postgresql database and the versions thereof using an asynchronous ORM"
+description = "A workspace for a fullstack app written entirely in Rust"
 readme = "README.md"
 keywords = [""]
 publish = false

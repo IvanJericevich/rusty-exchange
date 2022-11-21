@@ -1,15 +1,13 @@
 // TODO: Streams
-use sea_orm::{entity::prelude::*, FromQueryResult, JoinType, QuerySelect, QueryOrder};
+use sea_orm::{entity::prelude::*, FromQueryResult, JoinType, QueryOrder, QuerySelect};
 
 use crate::{
     entities::{
-        markets, markets::Entity as Markets,
-        sub_accounts, sub_accounts::Entity as SubAccounts,
-        orders, orders::Entity as Orders,
-        positions, positions::Entity as Positions,
-        clients, clients::Entity as Clients
+        clients, clients::Entity as Clients, markets, markets::Entity as Markets, orders,
+        orders::Entity as Orders, positions, positions::Entity as Positions, sub_accounts,
+        sub_accounts::Entity as SubAccounts,
     },
-    sea_orm_active_enums::{OrderSide, OrderType, OrderStatus}
+    sea_orm_active_enums::{OrderSide, OrderStatus, OrderType},
 };
 
 // ----------------------------------------------------------------------
@@ -41,62 +39,61 @@ pub struct Query;
 
 impl Query {
     // Clients
-    pub async fn find_client_by_id(
-        db: &DbConn,
-        id: i32
-    ) -> Result<Option<clients::Model>, DbErr> {
+    pub async fn find_client_by_id(db: &DbConn, id: i32) -> Result<Option<clients::Model>, DbErr> {
         Clients::find_by_id(id).one(db).await
     }
 
     pub async fn find_client_by_email(
         db: &DbConn,
-        email: String
+        email: String,
     ) -> Result<Option<clients::Model>, DbErr> {
         Clients::find()
             .filter(clients::Column::Email.eq(email))
-            .one(db).await
+            .one(db)
+            .await
     }
     // ----------------------------------------------------------------------
 
     // Markets
-    pub async fn find_market_by_id(
-        db: &DbConn,
-        id: i32
-    ) -> Result<Option<markets::Model>, DbErr> {
+    pub async fn find_market_by_id(db: &DbConn, id: i32) -> Result<Option<markets::Model>, DbErr> {
         Markets::find_by_id(id).one(db).await
     }
 
     pub async fn find_market_by_ticker(
         db: &DbConn,
         base_currency: String,
-        quote_currency: String
+        quote_currency: String,
     ) -> Result<Option<markets::Model>, DbErr> {
         Markets::find()
             .filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()))
             .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
-            .one(db).await
+            .one(db)
+            .await
     }
     // ----------------------------------------------------------------------
 
     // SubAccounts
     pub async fn find_sub_account_by_id(
         db: &DbConn,
-        id: i32
+        id: i32,
     ) -> Result<Option<sub_accounts::Model>, DbErr> {
         SubAccounts::find_by_id(id).one(db).await
     }
 
     pub async fn find_sub_account_by_client_id(
         db: &DbConn,
-        id: i32
-    ) -> Result<Vec<(clients::Model, Vec<sub_accounts::Model>)>, DbErr> { // One-to-many relationship
+        id: i32,
+    ) -> Result<Vec<(clients::Model, Vec<sub_accounts::Model>)>, DbErr> {
+        // One-to-many relationship
         Clients::find_by_id(id)
             .find_with_related(SubAccounts)
-            .all(db).await
+            .all(db)
+            .await
     }
     // ----------------------------------------------------------------------
 
     // Orders
+    #[allow(clippy::too_many_arguments)]
     pub async fn find_orders(
         db: &DbConn,
         side: Option<OrderSide>,
@@ -118,12 +115,10 @@ impl Query {
             .column(markets::Column::QuoteCurrency)
             .column(markets::Column::PriceIncrement)
             .column(markets::Column::SizeIncrement)
-            .order_by_asc(
-                match status {
-                    Some(OrderStatus::Open) => orders::Column::OpenAt,
-                    _ => orders::Column::ClosedAt,
-                }
-            );
+            .order_by_asc(match status {
+                Some(OrderStatus::Open) => orders::Column::OpenAt,
+                _ => orders::Column::ClosedAt,
+            });
 
         if let Some(x) = side {
             query = query.filter(orders::Column::Side.eq(x));
@@ -146,10 +141,12 @@ impl Query {
         if let Some(x) = quote_currency {
             query = query.filter(markets::Column::QuoteCurrency.eq(x.to_uppercase()));
         }
-            
-        query.into_model::<Order>()
+
+        query
+            .into_model::<Order>()
             .paginate(db, page_size.unwrap_or_default())
-            .fetch_page(page.unwrap_or(1) - 1).await
+            .fetch_page(page.unwrap_or(1) - 1)
+            .await
     }
     // ----------------------------------------------------------------------
 
@@ -182,8 +179,10 @@ impl Query {
             query = query.filter(markets::Column::QuoteCurrency.eq(x.to_uppercase()));
         }
 
-        query.paginate(db, page_size.unwrap_or_default())
-            .fetch_page(page.unwrap_or(1) - 1).await
+        query
+            .paginate(db, page_size.unwrap_or_default())
+            .fetch_page(page.unwrap_or(1) - 1)
+            .await
     }
     // ----------------------------------------------------------------------
 }

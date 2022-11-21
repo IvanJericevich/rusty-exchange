@@ -1,4 +1,8 @@
-use database::{clients, markets, sub_accounts, orders, sea_orm_active_enums::{OrderSide, OrderType, OrderStatus}};
+use database::{
+    clients, markets, orders,
+    sea_orm_active_enums::{OrderSide, OrderStatus, OrderType},
+    sub_accounts,
+};
 use sea_orm::*;
 
 #[cfg(feature = "mock")]
@@ -34,28 +38,24 @@ pub fn prepare_mock_db() -> DatabaseConnection {
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
             }],
         ])
-        .append_query_results(vec![
-            vec![sub_accounts::Model {
+        .append_query_results(vec![vec![sub_accounts::Model {
+            id: 1,
+            name: "Test".to_owned(),
+            created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            client_id: 1,
+        }]])
+        .append_query_results(vec![vec![(
+            clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            },
+            sub_accounts::Model {
                 id: 1,
                 name: "Test".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 client_id: 1,
-            }],
-        ])
-        .append_query_results(vec![
-            vec![(
-                clients::Model {
-                    id: 1,
-                    email: "ivanjericevich96@gmail.com".to_owned(),
-                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                },
-                sub_accounts::Model {
-                    id: 1,
-                    name: "Test".to_owned(),
-                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                    client_id: 1,
-                }
-            )],
-        ])
+            },
+        )]])
         .into_connection()
 }

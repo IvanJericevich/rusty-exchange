@@ -27,8 +27,9 @@ mod tests {
             None,
             None,
             Some(1),
-            Some(1)
-        )).unwrap();
+            Some(1),
+        ))
+        .unwrap();
 
         println!("{:?}", x)
     }
