@@ -2,9 +2,10 @@ use actix_web::{get, web, HttpResponse, Responder};
 use utoipa::OpenApi;
 
 #[utoipa::path(
-  responses(
-      (status = 200, description = "List of positions", body = [String])
-  )
+    context_path = "/positions",
+    responses(
+        (status = 200, description = "List of positions", body = [String])
+    )
 )]
 #[get("/")]
 pub async fn get() -> impl Responder {

@@ -15,25 +15,25 @@ pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/sub_accounts").configure(sub_accounts::router));
     cfg.service(web::scope("/orders").configure(orders::router));
     cfg.service(web::scope("/positions").configure(positions::router));
-    cfg.service(SwaggerUi::new("/swagger-ui/{_:.*}").urls(vec![
+    cfg.service(SwaggerUi::new("/swagger/{_:.*}").urls(vec![
         (
-            Url::with_primary("clients", "/clients/openapi.json", true),
+            Url::with_primary("clients", "/doc/clients-openapi.json", true),
             clients::ApiDoc::openapi(),
         ),
         (
-            Url::new("markets", "/markets/openapi.json"),
+            Url::new("markets", "/doc/markets-openapi.json"),
             markets::ApiDoc::openapi(),
         ),
         (
-            Url::new("orders", "/orders/openapi.json"),
+            Url::new("orders", "/doc/orders-openapi.json"),
             orders::ApiDoc::openapi(),
         ),
         (
-            Url::new("positions", "/positions/openapi.json"),
+            Url::new("positions", "/doc/positions-openapi.json"),
             positions::ApiDoc::openapi(),
         ),
         (
-            Url::new("sub_accounts", "/sub_accounts/openapi.json"),
+            Url::new("sub_accounts", "/doc/sub_accounts-openapi.json"),
             sub_accounts::ApiDoc::openapi(),
         ),
     ]));
