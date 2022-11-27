@@ -1,9 +1,5 @@
 mod prepare;
-use database::{
-    clients, markets,
-    sea_orm_active_enums::{OrderSide, OrderStatus, OrderType},
-    sub_accounts, Order, Query,
-};
+use database::{Client, Market, Query, SubAccount};
 use prepare::prepare_mock_db;
 
 // ----------------------------------------------------------------------
@@ -16,7 +12,7 @@ async fn main() {
     {
         assert_eq!(
             Query::find_client_by_id(db, 1).await.unwrap().unwrap(),
-            clients::Model {
+            Client {
                 id: 1,
                 email: "ivanjericevich96@gmail.com".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -30,7 +26,7 @@ async fn main() {
                 .await
                 .unwrap()
                 .unwrap(),
-            clients::Model {
+            Client {
                 id: 1,
                 email: "ivanjericevich96@gmail.com".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -43,7 +39,7 @@ async fn main() {
     {
         assert_eq!(
             Query::find_market_by_id(db, 1).await.unwrap().unwrap(),
-            markets::Model {
+            Market {
                 id: 1,
                 base_currency: "BTC".to_owned(),
                 quote_currency: "USD".to_owned(),
@@ -60,7 +56,7 @@ async fn main() {
                 .await
                 .unwrap()
                 .unwrap(),
-            markets::Model {
+            Market {
                 id: 1,
                 base_currency: "BTC".to_owned(),
                 quote_currency: "USD".to_owned(),
@@ -76,7 +72,7 @@ async fn main() {
     {
         assert_eq!(
             Query::find_sub_account_by_id(db, 1).await.unwrap().unwrap(),
-            sub_accounts::Model {
+            SubAccount {
                 id: 1,
                 name: "Test".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -89,12 +85,12 @@ async fn main() {
         assert_eq!(
             Query::find_sub_account_by_client_id(db, 1).await.unwrap(),
             vec![(
-                clients::Model {
+                Client {
                     id: 1,
                     email: "ivanjericevich96@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                vec![sub_accounts::Model {
+                vec![SubAccount {
                     id: 1,
                     name: "Test".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),

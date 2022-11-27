@@ -1,9 +1,10 @@
 // Bring modules into scope
 mod core; // Export core SQL queries/mutations
-mod entities; // Export models
-mod migrator; // Export migrator - one may want to run migrations in an API on start-up
+mod entities; // Do not export entities - re-export them in the "models" module
+pub mod migrator; // Export migrator - one may want to run migrations in an API on start-up
+pub mod models; // Export models
 
-// Export desired modules
+// Export required modules
 pub use crate::core::*;
-pub use crate::entities::*;
-pub use crate::migrator::*;
+pub use migrator::*;
+pub use models::*;

@@ -1,37 +1,12 @@
-// TODO: Streams
-use sea_orm::{entity::prelude::*, FromQueryResult, JoinType, QueryOrder, QuerySelect};
+use sea_orm::{entity::prelude::*, JoinType, QueryOrder, QuerySelect};
 
-use crate::{
-    entities::{
-        clients, clients::Entity as Clients, markets, markets::Entity as Markets, orders,
-        orders::Entity as Orders, positions, positions::Entity as Positions, sub_accounts,
-        sub_accounts::Entity as SubAccounts,
-    },
+use crate::entities::{
+    clients, markets, orders, positions,
     sea_orm_active_enums::{OrderSide, OrderStatus, OrderType},
+    sub_accounts,
 };
 
-// ----------------------------------------------------------------------
-
-#[derive(Debug, FromQueryResult, PartialEq)]
-pub struct Order {
-    pub id: i32,
-    pub price: f32,
-    pub size: f32,
-    pub filled_size: Option<f32>,
-    pub side: OrderSide,
-    pub r#type: OrderType,
-    pub status: OrderStatus,
-    pub open_at: DateTime,
-    pub closed_at: Option<DateTime>,
-    pub sub_account_id: i32,
-    pub market_id: i32,
-    pub base_currency: String,
-    pub quote_currency: String,
-    pub price_increment: f32,
-    pub size_increment: f32,
-    pub sub_account: String,
-    pub client_id: i32,
-}
+use crate::models::{Order, Position};
 
 // ----------------------------------------------------------------------
 
@@ -40,14 +15,14 @@ pub struct Query;
 impl Query {
     // Clients
     pub async fn find_client_by_id(db: &DbConn, id: i32) -> Result<Option<clients::Model>, DbErr> {
-        Clients::find_by_id(id).one(db).await
+        clients::Entity::find_by_id(id).one(db).await
     }
 
     pub async fn find_client_by_email(
         db: &DbConn,
         email: String,
     ) -> Result<Option<clients::Model>, DbErr> {
-        Clients::find()
+        clients::Entity::find()
             .filter(clients::Column::Email.eq(email))
             .one(db)
             .await
@@ -56,7 +31,7 @@ impl Query {
 
     // Markets
     pub async fn find_market_by_id(db: &DbConn, id: i32) -> Result<Option<markets::Model>, DbErr> {
-        Markets::find_by_id(id).one(db).await
+        markets::Entity::find_by_id(id).one(db).await
     }
 
     pub async fn find_market_by_ticker(
@@ -64,7 +39,7 @@ impl Query {
         base_currency: String,
         quote_currency: String,
     ) -> Result<Option<markets::Model>, DbErr> {
-        Markets::find()
+        markets::Entity::find()
             .filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()))
             .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
             .one(db)
@@ -77,7 +52,7 @@ impl Query {
         db: &DbConn,
         id: i32,
     ) -> Result<Option<sub_accounts::Model>, DbErr> {
-        SubAccounts::find_by_id(id).one(db).await
+        sub_accounts::Entity::find_by_id(id).one(db).await
     }
 
     pub async fn find_sub_account_by_client_id(
@@ -85,8 +60,8 @@ impl Query {
         id: i32,
     ) -> Result<Vec<(clients::Model, Vec<sub_accounts::Model>)>, DbErr> {
         // One-to-many relationship
-        Clients::find_by_id(id)
-            .find_with_related(SubAccounts)
+        clients::Entity::find_by_id(id)
+            .find_with_related(sub_accounts::Entity)
             .all(db)
             .await
     }
@@ -106,7 +81,7 @@ impl Query {
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
-        let mut query = Orders::find()
+        let mut query = orders::Entity::find()
             .join(JoinType::InnerJoin, orders::Relation::SubAccounts.def())
             .column_as(sub_accounts::Column::Name, "sub_account")
             .column(sub_accounts::Column::ClientId)
@@ -158,8 +133,8 @@ impl Query {
         quote_currency: Option<String>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<positions::Model>, DbErr> {
-        let mut query = Positions::find()
+    ) -> Result<Vec<Position>, DbErr> {
+        let mut query = positions::Entity::find()
             .join(JoinType::InnerJoin, positions::Relation::SubAccounts.def())
             .column_as(sub_accounts::Column::Name, "sub_account")
             .column(sub_accounts::Column::ClientId)
@@ -180,6 +155,7 @@ impl Query {
         }
 
         query
+            .into_model::<Position>()
             .paginate(db, page_size.unwrap_or_default())
             .fetch_page(page.unwrap_or(1) - 1)
             .await
