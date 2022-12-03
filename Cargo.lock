@@ -259,6 +259,7 @@ dependencies = [
  "actix-web",
  "cargo-watch",
  "database",
+ "derive_more",
  "serde",
  "serde_json",
  "tracing-subscriber",

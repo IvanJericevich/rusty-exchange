@@ -16,6 +16,7 @@ utoipa = { version = "2.3.0", features = ["actix_extras"] } # OpenApi schema
 utoipa-swagger-ui = { version = "2.0.1", features = ["actix-web"] } # Generate swagger UI
 database = { path = "../database" }
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] } # Log SQL commands
+derive_more = "0.99.17"
 
 [dev-dependencies]
 cargo-watch = "8.1.2"
