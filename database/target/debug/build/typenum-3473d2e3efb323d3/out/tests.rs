@@ -1,8 +1,7 @@
-
 extern crate typenum;
 
-use std::ops::*;
 use std::cmp::Ordering;
+use std::ops::*;
 use typenum::*;
 
 #[test]
@@ -15,7 +14,10 @@ fn test_0_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U0BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -27,7 +29,10 @@ fn test_0_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U0BitOrU0 = <<A as BitOr<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitOrU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -39,7 +44,10 @@ fn test_0_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U0BitXorU0 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitXorU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -169,7 +177,10 @@ fn test_0_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U0BitAndU1 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU1 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU1 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -181,7 +192,10 @@ fn test_0_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U0BitOrU1 = <<A as BitOr<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U0BitOrU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -193,7 +207,10 @@ fn test_0_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U0BitXorU1 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U0BitXorU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -313,7 +330,10 @@ fn test_0_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U0PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0PartialDivU1 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0PartialDivU1 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -347,7 +367,10 @@ fn test_0_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U0BitAndU2 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -359,7 +382,10 @@ fn test_0_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U0BitOrU2 = <<A as BitOr<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U0BitOrU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -371,7 +397,10 @@ fn test_0_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U0BitXorU2 = <<A as BitXor<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U0BitXorU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -491,7 +520,10 @@ fn test_0_PartialDiv_2() {
     #[allow(non_camel_case_types)]
     type U0PartialDivU2 = <<A as PartialDiv<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0PartialDivU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0PartialDivU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -525,7 +557,10 @@ fn test_0_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U0BitAndU3 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU3 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU3 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -537,7 +572,10 @@ fn test_0_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U0BitOrU3 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U0BitOrU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -549,7 +587,10 @@ fn test_0_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U0BitXorU3 = <<A as BitXor<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U0BitXorU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -669,7 +710,10 @@ fn test_0_PartialDiv_3() {
     #[allow(non_camel_case_types)]
     type U0PartialDivU3 = <<A as PartialDiv<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0PartialDivU3 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0PartialDivU3 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -703,7 +747,10 @@ fn test_0_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U0BitAndU4 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -715,7 +762,10 @@ fn test_0_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U0BitOrU4 = <<A as BitOr<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U0BitOrU4 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU4 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -727,7 +777,10 @@ fn test_0_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U0BitXorU4 = <<A as BitXor<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U0BitXorU4 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU4 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -847,7 +900,10 @@ fn test_0_PartialDiv_4() {
     #[allow(non_camel_case_types)]
     type U0PartialDivU4 = <<A as PartialDiv<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0PartialDivU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0PartialDivU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -881,7 +937,10 @@ fn test_0_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U0BitAndU5 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0BitAndU5 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitAndU5 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -893,7 +952,10 @@ fn test_0_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U0BitOrU5 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U0BitOrU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitOrU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -905,7 +967,10 @@ fn test_0_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U0BitXorU5 = <<A as BitXor<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U0BitXorU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0BitXorU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1025,7 +1090,10 @@ fn test_0_PartialDiv_5() {
     #[allow(non_camel_case_types)]
     type U0PartialDivU5 = <<A as PartialDiv<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U0PartialDivU5 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U0PartialDivU5 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1059,7 +1127,10 @@ fn test_1_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U1BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U1BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1071,7 +1142,10 @@ fn test_1_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U1BitOrU0 = <<A as BitOr<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitOrU0 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU0 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1083,7 +1157,10 @@ fn test_1_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U1BitXorU0 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitXorU0 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU0 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1213,7 +1290,10 @@ fn test_1_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U1BitAndU1 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitAndU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1225,7 +1305,10 @@ fn test_1_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U1BitOrU1 = <<A as BitOr<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitOrU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1237,7 +1320,10 @@ fn test_1_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U1BitXorU1 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U1BitXorU1 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU1 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1369,7 +1455,10 @@ fn test_1_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U1PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1PartialDivU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1PartialDivU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1403,7 +1492,10 @@ fn test_1_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U1BitAndU2 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U1BitAndU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1415,7 +1507,10 @@ fn test_1_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U1BitOrU2 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U1BitOrU2 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU2 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1427,7 +1522,10 @@ fn test_1_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U1BitXorU2 = <<A as BitXor<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U1BitXorU2 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU2 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1569,7 +1667,10 @@ fn test_1_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U1BitAndU3 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitAndU3 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU3 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1581,7 +1682,10 @@ fn test_1_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U1BitOrU3 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U1BitOrU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1593,7 +1697,10 @@ fn test_1_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U1BitXorU3 = <<A as BitXor<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U1BitXorU3 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU3 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1735,7 +1842,10 @@ fn test_1_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U1BitAndU4 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U1BitAndU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1747,7 +1857,10 @@ fn test_1_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U1BitOrU4 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U1BitOrU4 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU4 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1759,7 +1872,10 @@ fn test_1_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U1BitXorU4 = <<A as BitXor<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U1BitXorU4 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU4 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1901,7 +2017,10 @@ fn test_1_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U1BitAndU5 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U1BitAndU5 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitAndU5 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1913,7 +2032,10 @@ fn test_1_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U1BitOrU5 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U1BitOrU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitOrU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -1925,7 +2047,10 @@ fn test_1_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U1BitXorU5 = <<A as BitXor<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U1BitXorU5 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U1BitXorU5 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2067,7 +2192,10 @@ fn test_2_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U2BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U2BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2079,7 +2207,10 @@ fn test_2_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U2BitOrU0 = <<A as BitOr<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2BitOrU0 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU0 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2091,7 +2222,10 @@ fn test_2_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U2BitXorU0 = <<A as BitXor<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2BitXorU0 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU0 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2221,7 +2355,10 @@ fn test_2_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U2BitAndU1 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U2BitAndU1 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU1 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2233,7 +2370,10 @@ fn test_2_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U2BitOrU1 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U2BitOrU1 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU1 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2245,7 +2385,10 @@ fn test_2_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U2BitXorU1 = <<A as BitXor<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U2BitXorU1 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU1 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2377,7 +2520,10 @@ fn test_2_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U2PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2PartialDivU1 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2PartialDivU1 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2411,7 +2557,10 @@ fn test_2_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U2BitAndU2 = <<A as BitAnd<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2BitAndU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2423,7 +2572,10 @@ fn test_2_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U2BitOrU2 = <<A as BitOr<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2BitOrU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2435,7 +2587,10 @@ fn test_2_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U2BitXorU2 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U2BitXorU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2567,7 +2722,10 @@ fn test_2_PartialDiv_2() {
     #[allow(non_camel_case_types)]
     type U2PartialDivU2 = <<A as PartialDiv<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U2PartialDivU2 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2PartialDivU2 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2601,7 +2759,10 @@ fn test_2_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U2BitAndU3 = <<A as BitAnd<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U2BitAndU3 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU3 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2613,7 +2774,10 @@ fn test_2_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U2BitOrU3 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U2BitOrU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2625,7 +2789,10 @@ fn test_2_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U2BitXorU3 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U2BitXorU3 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU3 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2767,7 +2934,10 @@ fn test_2_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U2BitAndU4 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U2BitAndU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2779,7 +2949,10 @@ fn test_2_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U2BitOrU4 = <<A as BitOr<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U2BitOrU4 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU4 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2791,7 +2964,10 @@ fn test_2_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U2BitXorU4 = <<A as BitXor<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U2BitXorU4 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU4 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2933,7 +3109,10 @@ fn test_2_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U2BitAndU5 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U2BitAndU5 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitAndU5 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2945,7 +3124,10 @@ fn test_2_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U2BitOrU5 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U2BitOrU5 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitOrU5 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -2957,7 +3139,10 @@ fn test_2_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U2BitXorU5 = <<A as BitXor<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U2BitXorU5 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U2BitXorU5 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3099,7 +3284,10 @@ fn test_3_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U3BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U3BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3111,7 +3299,10 @@ fn test_3_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U3BitOrU0 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitOrU0 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU0 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3123,7 +3314,10 @@ fn test_3_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U3BitXorU0 = <<A as BitXor<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitXorU0 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU0 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3253,7 +3447,10 @@ fn test_3_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U3BitAndU1 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U3BitAndU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3265,7 +3462,10 @@ fn test_3_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U3BitOrU1 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitOrU1 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU1 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3277,7 +3477,10 @@ fn test_3_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U3BitXorU1 = <<A as BitXor<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U3BitXorU1 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU1 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3409,7 +3612,10 @@ fn test_3_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U3PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3PartialDivU1 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3PartialDivU1 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3443,7 +3649,10 @@ fn test_3_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U3BitAndU2 = <<A as BitAnd<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U3BitAndU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3455,7 +3664,10 @@ fn test_3_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U3BitOrU2 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitOrU2 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU2 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3467,7 +3679,10 @@ fn test_3_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U3BitXorU2 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U3BitXorU2 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU2 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3621,7 +3836,10 @@ fn test_3_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U3BitAndU3 = <<A as BitAnd<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitAndU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3633,7 +3851,10 @@ fn test_3_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U3BitOrU3 = <<A as BitOr<B>>::Output as Same<U3>>::Output;
 
-    assert_eq!(<U3BitOrU3 as Unsigned>::to_u64(), <U3 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU3 as Unsigned>::to_u64(),
+        <U3 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3645,7 +3866,10 @@ fn test_3_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U3BitXorU3 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U3BitXorU3 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU3 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3777,7 +4001,10 @@ fn test_3_PartialDiv_3() {
     #[allow(non_camel_case_types)]
     type U3PartialDivU3 = <<A as PartialDiv<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U3PartialDivU3 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3PartialDivU3 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3811,7 +4038,10 @@ fn test_3_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U3BitAndU4 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U3BitAndU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3823,7 +4053,10 @@ fn test_3_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U3BitOrU4 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U3BitOrU4 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU4 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3835,7 +4068,10 @@ fn test_3_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U3BitXorU4 = <<A as BitXor<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U3BitXorU4 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU4 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3977,7 +4213,10 @@ fn test_3_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U3BitAndU5 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U3BitAndU5 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitAndU5 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -3989,7 +4228,10 @@ fn test_3_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U3BitOrU5 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U3BitOrU5 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitOrU5 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4001,7 +4243,10 @@ fn test_3_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U3BitXorU5 = <<A as BitXor<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U3BitXorU5 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3BitXorU5 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4116,12 +4361,16 @@ fn test_3_Rem_5() {
 fn test_3_Pow_5() {
     type A = UInt<UInt<UTerm, B1>, B1>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
-    type U243 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>;
+    type U243 =
+        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>;
 
     #[allow(non_camel_case_types)]
     type U3PowU5 = <<A as Pow<B>>::Output as Same<U243>>::Output;
 
-    assert_eq!(<U3PowU5 as Unsigned>::to_u64(), <U243 as Unsigned>::to_u64());
+    assert_eq!(
+        <U3PowU5 as Unsigned>::to_u64(),
+        <U243 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4143,7 +4392,10 @@ fn test_4_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U4BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U4BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4155,7 +4407,10 @@ fn test_4_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U4BitOrU0 = <<A as BitOr<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4BitOrU0 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU0 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4167,7 +4422,10 @@ fn test_4_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U4BitXorU0 = <<A as BitXor<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4BitXorU0 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU0 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4297,7 +4555,10 @@ fn test_4_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U4BitAndU1 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U4BitAndU1 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU1 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4309,7 +4570,10 @@ fn test_4_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U4BitOrU1 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U4BitOrU1 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU1 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4321,7 +4585,10 @@ fn test_4_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U4BitXorU1 = <<A as BitXor<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U4BitXorU1 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU1 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4453,7 +4720,10 @@ fn test_4_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U4PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4PartialDivU1 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4PartialDivU1 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4487,7 +4757,10 @@ fn test_4_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U4BitAndU2 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U4BitAndU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4499,7 +4772,10 @@ fn test_4_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U4BitOrU2 = <<A as BitOr<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U4BitOrU2 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU2 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4511,7 +4787,10 @@ fn test_4_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U4BitXorU2 = <<A as BitXor<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U4BitXorU2 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU2 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4643,7 +4922,10 @@ fn test_4_PartialDiv_2() {
     #[allow(non_camel_case_types)]
     type U4PartialDivU2 = <<A as PartialDiv<B>>::Output as Same<U2>>::Output;
 
-    assert_eq!(<U4PartialDivU2 as Unsigned>::to_u64(), <U2 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4PartialDivU2 as Unsigned>::to_u64(),
+        <U2 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4677,7 +4959,10 @@ fn test_4_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U4BitAndU3 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U4BitAndU3 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU3 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4689,7 +4974,10 @@ fn test_4_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U4BitOrU3 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U4BitOrU3 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU3 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4701,7 +4989,10 @@ fn test_4_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U4BitXorU3 = <<A as BitXor<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U4BitXorU3 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU3 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4855,7 +5146,10 @@ fn test_4_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U4BitAndU4 = <<A as BitAnd<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4BitAndU4 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU4 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4867,7 +5161,10 @@ fn test_4_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U4BitOrU4 = <<A as BitOr<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4BitOrU4 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU4 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -4879,7 +5176,10 @@ fn test_4_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U4BitXorU4 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U4BitXorU4 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU4 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5011,19 +5311,28 @@ fn test_4_PartialDiv_4() {
     #[allow(non_camel_case_types)]
     type U4PartialDivU4 = <<A as PartialDiv<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U4PartialDivU4 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4PartialDivU4 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_4_Pow_4() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B0>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B0>;
-    type U256 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>;
+    type U256 = UInt<
+        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>,
+        B0,
+    >;
 
     #[allow(non_camel_case_types)]
     type U4PowU4 = <<A as Pow<B>>::Output as Same<U256>>::Output;
 
-    assert_eq!(<U4PowU4 as Unsigned>::to_u64(), <U256 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4PowU4 as Unsigned>::to_u64(),
+        <U256 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5045,7 +5354,10 @@ fn test_4_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U4BitAndU5 = <<A as BitAnd<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U4BitAndU5 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitAndU5 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5057,7 +5369,10 @@ fn test_4_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U4BitOrU5 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U4BitOrU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitOrU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5069,19 +5384,26 @@ fn test_4_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U4BitXorU5 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U4BitXorU5 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4BitXorU5 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_4_Shl_5() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B0>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
-    type U128 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>;
+    type U128 =
+        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>;
 
     #[allow(non_camel_case_types)]
     type U4ShlU5 = <<A as Shl<B>>::Output as Same<U128>>::Output;
 
-    assert_eq!(<U4ShlU5 as Unsigned>::to_u64(), <U128 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4ShlU5 as Unsigned>::to_u64(),
+        <U128 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5184,12 +5506,27 @@ fn test_4_Rem_5() {
 fn test_4_Pow_5() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B0>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
-    type U1024 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>;
+    type U1024 = UInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>,
+                    B0,
+                >,
+                B0,
+            >,
+            B0,
+        >,
+        B0,
+    >;
 
     #[allow(non_camel_case_types)]
     type U4PowU5 = <<A as Pow<B>>::Output as Same<U1024>>::Output;
 
-    assert_eq!(<U4PowU5 as Unsigned>::to_u64(), <U1024 as Unsigned>::to_u64());
+    assert_eq!(
+        <U4PowU5 as Unsigned>::to_u64(),
+        <U1024 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5211,7 +5548,10 @@ fn test_5_BitAnd_0() {
     #[allow(non_camel_case_types)]
     type U5BitAndU0 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U5BitAndU0 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU0 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5223,7 +5563,10 @@ fn test_5_BitOr_0() {
     #[allow(non_camel_case_types)]
     type U5BitOrU0 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitOrU0 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU0 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5235,7 +5578,10 @@ fn test_5_BitXor_0() {
     #[allow(non_camel_case_types)]
     type U5BitXorU0 = <<A as BitXor<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitXorU0 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU0 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5365,7 +5711,10 @@ fn test_5_BitAnd_1() {
     #[allow(non_camel_case_types)]
     type U5BitAndU1 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U5BitAndU1 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU1 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5377,7 +5726,10 @@ fn test_5_BitOr_1() {
     #[allow(non_camel_case_types)]
     type U5BitOrU1 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitOrU1 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU1 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5389,7 +5741,10 @@ fn test_5_BitXor_1() {
     #[allow(non_camel_case_types)]
     type U5BitXorU1 = <<A as BitXor<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U5BitXorU1 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU1 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5521,7 +5876,10 @@ fn test_5_PartialDiv_1() {
     #[allow(non_camel_case_types)]
     type U5PartialDivU1 = <<A as PartialDiv<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5PartialDivU1 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5PartialDivU1 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5555,7 +5913,10 @@ fn test_5_BitAnd_2() {
     #[allow(non_camel_case_types)]
     type U5BitAndU2 = <<A as BitAnd<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U5BitAndU2 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU2 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5567,7 +5928,10 @@ fn test_5_BitOr_2() {
     #[allow(non_camel_case_types)]
     type U5BitOrU2 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U5BitOrU2 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU2 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5579,7 +5943,10 @@ fn test_5_BitXor_2() {
     #[allow(non_camel_case_types)]
     type U5BitXorU2 = <<A as BitXor<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U5BitXorU2 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU2 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5733,7 +6100,10 @@ fn test_5_BitAnd_3() {
     #[allow(non_camel_case_types)]
     type U5BitAndU3 = <<A as BitAnd<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U5BitAndU3 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU3 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5745,7 +6115,10 @@ fn test_5_BitOr_3() {
     #[allow(non_camel_case_types)]
     type U5BitOrU3 = <<A as BitOr<B>>::Output as Same<U7>>::Output;
 
-    assert_eq!(<U5BitOrU3 as Unsigned>::to_u64(), <U7 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU3 as Unsigned>::to_u64(),
+        <U7 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5757,7 +6130,10 @@ fn test_5_BitXor_3() {
     #[allow(non_camel_case_types)]
     type U5BitXorU3 = <<A as BitXor<B>>::Output as Same<U6>>::Output;
 
-    assert_eq!(<U5BitXorU3 as Unsigned>::to_u64(), <U6 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU3 as Unsigned>::to_u64(),
+        <U6 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5889,7 +6265,10 @@ fn test_5_Pow_3() {
     #[allow(non_camel_case_types)]
     type U5PowU3 = <<A as Pow<B>>::Output as Same<U125>>::Output;
 
-    assert_eq!(<U5PowU3 as Unsigned>::to_u64(), <U125 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5PowU3 as Unsigned>::to_u64(),
+        <U125 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5911,7 +6290,10 @@ fn test_5_BitAnd_4() {
     #[allow(non_camel_case_types)]
     type U5BitAndU4 = <<A as BitAnd<B>>::Output as Same<U4>>::Output;
 
-    assert_eq!(<U5BitAndU4 as Unsigned>::to_u64(), <U4 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU4 as Unsigned>::to_u64(),
+        <U4 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5923,7 +6305,10 @@ fn test_5_BitOr_4() {
     #[allow(non_camel_case_types)]
     type U5BitOrU4 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitOrU4 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU4 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -5935,7 +6320,10 @@ fn test_5_BitXor_4() {
     #[allow(non_camel_case_types)]
     type U5BitXorU4 = <<A as BitXor<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U5BitXorU4 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU4 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6062,12 +6450,21 @@ fn test_5_Rem_4() {
 fn test_5_Pow_4() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B0>;
-    type U625 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>, B0>, B0>, B1>;
+    type U625 = UInt<
+        UInt<
+            UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>, B0>,
+            B0,
+        >,
+        B1,
+    >;
 
     #[allow(non_camel_case_types)]
     type U5PowU4 = <<A as Pow<B>>::Output as Same<U625>>::Output;
 
-    assert_eq!(<U5PowU4 as Unsigned>::to_u64(), <U625 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5PowU4 as Unsigned>::to_u64(),
+        <U625 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6089,7 +6486,10 @@ fn test_5_BitAnd_5() {
     #[allow(non_camel_case_types)]
     type U5BitAndU5 = <<A as BitAnd<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitAndU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitAndU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6101,7 +6501,10 @@ fn test_5_BitOr_5() {
     #[allow(non_camel_case_types)]
     type U5BitOrU5 = <<A as BitOr<B>>::Output as Same<U5>>::Output;
 
-    assert_eq!(<U5BitOrU5 as Unsigned>::to_u64(), <U5 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitOrU5 as Unsigned>::to_u64(),
+        <U5 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6113,19 +6516,26 @@ fn test_5_BitXor_5() {
     #[allow(non_camel_case_types)]
     type U5BitXorU5 = <<A as BitXor<B>>::Output as Same<U0>>::Output;
 
-    assert_eq!(<U5BitXorU5 as Unsigned>::to_u64(), <U0 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5BitXorU5 as Unsigned>::to_u64(),
+        <U0 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_5_Shl_5() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
-    type U160 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>, B0>, B0>, B0>, B0>, B0>;
+    type U160 =
+        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>, B0>, B0>, B0>, B0>, B0>;
 
     #[allow(non_camel_case_types)]
     type U5ShlU5 = <<A as Shl<B>>::Output as Same<U160>>::Output;
 
-    assert_eq!(<U5ShlU5 as Unsigned>::to_u64(), <U160 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5ShlU5 as Unsigned>::to_u64(),
+        <U160 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6245,19 +6655,40 @@ fn test_5_PartialDiv_5() {
     #[allow(non_camel_case_types)]
     type U5PartialDivU5 = <<A as PartialDiv<B>>::Output as Same<U1>>::Output;
 
-    assert_eq!(<U5PartialDivU5 as Unsigned>::to_u64(), <U1 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5PartialDivU5 as Unsigned>::to_u64(),
+        <U1 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_5_Pow_5() {
     type A = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
     type B = UInt<UInt<UInt<UTerm, B1>, B0>, B1>;
-    type U3125 = UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>, B1>, B1>, B0>, B1>, B0>, B1>;
+    type U3125 = UInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<
+                        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>, B1>,
+                        B1,
+                    >,
+                    B0,
+                >,
+                B1,
+            >,
+            B0,
+        >,
+        B1,
+    >;
 
     #[allow(non_camel_case_types)]
     type U5PowU5 = <<A as Pow<B>>::Output as Same<U3125>>::Output;
 
-    assert_eq!(<U5PowU5 as Unsigned>::to_u64(), <U3125 as Unsigned>::to_u64());
+    assert_eq!(
+        <U5PowU5 as Unsigned>::to_u64(),
+        <U3125 as Unsigned>::to_u64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6375,7 +6806,10 @@ fn test_N5_PartialDiv_N5() {
     #[allow(non_camel_case_types)]
     type N5PartialDivN5 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<N5PartialDivN5 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <N5PartialDivN5 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -6811,7 +7245,10 @@ fn test_N5_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type N5PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<P5>>::Output;
 
-    assert_eq!(<N5PartialDivN1 as Integer>::to_i64(), <P5 as Integer>::to_i64());
+    assert_eq!(
+        <N5PartialDivN1 as Integer>::to_i64(),
+        <P5 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -7023,7 +7460,10 @@ fn test_N5_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type N5PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<N5>>::Output;
 
-    assert_eq!(<N5PartialDivP1 as Integer>::to_i64(), <N5 as Integer>::to_i64());
+    assert_eq!(
+        <N5PartialDivP1 as Integer>::to_i64(),
+        <N5 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -7384,7 +7824,18 @@ fn test_N5_Rem_P4() {
 fn test_N5_Pow_P4() {
     type A = NInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
-    type P625 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>, B0>, B0>, B1>>;
+    type P625 = PInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>,
+                    B0,
+                >,
+                B0,
+            >,
+            B1,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type N5PowP4 = <<A as Pow<B>>::Output as Same<P625>>::Output;
@@ -7507,14 +7958,37 @@ fn test_N5_PartialDiv_P5() {
     #[allow(non_camel_case_types)]
     type N5PartialDivP5 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<N5PartialDivP5 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <N5PartialDivP5 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_N5_Pow_P5() {
     type A = NInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type N3125 = NInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>, B1>, B1>, B0>, B1>, B0>, B1>>;
+    type N3125 = NInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<
+                        UInt<
+                            UInt<
+                                UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>,
+                                B1,
+                            >,
+                            B1,
+                        >,
+                        B0,
+                    >,
+                    B1,
+                >,
+                B0,
+            >,
+            B1,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type N5PowP5 = <<A as Pow<B>>::Output as Same<N3125>>::Output;
@@ -7743,7 +8217,10 @@ fn test_N4_PartialDiv_N4() {
     #[allow(non_camel_case_types)]
     type N4PartialDivN4 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<N4PartialDivN4 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivN4 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -7967,7 +8444,10 @@ fn test_N4_PartialDiv_N2() {
     #[allow(non_camel_case_types)]
     type N4PartialDivN2 = <<A as PartialDiv<B>>::Output as Same<P2>>::Output;
 
-    assert_eq!(<N4PartialDivN2 as Integer>::to_i64(), <P2 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivN2 as Integer>::to_i64(),
+        <P2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -8085,7 +8565,10 @@ fn test_N4_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type N4PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<P4>>::Output;
 
-    assert_eq!(<N4PartialDivN1 as Integer>::to_i64(), <P4 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivN1 as Integer>::to_i64(),
+        <P4 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -8297,7 +8780,10 @@ fn test_N4_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type N4PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<N4>>::Output;
 
-    assert_eq!(<N4PartialDivP1 as Integer>::to_i64(), <N4 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivP1 as Integer>::to_i64(),
+        <N4 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -8427,7 +8913,10 @@ fn test_N4_PartialDiv_P2() {
     #[allow(non_camel_case_types)]
     type N4PartialDivP2 = <<A as PartialDiv<B>>::Output as Same<N2>>::Output;
 
-    assert_eq!(<N4PartialDivP2 as Integer>::to_i64(), <N2 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivP2 as Integer>::to_i64(),
+        <N2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -8675,14 +9164,22 @@ fn test_N4_PartialDiv_P4() {
     #[allow(non_camel_case_types)]
     type N4PartialDivP4 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<N4PartialDivP4 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <N4PartialDivP4 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_N4_Pow_P4() {
     type A = NInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
-    type P256 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>>;
+    type P256 = PInt<
+        UInt<
+            UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>,
+            B0,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type N4PowP4 = <<A as Pow<B>>::Output as Same<P256>>::Output;
@@ -8800,7 +9297,21 @@ fn test_N4_Rem_P5() {
 fn test_N4_Pow_P5() {
     type A = NInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type N1024 = NInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>>;
+    type N1024 = NInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<
+                        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>,
+                        B0,
+                    >,
+                    B0,
+                >,
+                B0,
+            >,
+            B0,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type N4PowP5 = <<A as Pow<B>>::Output as Same<N1024>>::Output;
@@ -9135,7 +9646,10 @@ fn test_N3_PartialDiv_N3() {
     #[allow(non_camel_case_types)]
     type N3PartialDivN3 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<N3PartialDivN3 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <N3PartialDivN3 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -9359,7 +9873,10 @@ fn test_N3_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type N3PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<P3>>::Output;
 
-    assert_eq!(<N3PartialDivN1 as Integer>::to_i64(), <P3 as Integer>::to_i64());
+    assert_eq!(
+        <N3PartialDivN1 as Integer>::to_i64(),
+        <P3 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -9571,7 +10088,10 @@ fn test_N3_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type N3PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<N3>>::Output;
 
-    assert_eq!(<N3PartialDivP1 as Integer>::to_i64(), <N3 as Integer>::to_i64());
+    assert_eq!(
+        <N3PartialDivP1 as Integer>::to_i64(),
+        <N3 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -9819,7 +10339,10 @@ fn test_N3_PartialDiv_P3() {
     #[allow(non_camel_case_types)]
     type N3PartialDivP3 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<N3PartialDivP3 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <N3PartialDivP3 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -10062,7 +10585,8 @@ fn test_N3_Rem_P5() {
 fn test_N3_Pow_P5() {
     type A = NInt<UInt<UInt<UTerm, B1>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type N243 = NInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>>;
+    type N243 =
+        NInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>>;
 
     #[allow(non_camel_case_types)]
     type N3PowP5 = <<A as Pow<B>>::Output as Same<N243>>::Output;
@@ -10503,7 +11027,10 @@ fn test_N2_PartialDiv_N2() {
     #[allow(non_camel_case_types)]
     type N2PartialDivN2 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<N2PartialDivN2 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <N2PartialDivN2 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -10621,7 +11148,10 @@ fn test_N2_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type N2PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<P2>>::Output;
 
-    assert_eq!(<N2PartialDivN1 as Integer>::to_i64(), <P2 as Integer>::to_i64());
+    assert_eq!(
+        <N2PartialDivN1 as Integer>::to_i64(),
+        <P2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -10833,7 +11363,10 @@ fn test_N2_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type N2PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<N2>>::Output;
 
-    assert_eq!(<N2PartialDivP1 as Integer>::to_i64(), <N2 as Integer>::to_i64());
+    assert_eq!(
+        <N2PartialDivP1 as Integer>::to_i64(),
+        <N2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -10963,7 +11496,10 @@ fn test_N2_PartialDiv_P2() {
     #[allow(non_camel_case_types)]
     type N2PartialDivP2 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<N2PartialDivP2 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <N2PartialDivP2 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -11919,7 +12455,10 @@ fn test_N1_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type N1PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<N1PartialDivN1 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <N1PartialDivN1 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -12143,7 +12682,10 @@ fn test_N1_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type N1PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<N1PartialDivP1 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <N1PartialDivP1 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -12745,7 +13287,10 @@ fn test__0_PartialDiv_N5() {
     #[allow(non_camel_case_types)]
     type _0PartialDivN5 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivN5 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivN5 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -12863,7 +13408,10 @@ fn test__0_PartialDiv_N4() {
     #[allow(non_camel_case_types)]
     type _0PartialDivN4 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivN4 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivN4 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -12981,7 +13529,10 @@ fn test__0_PartialDiv_N3() {
     #[allow(non_camel_case_types)]
     type _0PartialDivN3 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivN3 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivN3 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13099,7 +13650,10 @@ fn test__0_PartialDiv_N2() {
     #[allow(non_camel_case_types)]
     type _0PartialDivN2 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivN2 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivN2 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13217,7 +13771,10 @@ fn test__0_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type _0PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivN1 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivN1 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13429,7 +13986,10 @@ fn test__0_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type _0PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivP1 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivP1 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13559,7 +14119,10 @@ fn test__0_PartialDiv_P2() {
     #[allow(non_camel_case_types)]
     type _0PartialDivP2 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivP2 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivP2 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13689,7 +14252,10 @@ fn test__0_PartialDiv_P3() {
     #[allow(non_camel_case_types)]
     type _0PartialDivP3 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivP3 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivP3 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13819,7 +14385,10 @@ fn test__0_PartialDiv_P4() {
     #[allow(non_camel_case_types)]
     type _0PartialDivP4 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivP4 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivP4 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -13949,7 +14518,10 @@ fn test__0_PartialDiv_P5() {
     #[allow(non_camel_case_types)]
     type _0PartialDivP5 = <<A as PartialDiv<B>>::Output as Same<_0>>::Output;
 
-    assert_eq!(<_0PartialDivP5 as Integer>::to_i64(), <_0 as Integer>::to_i64());
+    assert_eq!(
+        <_0PartialDivP5 as Integer>::to_i64(),
+        <_0 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -14551,7 +15123,10 @@ fn test_P1_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type P1PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<P1PartialDivN1 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <P1PartialDivN1 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -14775,7 +15350,10 @@ fn test_P1_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type P1PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<P1PartialDivP1 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <P1PartialDivP1 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -15695,7 +16273,10 @@ fn test_P2_PartialDiv_N2() {
     #[allow(non_camel_case_types)]
     type P2PartialDivN2 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<P2PartialDivN2 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <P2PartialDivN2 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -15813,7 +16394,10 @@ fn test_P2_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type P2PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<N2>>::Output;
 
-    assert_eq!(<P2PartialDivN1 as Integer>::to_i64(), <N2 as Integer>::to_i64());
+    assert_eq!(
+        <P2PartialDivN1 as Integer>::to_i64(),
+        <N2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -16025,7 +16609,10 @@ fn test_P2_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type P2PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<P2>>::Output;
 
-    assert_eq!(<P2PartialDivP1 as Integer>::to_i64(), <P2 as Integer>::to_i64());
+    assert_eq!(
+        <P2PartialDivP1 as Integer>::to_i64(),
+        <P2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -16155,7 +16742,10 @@ fn test_P2_PartialDiv_P2() {
     #[allow(non_camel_case_types)]
     type P2PartialDivP2 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<P2PartialDivP2 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <P2PartialDivP2 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -16851,7 +17441,10 @@ fn test_P3_PartialDiv_N3() {
     #[allow(non_camel_case_types)]
     type P3PartialDivN3 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<P3PartialDivN3 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <P3PartialDivN3 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -17075,7 +17668,10 @@ fn test_P3_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type P3PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<N3>>::Output;
 
-    assert_eq!(<P3PartialDivN1 as Integer>::to_i64(), <N3 as Integer>::to_i64());
+    assert_eq!(
+        <P3PartialDivN1 as Integer>::to_i64(),
+        <N3 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -17287,7 +17883,10 @@ fn test_P3_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type P3PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<P3>>::Output;
 
-    assert_eq!(<P3PartialDivP1 as Integer>::to_i64(), <P3 as Integer>::to_i64());
+    assert_eq!(
+        <P3PartialDivP1 as Integer>::to_i64(),
+        <P3 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -17535,7 +18134,10 @@ fn test_P3_PartialDiv_P3() {
     #[allow(non_camel_case_types)]
     type P3PartialDivP3 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<P3PartialDivP3 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <P3PartialDivP3 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -17778,7 +18380,8 @@ fn test_P3_Rem_P5() {
 fn test_P3_Pow_P5() {
     type A = PInt<UInt<UInt<UTerm, B1>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type P243 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>>;
+    type P243 =
+        PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B1>, B1>, B0>, B0>, B1>, B1>>;
 
     #[allow(non_camel_case_types)]
     type P3PowP5 = <<A as Pow<B>>::Output as Same<P243>>::Output;
@@ -18007,7 +18610,10 @@ fn test_P4_PartialDiv_N4() {
     #[allow(non_camel_case_types)]
     type P4PartialDivN4 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<P4PartialDivN4 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivN4 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -18231,7 +18837,10 @@ fn test_P4_PartialDiv_N2() {
     #[allow(non_camel_case_types)]
     type P4PartialDivN2 = <<A as PartialDiv<B>>::Output as Same<N2>>::Output;
 
-    assert_eq!(<P4PartialDivN2 as Integer>::to_i64(), <N2 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivN2 as Integer>::to_i64(),
+        <N2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -18349,7 +18958,10 @@ fn test_P4_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type P4PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<N4>>::Output;
 
-    assert_eq!(<P4PartialDivN1 as Integer>::to_i64(), <N4 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivN1 as Integer>::to_i64(),
+        <N4 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -18561,7 +19173,10 @@ fn test_P4_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type P4PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<P4>>::Output;
 
-    assert_eq!(<P4PartialDivP1 as Integer>::to_i64(), <P4 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivP1 as Integer>::to_i64(),
+        <P4 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -18691,7 +19306,10 @@ fn test_P4_PartialDiv_P2() {
     #[allow(non_camel_case_types)]
     type P4PartialDivP2 = <<A as PartialDiv<B>>::Output as Same<P2>>::Output;
 
-    assert_eq!(<P4PartialDivP2 as Integer>::to_i64(), <P2 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivP2 as Integer>::to_i64(),
+        <P2 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -18939,14 +19557,22 @@ fn test_P4_PartialDiv_P4() {
     #[allow(non_camel_case_types)]
     type P4PartialDivP4 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<P4PartialDivP4 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <P4PartialDivP4 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_P4_Pow_P4() {
     type A = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
-    type P256 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>>;
+    type P256 = PInt<
+        UInt<
+            UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>,
+            B0,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type P4PowP4 = <<A as Pow<B>>::Output as Same<P256>>::Output;
@@ -19064,7 +19690,21 @@ fn test_P4_Rem_P5() {
 fn test_P4_Pow_P5() {
     type A = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type P1024 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>, B0>>;
+    type P1024 = PInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<
+                        UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>, B0>,
+                        B0,
+                    >,
+                    B0,
+                >,
+                B0,
+            >,
+            B0,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type P4PowP5 = <<A as Pow<B>>::Output as Same<P1024>>::Output;
@@ -19187,7 +19827,10 @@ fn test_P5_PartialDiv_N5() {
     #[allow(non_camel_case_types)]
     type P5PartialDivN5 = <<A as PartialDiv<B>>::Output as Same<N1>>::Output;
 
-    assert_eq!(<P5PartialDivN5 as Integer>::to_i64(), <N1 as Integer>::to_i64());
+    assert_eq!(
+        <P5PartialDivN5 as Integer>::to_i64(),
+        <N1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -19623,7 +20266,10 @@ fn test_P5_PartialDiv_N1() {
     #[allow(non_camel_case_types)]
     type P5PartialDivN1 = <<A as PartialDiv<B>>::Output as Same<N5>>::Output;
 
-    assert_eq!(<P5PartialDivN1 as Integer>::to_i64(), <N5 as Integer>::to_i64());
+    assert_eq!(
+        <P5PartialDivN1 as Integer>::to_i64(),
+        <N5 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -19835,7 +20481,10 @@ fn test_P5_PartialDiv_P1() {
     #[allow(non_camel_case_types)]
     type P5PartialDivP1 = <<A as PartialDiv<B>>::Output as Same<P5>>::Output;
 
-    assert_eq!(<P5PartialDivP1 as Integer>::to_i64(), <P5 as Integer>::to_i64());
+    assert_eq!(
+        <P5PartialDivP1 as Integer>::to_i64(),
+        <P5 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
@@ -20196,7 +20845,18 @@ fn test_P5_Rem_P4() {
 fn test_P5_Pow_P4() {
     type A = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>;
-    type P625 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>, B0>, B0>, B1>>;
+    type P625 = PInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B1>, B1>, B1>, B0>,
+                    B0,
+                >,
+                B0,
+            >,
+            B1,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type P5PowP4 = <<A as Pow<B>>::Output as Same<P625>>::Output;
@@ -20319,14 +20979,37 @@ fn test_P5_PartialDiv_P5() {
     #[allow(non_camel_case_types)]
     type P5PartialDivP5 = <<A as PartialDiv<B>>::Output as Same<P1>>::Output;
 
-    assert_eq!(<P5PartialDivP5 as Integer>::to_i64(), <P1 as Integer>::to_i64());
+    assert_eq!(
+        <P5PartialDivP5 as Integer>::to_i64(),
+        <P1 as Integer>::to_i64()
+    );
 }
 #[test]
 #[allow(non_snake_case)]
 fn test_P5_Pow_P5() {
     type A = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
     type B = PInt<UInt<UInt<UInt<UTerm, B1>, B0>, B1>>;
-    type P3125 = PInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>, B1>, B1>, B0>, B1>, B0>, B1>>;
+    type P3125 = PInt<
+        UInt<
+            UInt<
+                UInt<
+                    UInt<
+                        UInt<
+                            UInt<
+                                UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B1>, B0>, B0>, B0>, B0>,
+                                B1,
+                            >,
+                            B1,
+                        >,
+                        B0,
+                    >,
+                    B1,
+                >,
+                B0,
+            >,
+            B1,
+        >,
+    >;
 
     #[allow(non_camel_case_types)]
     type P5PowP5 = <<A as Pow<B>>::Output as Same<P3125>>::Output;
