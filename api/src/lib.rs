@@ -1,3 +1,4 @@
+mod models;
 mod routes;
 
 use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
@@ -6,7 +7,6 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 
 use routes::router;
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct AppState {
     db: DatabaseConnection,

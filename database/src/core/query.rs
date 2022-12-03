@@ -27,6 +27,17 @@ impl Query {
             .one(db)
             .await
     }
+
+    pub async fn find_clients(
+        db: &DbConn,
+        page: Option<u64>,
+        page_size: Option<u64>,
+    ) -> Result<Vec<clients::Model>, DbErr> {
+        clients::Entity::find()
+            .paginate(db, page_size.unwrap_or(1))
+            .fetch_page(page.unwrap_or(1) - 1)
+            .await
+    }
     // ----------------------------------------------------------------------
 
     // Markets
@@ -119,7 +130,7 @@ impl Query {
 
         query
             .into_model::<Order>()
-            .paginate(db, page_size.unwrap_or_default())
+            .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -156,7 +167,7 @@ impl Query {
 
         query
             .into_model::<Position>()
-            .paginate(db, page_size.unwrap_or_default())
+            .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }

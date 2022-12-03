@@ -1,3 +1,5 @@
+use crate::models::client::{Client, Request};
+
 use actix_web::{get, web, HttpResponse, Responder};
 
 use database::Query;
@@ -11,25 +13,7 @@ use crate::AppState;
 #[utoipa::path(
     context_path = "/clients",
     responses(
-        (status = 200, description = "Find a client with a matching ID", body = Client),
-    ),
-    params(
-        ("id", description = "ID of the client to search for")
-    ),
-)]
-#[get("/{id}")]
-async fn get_by_id(path: web::Path<i32>, data: web::Data<AppState>) -> impl Responder {
-    let id = path.into_inner();
-    let client = Query::find_client_by_id(&data.db, id)
-        .await
-        .expect(format!("Client with ID {} does not exist", id).as_str());
-    HttpResponse::Ok().json(client)
-}
-
-#[utoipa::path(
-    context_path = "/clients",
-    responses(
-        (status = 200, description = "Find a client with a matching email address", body = Client),
+        (status = 200, description = "Returns a client with the matching email address", body = Client),
     ),
     params(
         ("email", description = "Email of the client to search for")
@@ -40,27 +24,42 @@ async fn get_by_email(path: web::Path<String>, data: web::Data<AppState>) -> imp
     let email = path.into_inner();
     let client = Query::find_client_by_email(&data.db, email.clone())
         .await
-        .expect(format!("Client with email address {} does not exist", email).as_str());
+        .unwrap_or_else(|_| panic!("Failed to fetch client with email address {}", email));
+
     HttpResponse::Ok().json(client)
 }
 
 #[utoipa::path(
     context_path = "/clients",
+    params(Request),
     responses(
-        (status = 200, description = "Get all clients", body = Client),
+        (status = 200, description = "Returns all clients", body = [Client]),
     ),
 )]
-#[get("/")]
-async fn get() -> impl Responder {
-    HttpResponse::Ok().body("kjsdhchbdahsc")
+#[get("")]
+async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> impl Responder {
+    let clients = Query::find_clients(&data.db, query.page, query.page_size)
+        .await
+        .unwrap_or_else(|_| panic!("Failed to fetch clients"));
+
+    HttpResponse::Ok().json(clients)
 }
 
 // ----------------------------------------------------------------------
 
 #[derive(OpenApi)]
-#[openapi(paths(get))]
+#[openapi(
+    paths(index, get_by_email),
+    components(
+        schemas(Client)
+    ),
+    tags(
+        (name = "Clients", description = "Client management endpoints.")
+    ),
+)]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
-    cfg.service(get);
+    cfg.service(get_by_email);
+    cfg.service(index);
 }
