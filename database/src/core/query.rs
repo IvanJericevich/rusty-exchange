@@ -56,6 +56,17 @@ impl Query {
             .one(db)
             .await
     }
+
+    pub async fn find_markets(
+        db: &DbConn,
+        page: Option<u64>,
+        page_size: Option<u64>,
+    ) -> Result<Vec<markets::Model>, DbErr> {
+        markets::Entity::find()
+            .paginate(db, page_size.unwrap_or(1))
+            .fetch_page(page.unwrap_or(1) - 1)
+            .await
+    }
     // ----------------------------------------------------------------------
 
     // SubAccounts

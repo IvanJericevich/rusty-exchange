@@ -1,5 +1,6 @@
 // TODO: Improve error documentation
 // TODO: Make sure swagger-docs have the correct headers
+// TODO: Ensure correct type definitions for OpenApi models/schemas
 
 mod models;
 mod routes;

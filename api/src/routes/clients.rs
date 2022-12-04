@@ -1,13 +1,11 @@
-use crate::models::client::{Client, Request};
+use crate::models::{client::{Client, Request}, error::Exception};
+use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
 
 use database::Query;
 
 use utoipa::OpenApi;
-
-use crate::AppState;
-use crate::models::errors::Exception;
 
 // ----------------------------------------------------------------------
 
