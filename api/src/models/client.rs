@@ -4,6 +4,8 @@ use utoipa::{IntoParams, ToSchema};
 
 use serde::Deserialize;
 
+// ----------------------------------------------------------------------
+
 pub struct Client(BaseClient);
 
 impl ToSchema for Client {

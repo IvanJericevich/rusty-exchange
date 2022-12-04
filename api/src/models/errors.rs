@@ -4,6 +4,8 @@ use database::DbErr;
 
 use derive_more::{Display, Error};
 
+// ----------------------------------------------------------------------
+
 #[derive(Debug, Display, Error)]
 pub enum Exception {
     #[display(fmt = "An internal server error occurred. Please try again later.")]

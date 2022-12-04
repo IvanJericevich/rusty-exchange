@@ -1,4 +1,5 @@
 // TODO: Improve error documentation
+// TODO: Make sure swagger-docs have the correct headers
 
 mod models;
 mod routes;
@@ -8,6 +9,8 @@ use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
 use actix_web::{middleware::Logger, web, App, HttpServer};
 
 use routes::router;
+
+// ----------------------------------------------------------------------
 
 #[derive(Debug, Clone)]
 struct AppState {
