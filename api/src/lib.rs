@@ -1,3 +1,5 @@
+// TODO: Improve error documentation
+
 mod models;
 mod routes;
 
