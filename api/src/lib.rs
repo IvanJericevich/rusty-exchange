@@ -3,6 +3,7 @@
 // TODO: Ensure correct type definitions for OpenApi models/schemas
 // TODO: Improve OpenApi schema code
 // TODO: Research the use of clone() or copy(). Should String arguments be &str?
+// TODO: Make this a binary crate
 
 mod models;
 mod routes;
