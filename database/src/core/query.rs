@@ -77,14 +77,26 @@ impl Query {
         sub_accounts::Entity::find_by_id(id).one(db).await
     }
 
-    pub async fn find_sub_account_by_client_id(
+    pub async fn find_sub_accounts_by_client_id(
         db: &DbConn,
         id: i32,
-    ) -> Result<Vec<(clients::Model, Vec<sub_accounts::Model>)>, DbErr> {
-        // One-to-many relationship
-        clients::Entity::find_by_id(id)
-            .find_with_related(sub_accounts::Entity)
+    ) -> Result<Vec<sub_accounts::Model>, DbErr> {
+        let client: Option<clients::Model> = clients::Entity::find_by_id(id).one(db).await?;
+        let client = client.unwrap();
+
+        client.find_related(sub_accounts::Entity)
             .all(db)
+            .await
+    }
+
+    pub async fn find_sub_accounts(
+        db: &DbConn,
+        page: Option<u64>,
+        page_size: Option<u64>,
+    ) -> Result<Vec<sub_accounts::Model>, DbErr> {
+        sub_accounts::Entity::find()
+            .paginate(db, page_size.unwrap_or(1))
+            .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
     // ----------------------------------------------------------------------
