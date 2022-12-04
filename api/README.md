@@ -31,4 +31,4 @@ Middleware can be found in the middleware directory. To view the OpenAPI schema 
 
 <!-- USAGE -->
 # Usage
-During development it can be very handy to have cargo automatically recompile the code on changes. This can be accomplished very easily by running the binary with `cargo watch -x 'run'`
+During development it can be very handy to have cargo automatically recompile the code on changes. This can be accomplished very easily by running the binary with `cargo watch -x 'run'`. This requires that you install cargo-watch
