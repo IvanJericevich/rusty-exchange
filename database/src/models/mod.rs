@@ -1,5 +1,6 @@
 use sea_orm::prelude::*;
 use sea_orm::FromQueryResult;
+use serde::{Serialize, Deserialize};
 
 pub use crate::entities::{
     clients::Model as Client, markets::Model as Market, sea_orm_active_enums::*,
@@ -8,7 +9,7 @@ pub use crate::entities::{
 
 // ----------------------------------------------------------------------
 
-#[derive(Debug, FromQueryResult, PartialEq)]
+#[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Order {
     pub id: i32,
     pub price: f32,

@@ -12,7 +12,7 @@ publish = false
 actix-web = "4" # Framework
 serde = { version = "1.0.147", features = ["derive"] } # Serialization and deserialization of entities
 serde_json = "1.0.87"
-utoipa = { version = "2.3.0", features = ["actix_extras"] } # OpenApi schema
+utoipa = { version = "2.3.0", features = ["actix_extras", "json"] } # OpenApi schema
 utoipa-swagger-ui = { version = "2.0.1", features = ["actix-web"] } # Generate swagger UI
 database = { path = "../database" }
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] } # Log SQL commands

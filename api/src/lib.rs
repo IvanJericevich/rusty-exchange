@@ -1,6 +1,8 @@
 // TODO: Improve error documentation
 // TODO: Make sure swagger-docs have the correct headers
 // TODO: Ensure correct type definitions for OpenApi models/schemas
+// TODO: Improve OpenApi schema code
+// TODO: Research the use of clone() or copy(). Should String arguments be &str?
 
 mod models;
 mod routes;

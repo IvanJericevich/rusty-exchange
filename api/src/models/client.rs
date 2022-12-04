@@ -16,7 +16,7 @@ impl ToSchema for Client {
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::Integer)
                     .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::Int64,
+                        utoipa::openapi::KnownFormat::Int32,
                     ))),
             )
             .required("id")
@@ -35,7 +35,9 @@ impl ToSchema for Client {
             )
             .required("created_at")
             .example(Some(serde_json::json!({
-              "id": 1, "email": "example@gmail.com", "created_at": "2022-01-01T00:00:00"
+                "id": 1,
+                "email": "example@gmail.com",
+                "created_at": "2022-01-01T00:00:00"
             })))
             .into()
     }

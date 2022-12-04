@@ -16,7 +16,7 @@ impl ToSchema for SubAccount {
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::Integer)
                     .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::Int64,
+                        utoipa::openapi::KnownFormat::Int32,
                     ))),
             )
             .required("id")
@@ -33,7 +33,7 @@ impl ToSchema for SubAccount {
                         utoipa::openapi::KnownFormat::DateTime,
                     ))),
             )
-            .required("client_id")
+            .required("created_at")
             .property(
                 "client_id",
                 utoipa::openapi::ObjectBuilder::new()
@@ -42,9 +42,12 @@ impl ToSchema for SubAccount {
                         utoipa::openapi::KnownFormat::Int32,
                     ))),
             )
-            .required("created_at")
+            .required("client_id")
             .example(Some(serde_json::json!({
-              "id": 1, "name": "Test", "created_at": "2022-01-01T00:00:00", "client_id": 1
+                "id": 1,
+                "name": "Test",
+                "created_at": "2022-01-01T00:00:00",
+                "client_id": 1
             })))
             .into()
     }

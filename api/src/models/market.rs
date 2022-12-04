@@ -16,7 +16,7 @@ impl ToSchema for Market {
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::Integer)
                     .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::Int64,
+                        utoipa::openapi::KnownFormat::Int32,
                     ))),
             )
             .required("id")
@@ -32,12 +32,20 @@ impl ToSchema for Market {
             .required("quote_currency")
             .property(
                 "price_increment",
-                utoipa::openapi::Object::with_type(utoipa::openapi::SchemaType::Number),
+                utoipa::openapi::ObjectBuilder::new()
+                    .schema_type(utoipa::openapi::SchemaType::Number)
+                    .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
+                        utoipa::openapi::KnownFormat::Float,
+                    ))),
             )
             .required("price_increment")
             .property(
                 "size_increment",
-                utoipa::openapi::Object::with_type(utoipa::openapi::SchemaType::Number),
+                utoipa::openapi::ObjectBuilder::new()
+                    .schema_type(utoipa::openapi::SchemaType::Number)
+                    .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
+                        utoipa::openapi::KnownFormat::Float,
+                    ))),
             )
             .required("size_increment")
             .property(
@@ -50,7 +58,12 @@ impl ToSchema for Market {
             )
             .required("created_at")
             .example(Some(serde_json::json!({
-              "id": 1, "base_currency": "BTC", "quote_currency": "USD", "price_increment": 0.01, "size_increment": 0.01, "created_at": "2022-01-01T00:00:00"
+                "id": 1,
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01,
+                "created_at": "2022-01-01T00:00:00"
             })))
             .into()
     }

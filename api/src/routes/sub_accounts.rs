@@ -55,7 +55,7 @@ async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<
         schemas(SubAccount)
     ),
     tags(
-        (name = "Markets", description = "Sub-account management endpoints.")
+        (name = "Sub-accounts", description = "Sub-account management endpoints.")
     ),
 )]
 pub struct ApiDoc;
