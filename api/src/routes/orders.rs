@@ -13,12 +13,13 @@ use utoipa::OpenApi;
     context_path = "/sub_accounts",
     params(Request),
     responses(
-        (status = 200, description = "Returns all markets", body = [SubAccount]),
+        (status = 200, description = "Returns all orders", body = [Order]),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
     ),
 )]
 #[get("")]
 async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+
     let orders = Query::find_orders(
         &data.db,
         query.side.clone(),
@@ -28,6 +29,8 @@ async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<
         query.status.clone(),
         query.base_currency.clone(),
         query.quote_currency.clone(),
+        None,
+        None,
         query.page.clone(),
         query.page_size.clone()
     )

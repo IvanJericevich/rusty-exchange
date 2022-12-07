@@ -112,6 +112,8 @@ impl Query {
         status: Option<OrderStatus>,
         base_currency: Option<String>,
         quote_currency: Option<String>,
+        start_time: Option<DateTime>,
+        end_time: Option<DateTime>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
@@ -149,6 +151,18 @@ impl Query {
         }
         if let Some(x) = quote_currency {
             query = query.filter(markets::Column::QuoteCurrency.eq(x.to_uppercase()));
+        }
+        if let Some(x) = start_time {
+            query = query.filter(match status {
+                Some(OrderStatus::Open) => orders::Column::OpenAt.gt(x),
+                _ => orders::Column::ClosedAt.gt(x),
+            });
+        }
+        if let Some(x) = end_time {
+            query = query.filter(match status {
+                Some(OrderStatus::Open) => orders::Column::OpenAt.lt(x),
+                _ => orders::Column::ClosedAt.lt(x),
+            });
         }
 
         query

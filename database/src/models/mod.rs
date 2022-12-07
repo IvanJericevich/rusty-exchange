@@ -30,7 +30,7 @@ pub struct Order {
     pub client_id: i32,
 }
 
-#[derive(Debug, FromQueryResult, PartialEq)]
+#[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Position {
     pub id: i32,
     pub avg_entry_price: f32,

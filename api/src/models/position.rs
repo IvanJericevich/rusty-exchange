@@ -1,14 +1,14 @@
-use database::{Order as BaseOrder, OrderSide, OrderStatus, OrderType};
+use database::Position as BasePosition;
 
 use utoipa::{IntoParams, ToSchema};
 
-use serde::{Deserialize};
+use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
-pub struct Order(BaseOrder);
+pub struct Position(BasePosition);
 
-impl ToSchema for Order {
+impl ToSchema for Position {
     fn schema() -> utoipa::openapi::schema::Schema {
         utoipa::openapi::ObjectBuilder::new()
             .property(
@@ -21,14 +21,14 @@ impl ToSchema for Order {
             )
             .required("id")
             .property(
-                "price",
+                "avg_entry_price",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::Number)
                     .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
                         utoipa::openapi::KnownFormat::Float,
                     ))),
             )
-            .required("price")
+            .required("avg_entry_price")
             .property(
                 "size",
                 utoipa::openapi::ObjectBuilder::new()
@@ -39,51 +39,12 @@ impl ToSchema for Order {
             )
             .required("size")
             .property(
-                "filled_size",
-                utoipa::openapi::ObjectBuilder::new()
-                    .schema_type(utoipa::openapi::SchemaType::Number)
-                    .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::Float,
-                    ))),
-            )
-            .property(
                 "side",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::String)
                     .enum_values(Some(vec!["buy", "sell"]))
             )
             .required("side")
-            .property(
-                "type",
-                utoipa::openapi::ObjectBuilder::new()
-                    .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["limit", "market"]))
-            )
-            .required("type")
-            .property(
-                "status",
-                utoipa::openapi::ObjectBuilder::new()
-                    .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["closed", "open"]))
-            )
-            .required("status")
-            .property(
-                "open_at",
-                utoipa::openapi::ObjectBuilder::new()
-                    .schema_type(utoipa::openapi::SchemaType::String)
-                    .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::DateTime,
-                    ))),
-            )
-            .required("open_at")
-            .property(
-                "closed_at",
-                utoipa::openapi::ObjectBuilder::new()
-                    .schema_type(utoipa::openapi::SchemaType::String)
-                    .format(Some(utoipa::openapi::SchemaFormat::KnownFormat(
-                        utoipa::openapi::KnownFormat::DateTime,
-                    ))),
-            )
             .property(
                 "sub_account_id",
                 utoipa::openapi::ObjectBuilder::new()
@@ -146,22 +107,11 @@ impl ToSchema for Order {
             .required("client_id")
             .example(Some(serde_json::json!({
                 "id": 1,
-                "price": 100,
-                "size": 100,
-                "filled_size": 30,
-                "side": OrderSide::Buy,
-                "type": OrderType::Limit,
-                "status": OrderStatus::Open,
-                "open_at": "2022-01-01T00:00:00",
-                "closed_at": null,
-                "sub_account_id": 1,
-                "market_id": 1,
                 "base_currency": "BTC",
                 "quote_currency": "USD",
                 "price_increment": 0.01,
                 "size_increment": 0.01,
-                "sub_account": "Test",
-                "client_id": 1
+                "created_at": "2022-01-01T00:00:00"
             })))
             .into()
     }
@@ -169,15 +119,9 @@ impl ToSchema for Order {
 
 #[derive(Deserialize, IntoParams)]
 pub struct Request {
-    pub side: Option<OrderSide>,
-    pub r#type: Option<OrderType>,
     pub sub_account: Option<String>,
-    pub client_id: Option<i32>,
-    pub status: Option<OrderStatus>,
     pub base_currency: Option<String>,
     pub quote_currency: Option<String>,
-    start_time: Option<String>,
-    end_time: Option<String>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
 }

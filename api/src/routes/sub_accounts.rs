@@ -33,7 +33,7 @@ async fn get_by_client_id(path: web::Path<i32>, data: web::Data<AppState>) -> Re
     context_path = "/sub_accounts",
     params(Request),
     responses(
-        (status = 200, description = "Returns all markets", body = [SubAccount]),
+        (status = 200, description = "Returns all sub-accounts", body = [SubAccount]),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
     ),
 )]
