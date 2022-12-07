@@ -107,11 +107,17 @@ impl ToSchema for Position {
             .required("client_id")
             .example(Some(serde_json::json!({
                 "id": 1,
+                "avg_entry_price": 1.056,
+                "size": 100,
+                "side": "Buy",
+                "sub_account_id": 1,
+                "market_id": 1,
                 "base_currency": "BTC",
                 "quote_currency": "USD",
                 "price_increment": 0.01,
                 "size_increment": 0.01,
-                "created_at": "2022-01-01T00:00:00"
+                "sub_account": "Test",
+                "client_id": 1,
             })))
             .into()
     }

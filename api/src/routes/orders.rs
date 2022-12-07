@@ -10,7 +10,7 @@ use utoipa::OpenApi;
 // ----------------------------------------------------------------------
 
 #[utoipa::path(
-    context_path = "/sub_accounts",
+    context_path = "/orders",
     params(Request),
     responses(
         (status = 200, description = "Returns all orders", body = [Order]),

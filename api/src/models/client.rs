@@ -24,6 +24,7 @@ impl ToSchema for Client {
                 "email",
                 utoipa::openapi::Object::with_type(utoipa::openapi::SchemaType::String),
             )
+            // .title(Some("shjfchjwc"))
             .required("email")
             .property(
                 "created_at",

@@ -1,4 +1,4 @@
-use database::{Order as BaseOrder, OrderSide, OrderStatus, OrderType};
+use database::{Order as BaseOrder, OrderSide as BaseOrderSide, OrderStatus as BaseOrderStatus, OrderType as BaseOrderType};
 
 use utoipa::{IntoParams, ToSchema};
 
@@ -149,9 +149,9 @@ impl ToSchema for Order {
                 "price": 100,
                 "size": 100,
                 "filled_size": 30,
-                "side": OrderSide::Buy,
-                "type": OrderType::Limit,
-                "status": OrderStatus::Open,
+                "side": BaseOrderSide::Buy,
+                "type": BaseOrderType::Limit,
+                "status": BaseOrderStatus::Open,
                 "open_at": "2022-01-01T00:00:00",
                 "closed_at": null,
                 "sub_account_id": 1,
@@ -169,15 +169,15 @@ impl ToSchema for Order {
 
 #[derive(Deserialize, IntoParams)]
 pub struct Request {
-    pub side: Option<OrderSide>,
-    pub r#type: Option<OrderType>,
+    pub side: Option<BaseOrderSide>,
+    pub r#type: Option<BaseOrderType>,
     pub sub_account: Option<String>,
     pub client_id: Option<i32>,
-    pub status: Option<OrderStatus>,
+    pub status: Option<BaseOrderStatus>,
     pub base_currency: Option<String>,
     pub quote_currency: Option<String>,
-    start_time: Option<String>,
-    end_time: Option<String>,
+    pub start_time: Option<String>,
+    pub end_time: Option<String>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
 }

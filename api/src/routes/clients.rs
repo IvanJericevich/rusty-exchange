@@ -18,6 +18,7 @@ use utoipa::OpenApi;
     params(
         ("email", description = "Email of the client to search for")
     ),
+    tag = "Clients",
 )]
 #[get("/{email}")]
 async fn get_by_email(path: web::Path<String>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
@@ -36,6 +37,7 @@ async fn get_by_email(path: web::Path<String>, data: web::Data<AppState>) -> Res
         (status = 200, description = "Returns all clients", body = [Client]),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
     ),
+    tag = "Clients",
 )]
 #[get("")]
 async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
@@ -53,9 +55,6 @@ async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<
     paths(index, get_by_email),
     components(
         schemas(Client)
-    ),
-    tags(
-        (name = "Clients", description = "Client management endpoints.")
     ),
 )]
 pub struct ApiDoc;
