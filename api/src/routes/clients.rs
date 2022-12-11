@@ -1,4 +1,7 @@
-use crate::models::{client::{Client, Request}, error::Exception};
+use crate::models::{
+    client::{Client, Request},
+    error::Exception,
+};
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
@@ -21,7 +24,10 @@ use utoipa::OpenApi;
     tag = "Clients",
 )]
 #[get("/{email}")]
-async fn get_by_email(path: web::Path<String>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn get_by_email(
+    path: web::Path<String>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let email = path.into_inner();
     let client = Query::find_client_by_email(&data.db, email.clone())
         .await
@@ -40,7 +46,10 @@ async fn get_by_email(path: web::Path<String>, data: web::Data<AppState>) -> Res
     tag = "Clients",
 )]
 #[get("")]
-async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn index(
+    query: web::Query<Request>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let clients = Query::find_clients(&data.db, query.page.clone(), query.page_size.clone())
         .await
         .map_err(|e| Exception::Database(e))?;
@@ -51,12 +60,7 @@ async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<
 // ----------------------------------------------------------------------
 
 #[derive(OpenApi)]
-#[openapi(
-    paths(index, get_by_email),
-    components(
-        schemas(Client)
-    ),
-)]
+#[openapi(paths(index, get_by_email), components(schemas(Client)))]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {

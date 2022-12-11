@@ -1,6 +1,6 @@
 use sea_orm::prelude::*;
 use sea_orm::FromQueryResult;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub use crate::entities::{
     clients::Model as Client, markets::Model as Market, sea_orm_active_enums::*,

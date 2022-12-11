@@ -1,4 +1,7 @@
-use crate::models::{market::{Market, Request}, error::Exception};
+use crate::models::{
+    error::Exception,
+    market::{Market, Request},
+};
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
@@ -21,7 +24,10 @@ use utoipa::OpenApi;
     ),
 )]
 #[get("/{base_currency}/{quote_currency}")]
-async fn get_by_symbol(path: web::Path<(String, String)>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn get_by_symbol(
+    path: web::Path<(String, String)>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let (base_currency, quote_currency) = path.into_inner();
     let market = Query::find_market_by_ticker(&data.db, base_currency, quote_currency)
         .await
@@ -39,7 +45,10 @@ context_path = "/markets",
     ),
 )]
 #[get("")]
-async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn index(
+    query: web::Query<Request>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let markets = Query::find_markets(&data.db, query.page.clone(), query.page_size.clone())
         .await
         .map_err(|e| Exception::Database(e))?;

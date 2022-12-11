@@ -14,18 +14,23 @@ pub struct Query;
 
 impl Query {
     // Clients
-    pub async fn find_client_by_id(db: &DbConn, id: i32) -> Result<Option<clients::Model>, DbErr> {
-        clients::Entity::find_by_id(id).one(db).await
+    pub async fn find_client_by_id(db: &DbConn, id: i32) -> Result<clients::Model, DbErr> {
+        clients::Entity::find_by_id(id)
+            .one(db)
+            .await?
+            .ok_or(DbErr::RecordNotFound(format!(
+                "Client with id {id} does not exist."
+            )))
     }
 
-    pub async fn find_client_by_email(
-        db: &DbConn,
-        email: String,
-    ) -> Result<Option<clients::Model>, DbErr> {
+    pub async fn find_client_by_email(db: &DbConn, email: String) -> Result<clients::Model, DbErr> {
         clients::Entity::find()
-            .filter(clients::Column::Email.eq(email))
+            .filter(clients::Column::Email.eq(email.clone()))
             .one(db)
-            .await
+            .await?
+            .ok_or(DbErr::RecordNotFound(format!(
+                "Client with email {email} does not exist."
+            )))
     }
 
     pub async fn find_clients(
@@ -41,20 +46,28 @@ impl Query {
     // ----------------------------------------------------------------------
 
     // Markets
-    pub async fn find_market_by_id(db: &DbConn, id: i32) -> Result<Option<markets::Model>, DbErr> {
-        markets::Entity::find_by_id(id).one(db).await
+    pub async fn find_market_by_id(db: &DbConn, id: i32) -> Result<markets::Model, DbErr> {
+        markets::Entity::find_by_id(id)
+            .one(db)
+            .await?
+            .ok_or(DbErr::RecordNotFound(format!(
+                "Market with id {id} does not exist."
+            )))
     }
 
     pub async fn find_market_by_ticker(
         db: &DbConn,
         base_currency: String,
         quote_currency: String,
-    ) -> Result<Option<markets::Model>, DbErr> {
+    ) -> Result<markets::Model, DbErr> {
         markets::Entity::find()
             .filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()))
             .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
             .one(db)
-            .await
+            .await?
+            .ok_or(DbErr::RecordNotFound(format!(
+                "Market with symbol {base_currency}/{quote_currency} does not exist."
+            )))
     }
 
     pub async fn find_markets(
@@ -73,8 +86,13 @@ impl Query {
     pub async fn find_sub_account_by_id(
         db: &DbConn,
         id: i32,
-    ) -> Result<Option<sub_accounts::Model>, DbErr> {
-        sub_accounts::Entity::find_by_id(id).one(db).await
+    ) -> Result<sub_accounts::Model, DbErr> {
+        sub_accounts::Entity::find_by_id(id)
+            .one(db)
+            .await?
+            .ok_or(DbErr::RecordNotFound(format!(
+                "Sub-account with id {id} does not exist."
+            )))
     }
 
     pub async fn find_sub_accounts_by_client_id(
@@ -82,11 +100,10 @@ impl Query {
         id: i32,
     ) -> Result<Vec<sub_accounts::Model>, DbErr> {
         let client: Option<clients::Model> = clients::Entity::find_by_id(id).one(db).await?;
-        let client = client.unwrap();
-
-        client.find_related(sub_accounts::Entity)
-            .all(db)
-            .await
+        match client {
+            Some(client) => client.find_related(sub_accounts::Entity).all(db).await,
+            None => Err(DbErr::RecordNotFound("Client does not exist.".to_owned())),
+        }
     }
 
     pub async fn find_sub_accounts(

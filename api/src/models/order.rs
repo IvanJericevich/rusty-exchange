@@ -1,8 +1,11 @@
-use database::{Order as BaseOrder, OrderSide as BaseOrderSide, OrderStatus as BaseOrderStatus, OrderType as BaseOrderType};
+use database::{
+    Order as BaseOrder, OrderSide as BaseOrderSide, OrderStatus as BaseOrderStatus,
+    OrderType as BaseOrderType,
+};
 
 use utoipa::{IntoParams, ToSchema};
 
-use serde::{Deserialize};
+use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
@@ -50,21 +53,21 @@ impl ToSchema for Order {
                 "side",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["buy", "sell"]))
+                    .enum_values(Some(vec!["buy", "sell"])),
             )
             .required("side")
             .property(
                 "type",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["limit", "market"]))
+                    .enum_values(Some(vec!["limit", "market"])),
             )
             .required("type")
             .property(
                 "status",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["closed", "open"]))
+                    .enum_values(Some(vec!["closed", "open"])),
             )
             .required("status")
             .property(

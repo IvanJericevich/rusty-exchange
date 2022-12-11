@@ -1,4 +1,7 @@
-use actix_web::{HttpResponse, ResponseError, http::{header, StatusCode}};
+use actix_web::{
+    http::{header, StatusCode},
+    HttpResponse, ResponseError,
+};
 
 use database::DbErr;
 

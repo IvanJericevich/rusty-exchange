@@ -1,4 +1,7 @@
-use crate::models::{sub_account::{SubAccount, Request}, error::Exception};
+use crate::models::{
+    error::Exception,
+    sub_account::{Request, SubAccount},
+};
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
@@ -20,7 +23,10 @@ use utoipa::OpenApi;
     ),
 )]
 #[get("/{client_id}")]
-async fn get_by_client_id(path: web::Path<i32>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn get_by_client_id(
+    path: web::Path<i32>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let client_id = path.into_inner();
     let sub_accounts = Query::find_sub_accounts_by_client_id(&data.db, client_id)
         .await
@@ -38,10 +44,14 @@ async fn get_by_client_id(path: web::Path<i32>, data: web::Data<AppState>) -> Re
     ),
 )]
 #[get("")]
-async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
-    let sub_accounts = Query::find_sub_accounts(&data.db, query.page.clone(), query.page_size.clone())
-        .await
-        .map_err(|e| Exception::Database(e))?;
+async fn index(
+    query: web::Query<Request>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
+    let sub_accounts =
+        Query::find_sub_accounts(&data.db, query.page.clone(), query.page_size.clone())
+            .await
+            .map_err(|e| Exception::Database(e))?;
 
     Ok(HttpResponse::Ok().json(sub_accounts))
 }

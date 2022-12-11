@@ -1,4 +1,7 @@
-use crate::models::{position::{Position, Request}, error::Exception};
+use crate::models::{
+    error::Exception,
+    position::{Position, Request},
+};
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
@@ -18,17 +21,20 @@ use utoipa::OpenApi;
     ),
 )]
 #[get("")]
-async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
+async fn index(
+    query: web::Query<Request>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let positions = Query::find_positions(
         &data.db,
         query.sub_account.clone(),
         query.base_currency.clone(),
         query.quote_currency.clone(),
         query.page.clone(),
-        query.page_size.clone()
+        query.page_size.clone(),
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(|e| Exception::Database(e))?;
 
     Ok(HttpResponse::Ok().json(positions))
 }

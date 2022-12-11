@@ -1,4 +1,7 @@
-use crate::models::{order::{Order, Request}, error::Exception};
+use crate::models::{
+    error::Exception,
+    order::{Order, Request},
+};
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
@@ -18,8 +21,10 @@ use utoipa::OpenApi;
     ),
 )]
 #[get("")]
-async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<HttpResponse, Exception> {
-
+async fn index(
+    query: web::Query<Request>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
     let orders = Query::find_orders(
         &data.db,
         query.side.clone(),
@@ -32,10 +37,10 @@ async fn index(query: web::Query<Request>, data: web::Data<AppState>) -> Result<
         None,
         None,
         query.page.clone(),
-        query.page_size.clone()
+        query.page_size.clone(),
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(|e| Exception::Database(e))?;
 
     Ok(HttpResponse::Ok().json(orders))
 }

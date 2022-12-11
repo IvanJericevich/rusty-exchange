@@ -42,7 +42,7 @@ impl ToSchema for Position {
                 "side",
                 utoipa::openapi::ObjectBuilder::new()
                     .schema_type(utoipa::openapi::SchemaType::String)
-                    .enum_values(Some(vec!["buy", "sell"]))
+                    .enum_values(Some(vec!["buy", "sell"])),
             )
             .required("side")
             .property(
