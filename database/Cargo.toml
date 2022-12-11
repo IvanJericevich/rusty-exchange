@@ -18,6 +18,7 @@ sea-orm = { version = "^0.10.0", features = ["sqlx-postgres", "runtime-async-std
 sea-orm-migration = { version = "^0.10.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
 serde = { version = "1", features = ["derive"] } # Serialization and deserialization of entities
+chrono = "0.4.23"
 
 [features]
 mock = ["sea-orm/mock"]
