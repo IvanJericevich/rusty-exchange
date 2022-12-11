@@ -192,7 +192,7 @@ impl Mutation {
         }
     }
 
-    pub async fn update_order_by_client_order_id(
+    pub async fn update_order_by_client_order_id( // TODO: What about updating open orders or market/limit orders
         db: &DbConn,
         client_order_id: i32,
         price: Option<f32>,
@@ -202,7 +202,7 @@ impl Mutation {
         status: Option<OrderStatus>,
     ) -> Result<(), DbErr> {
         let order: Option<orders::Model> = orders::Entity::find()
-            .filter(sub_accounts::Column::ClientId.eq(client_order_id))
+            .filter(orders::Column::ClientOrderId.eq(client_order_id))
             .one(db)
             .await?;
 
@@ -226,7 +226,7 @@ impl Mutation {
                 Ok(())
             }
             None => Err(DbErr::RecordNotFound(format!(
-                "Order with id {client_order_id} does not exist."
+                "Order with client order id {client_order_id} does not exist."
             ))),
         }
     }

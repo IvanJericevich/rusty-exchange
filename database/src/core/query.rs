@@ -122,6 +122,7 @@ impl Query {
     #[allow(clippy::too_many_arguments)]
     pub async fn find_orders(
         db: &DbConn,
+        client_order_id: Option<String>,
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
         sub_account: Option<String>,
@@ -147,38 +148,40 @@ impl Query {
                 Some(OrderStatus::Open) => orders::Column::OpenAt,
                 _ => orders::Column::ClosedAt,
             });
-
-        if let Some(x) = side {
-            query = query.filter(orders::Column::Side.eq(x));
+        if let Some(client_order_id) = client_order_id {
+            query = query.filter(orders::Column::ClientOrderId.eq(client_order_id));
         }
-        if let Some(x) = r#type {
-            query = query.filter(orders::Column::Type.eq(x));
+        if let Some(side) = side {
+            query = query.filter(orders::Column::Side.eq(side));
         }
-        if let Some(x) = sub_account {
-            query = query.filter(sub_accounts::Column::Name.eq(x));
+        if let Some(r#type) = r#type {
+            query = query.filter(orders::Column::Type.eq(r#type));
         }
-        if let Some(x) = client_id {
-            query = query.filter(sub_accounts::Column::ClientId.eq(x));
+        if let Some(sub_account) = sub_account {
+            query = query.filter(sub_accounts::Column::Name.eq(sub_account));
         }
-        if let Some(x) = status.clone() {
-            query = query.filter(orders::Column::Status.eq(x));
+        if let Some(client_id) = client_id {
+            query = query.filter(sub_accounts::Column::ClientId.eq(client_id));
         }
-        if let Some(x) = base_currency {
-            query = query.filter(markets::Column::BaseCurrency.eq(x.to_uppercase()));
+        if let Some(status) = status.clone() {
+            query = query.filter(orders::Column::Status.eq(status));
         }
-        if let Some(x) = quote_currency {
-            query = query.filter(markets::Column::QuoteCurrency.eq(x.to_uppercase()));
+        if let Some(base_currency) = base_currency {
+            query = query.filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()));
         }
-        if let Some(x) = start_time {
+        if let Some(quote_currency) = quote_currency {
+            query = query.filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()));
+        }
+        if let Some(start_time) = start_time {
             query = query.filter(match status {
-                Some(OrderStatus::Open) => orders::Column::OpenAt.gt(x),
-                _ => orders::Column::ClosedAt.gt(x),
+                Some(OrderStatus::Open) => orders::Column::OpenAt.gt(start_time),
+                _ => orders::Column::ClosedAt.gt(start_time),
             });
         }
-        if let Some(x) = end_time {
+        if let Some(end_time) = end_time {
             query = query.filter(match status {
-                Some(OrderStatus::Open) => orders::Column::OpenAt.lt(x),
-                _ => orders::Column::ClosedAt.lt(x),
+                Some(OrderStatus::Open) => orders::Column::OpenAt.lt(end_time),
+                _ => orders::Column::ClosedAt.lt(end_time),
             });
         }
 
@@ -209,14 +212,14 @@ impl Query {
             .column(markets::Column::PriceIncrement)
             .column(markets::Column::SizeIncrement);
 
-        if let Some(x) = sub_account {
-            query = query.filter(sub_accounts::Column::Name.eq(x));
+        if let Some(sub_account) = sub_account {
+            query = query.filter(sub_accounts::Column::Name.eq(sub_account));
         }
-        if let Some(x) = base_currency {
-            query = query.filter(markets::Column::BaseCurrency.eq(x.to_uppercase()));
+        if let Some(base_currency) = base_currency {
+            query = query.filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()));
         }
-        if let Some(x) = quote_currency {
-            query = query.filter(markets::Column::QuoteCurrency.eq(x.to_uppercase()));
+        if let Some(quote_currency) = quote_currency {
+            query = query.filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()));
         }
 
         query

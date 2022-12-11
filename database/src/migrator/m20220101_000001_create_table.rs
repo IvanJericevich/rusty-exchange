@@ -17,6 +17,15 @@ impl MigrationTrait for Migration {
         manager
             .create_type(
                 Type::create()
+                    .as_enum(SubAccountStatus::Table)
+                    .values([SubAccountStatus::Active, SubAccountStatus::Inactive])
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_type(
+                Type::create()
                     .as_enum(OrderSide::Table)
                     .values([OrderSide::Buy, OrderSide::Sell])
                     .to_owned(),
@@ -105,6 +114,11 @@ impl MigrationTrait for Migration {
                             .from(SubAccounts::Table, SubAccounts::ClientId)
                             .to(Clients::Table, Clients::Id),
                     )
+                    .col(
+                        ColumnDef::new(SubAccounts::Status)
+                            .enumeration(SubAccountStatus::Table, [SubAccountStatus::Active, SubAccountStatus::Inactive])
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -121,8 +135,10 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Orders::ClientOrderId).string())
                     .col(ColumnDef::new(Orders::Price).float().not_null())
                     .col(ColumnDef::new(Orders::Size).float().not_null())
+                    .col(ColumnDef::new(Orders::QuoteSize).float().not_null())
                     .col(ColumnDef::new(Orders::FilledSize).float())
                     .col(
                         ColumnDef::new(Orders::Side)
@@ -147,7 +163,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Orders::SubAccountId).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .name("subaccount_id")
+                            .name("sub_account_id")
                             .from(Orders::Table, Orders::SubAccountId)
                             .to(SubAccounts::Table, SubAccounts::Id),
                     )
@@ -184,7 +200,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Orders::SubAccountId).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
-                            .name("subaccount_id")
+                            .name("sub_account_id")
                             .from(Positions::Table, Positions::SubAccountId)
                             .to(SubAccounts::Table, SubAccounts::Id),
                     )
@@ -216,7 +232,7 @@ impl MigrationTrait for Migration {
             .drop_foreign_key(
                 ForeignKey::drop()
                     .table(Orders::Table)
-                    .name("subaccount_id")
+                    .name("sub_account_id")
                     .name("market_id")
                     .to_owned(),
             )
@@ -226,7 +242,7 @@ impl MigrationTrait for Migration {
             .drop_foreign_key(
                 ForeignKey::drop()
                     .table(Positions::Table)
-                    .name("subaccount_id")
+                    .name("sub_account_id")
                     .name("market_id")
                     .to_owned(),
             )
@@ -242,6 +258,10 @@ impl MigrationTrait for Migration {
                     .table(Positions::Table)
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .drop_type(Type::drop().name(SubAccountStatus::Table).to_owned())
             .await?;
 
         manager
@@ -282,12 +302,22 @@ enum Markets {
 }
 
 #[derive(Iden)]
+pub enum SubAccountStatus {
+    Table,
+    #[iden = "active"]
+    Active,
+    #[iden = "inactive"]
+    Inactive,
+}
+
+#[derive(Iden)]
 enum SubAccounts {
     Table,
     Id, // Primary key
     Name,
     CreatedAt,
     ClientId, // Foreign key
+    Status
 }
 
 #[derive(Iden)]
@@ -321,8 +351,10 @@ pub enum OrderStatus {
 enum Orders {
     Table,
     Id, // Primary key
+    ClientOrderId,
     Price,
     Size,
+    QuoteSize,
     FilledSize,
     Side,
     Type,
