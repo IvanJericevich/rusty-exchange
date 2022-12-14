@@ -1,5 +1,5 @@
-use crate::entities::{clients, markets, orders, sub_accounts};
-use crate::OrderStatus;
+use crate::entities::{clients, markets, orders, sea_orm_active_enums, sub_accounts};
+use crate::{OrderStatus, SubAccountStatus};
 use chrono::Utc;
 use sea_orm::prelude::*;
 use sea_orm::ActiveValue::Set;
@@ -100,6 +100,7 @@ impl Mutation {
                     name: Set(name.to_owned()),
                     created_at: Set(Utc::now().naive_utc()),
                     client_id: Set(client_id),
+                    status: Set(SubAccountStatus::Active),
                     ..Default::default()
                 }
                 .insert(db)
@@ -118,7 +119,8 @@ impl Mutation {
         db: &DbConn,
         client_id: i32,
         sub_account_id: i32,
-        name: String,
+        name: Option<String>,
+        status: Option<SubAccountStatus>,
     ) -> Result<(), DbErr> {
         let client = clients::Entity::find_by_id(client_id).one(db).await?;
         let sub_account: Option<sub_accounts::Model> =
@@ -128,13 +130,18 @@ impl Mutation {
         match (client, sub_account) {
             (Some(_), Some(sub_account)) => {
                 let mut sub_account: sub_accounts::ActiveModel = sub_account.into();
-                sub_account.name = Set(name.to_owned());
+                if let Some(name) = name {
+                    sub_account.name = Set(name.to_owned());
+                }
+                if let Some(status) = status {
+                    sub_account.status = Set(status);
+                }
                 Ok(())
             }
             (None, _) => Err(DbErr::RecordNotFound(format!(
                 "Client with id {client_id} does not exist."
             ))),
-            (_, None) => Err(DbErr::Custom(format!(
+            (_, None) => Err(DbErr::RecordNotFound(format!(
                 "Sub-account with id {sub_account_id} does not exist."
             ))),
         }
@@ -192,7 +199,8 @@ impl Mutation {
         }
     }
 
-    pub async fn update_order_by_client_order_id( // TODO: What about updating open orders or market/limit orders
+    pub async fn update_order_by_client_order_id(
+        // TODO: What about updating open orders or market/limit orders
         db: &DbConn,
         client_order_id: i32,
         price: Option<f32>,

@@ -11,8 +11,10 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    pub client_order_id: Option<String>,
     pub price: f32,
     pub size: f32,
+    pub quote_size: f32,
     pub filled_size: Option<f32>,
     pub side: OrderSide,
     pub r#type: OrderType,

@@ -116,7 +116,10 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(SubAccounts::Status)
-                            .enumeration(SubAccountStatus::Table, [SubAccountStatus::Active, SubAccountStatus::Inactive])
+                            .enumeration(
+                                SubAccountStatus::Table,
+                                [SubAccountStatus::Active, SubAccountStatus::Inactive],
+                            )
                             .not_null(),
                     )
                     .to_owned(),
@@ -317,7 +320,7 @@ enum SubAccounts {
     Name,
     CreatedAt,
     ClientId, // Foreign key
-    Status
+    Status,
 }
 
 #[derive(Iden)]

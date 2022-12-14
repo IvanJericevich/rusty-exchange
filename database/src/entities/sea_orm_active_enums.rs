@@ -12,12 +12,12 @@ pub enum OrderSide {
     Sell,
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_type")]
-pub enum OrderType {
-    #[sea_orm(string_value = "limit")]
-    Limit,
-    #[sea_orm(string_value = "market")]
-    Market,
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "sub_account_status")]
+pub enum SubAccountStatus {
+    #[sea_orm(string_value = "active")]
+    Active,
+    #[sea_orm(string_value = "inactive")]
+    Inactive,
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_status")]
@@ -26,4 +26,12 @@ pub enum OrderStatus {
     Closed,
     #[sea_orm(string_value = "open")]
     Open,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_type")]
+pub enum OrderType {
+    #[sea_orm(string_value = "limit")]
+    Limit,
+    #[sea_orm(string_value = "market")]
+    Market,
 }
