@@ -1,5 +1,5 @@
-use sea_orm::*;
 use sea_orm::prelude::*;
+use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
 
 use crate::entities::{
@@ -102,17 +102,14 @@ impl Query {
         status: Option<SubAccountStatus>,
         id: i32,
     ) -> Result<Vec<sub_accounts::Model>, DbErr> {
-        let client: Option<clients::Model> = clients::Entity::find_by_id(id).one(db).await?; // TODO: Do this all in one step?
-        match client {
-            Some(client) => {
-                let mut query = client.find_related(sub_accounts::Entity);
-                if let Some(status) = status {
-                    query = query.filter(sub_accounts::Column::Status.eq(status));
-                }
-
-                query.all(db).await
-            },
-            None => Err(DbErr::RecordNotFound("Client does not exist.".to_owned())),
+        if let Some(client) = clients::Entity::find_by_id(id).one(db).await? {
+            let mut query = client.find_related(sub_accounts::Entity);
+            if let Some(status) = status {
+                query = query.filter(sub_accounts::Column::Status.eq(status));
+            }
+            query.all(db).await
+        } else {
+            Err(DbErr::RecordNotFound("Client does not exist.".to_owned()))
         }
     }
 
@@ -127,7 +124,8 @@ impl Query {
             query = query.filter(sub_accounts::Column::Status.eq(status));
         }
 
-        query.paginate(db, page_size.unwrap_or(1))
+        query
+            .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -182,7 +180,8 @@ impl Query {
             });
         }
 
-        query.into_model::<Order>()
+        query
+            .into_model::<Order>()
             .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
@@ -201,7 +200,8 @@ impl Query {
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
-        if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? { // TODO: Check if sub_account exists?
+        if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
+            // TODO: Check if sub_account exists?
             let mut conditions = Condition::all().add(
                 orders::Column::SubAccountId.in_subquery(
                     SeaQuery::select()
@@ -209,8 +209,8 @@ impl Query {
                         .from(sub_accounts::Entity)
                         .and_where(sub_accounts::Column::ClientId.eq(client.id))
                         .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned()
-                )
+                        .to_owned(),
+                ),
             );
             if let Some(market_id) = market_id {
                 conditions = conditions.add(
@@ -219,8 +219,8 @@ impl Query {
                             .column(markets::Column::Id)
                             .from(markets::Entity)
                             .and_where(markets::Column::Id.eq(market_id))
-                            .to_owned()
-                    )
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -251,7 +251,8 @@ impl Query {
                 });
             }
 
-            query.inner_join(sub_accounts::Entity)
+            query
+                .inner_join(sub_accounts::Entity)
                 .column_as(sub_accounts::Column::Name, "sub_account")
                 .inner_join(markets::Entity)
                 .column(markets::Column::BaseCurrency)
@@ -261,12 +262,15 @@ impl Query {
                 .order_by_asc(match status {
                     Some(OrderStatus::Open) => orders::Column::OpenAt,
                     _ => orders::Column::ClosedAt,
-                }).into_model::<Order>()
+                })
+                .into_model::<Order>()
                 .paginate(db, page_size.unwrap_or(1))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
         } else {
-            Err(DbErr::RecordNotFound(format!("Client with id {client_id} does not exist.")))
+            Err(DbErr::RecordNotFound(format!(
+                "Client with id {client_id} does not exist."
+            )))
         }
     }
 
@@ -295,8 +299,8 @@ impl Query {
                         .from(sub_accounts::Entity)
                         .and_where(sub_accounts::Column::Id.eq(sub_account.id))
                         .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned()
-                )
+                        .to_owned(),
+                ),
             );
             if let Some(market_id) = market_id {
                 conditions = conditions.add(
@@ -305,8 +309,8 @@ impl Query {
                             .column(markets::Column::Id)
                             .from(markets::Entity)
                             .and_where(markets::Column::Id.eq(market_id))
-                            .to_owned()
-                    )
+                            .to_owned(),
+                    ),
                 )
             }
 
@@ -337,7 +341,8 @@ impl Query {
                 });
             }
 
-            query.inner_join(sub_accounts::Entity)
+            query
+                .inner_join(sub_accounts::Entity)
                 .column_as(sub_accounts::Column::Name, "sub_account")
                 .inner_join(markets::Entity)
                 .column(markets::Column::BaseCurrency)
@@ -347,12 +352,15 @@ impl Query {
                 .order_by_asc(match status {
                     Some(OrderStatus::Open) => orders::Column::OpenAt,
                     _ => orders::Column::ClosedAt,
-                }).into_model::<Order>()
+                })
+                .into_model::<Order>()
                 .paginate(db, page_size.unwrap_or(1))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
         } else {
-            Err(DbErr::RecordNotFound(format!("Sub-account with id {sub_account_id} does not exist.")))
+            Err(DbErr::RecordNotFound(format!(
+                "Sub-account with id {sub_account_id} does not exist."
+            )))
         }
     }
 
@@ -366,7 +374,8 @@ impl Query {
         end_time: Option<DateTime>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<Order>, DbErr> { // TODO: Check if market exists?
+    ) -> Result<Vec<Order>, DbErr> {
+        // TODO: Check if market exists?
         let mut query = orders::Entity::find().filter(
             Condition::all().add(
                 orders::Column::SubAccountId.in_subquery(
@@ -374,9 +383,9 @@ impl Query {
                         .column(markets::Column::Id)
                         .from(markets::Entity)
                         .and_where(markets::Column::Id.eq(market_id))
-                        .to_owned()
-                )
-            )
+                        .to_owned(),
+                ),
+            ),
         );
         if let Some(side) = side {
             query = query.filter(orders::Column::Side.eq(side));
@@ -400,7 +409,8 @@ impl Query {
             });
         }
 
-        query.inner_join(sub_accounts::Entity)
+        query
+            .inner_join(sub_accounts::Entity)
             .column_as(sub_accounts::Column::Name, "sub_account")
             .inner_join(markets::Entity)
             .column(markets::Column::BaseCurrency)
@@ -410,7 +420,8 @@ impl Query {
             .order_by_asc(match status {
                 Some(OrderStatus::Open) => orders::Column::OpenAt,
                 _ => orders::Column::ClosedAt,
-            }).into_model::<Order>()
+            })
+            .into_model::<Order>()
             .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
@@ -446,7 +457,8 @@ impl Query {
             query = query.filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()));
         }
 
-        query.into_model::<Position>()
+        query
+            .into_model::<Position>()
             .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await

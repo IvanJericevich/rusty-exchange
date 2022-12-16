@@ -1,5 +1,5 @@
 use crate::entities::{clients, markets, sub_accounts};
-use crate::{SubAccountStatus};
+use crate::SubAccountStatus;
 use chrono::Utc;
 use sea_orm::prelude::*;
 use sea_orm::ActiveValue::Set;
