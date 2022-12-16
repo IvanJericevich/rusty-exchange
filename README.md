@@ -37,3 +37,8 @@ To generate a new change-log, run cz changelog. This will generate new entries i
 
 One can apply these code style changes directly by running `cargo run clippy --fix` (set as a run configuration for
 IntelliJ).
+
+# TODO
+* Improve mock database tests
+* Create database integration tests
+* Create API tests

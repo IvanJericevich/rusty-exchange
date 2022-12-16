@@ -1,0 +1,15 @@
+[package]
+name = "rabbitmq"
+version = "0.0.0"
+edition = "2021"
+authors = ["ivanjericevich96@gmail.com"]
+description = "A library crate for publishing messages to and subscribing to messages from RabbitMQ queues."
+readme = "README.md"
+keywords = ["rabbitmq", "stream", "publish", "subscribe", "async"]
+publish = false
+
+[lib]
+name = "rabbitmq"
+path = "src/lib.rs"
+
+[dependencies]

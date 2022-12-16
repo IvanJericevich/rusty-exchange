@@ -131,7 +131,7 @@ async fn sub_accounts() {
         }
     );
     assert_eq!(
-        Query::find_sub_accounts_by_client_id(db, 1).await.unwrap(),
+        Query::find_sub_accounts_by_client_id(db, None, 1).await.unwrap(),
         vec![SubAccount {
             id: 1,
             name: "Test".to_owned(),
