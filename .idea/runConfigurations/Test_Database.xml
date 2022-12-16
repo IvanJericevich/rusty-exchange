@@ -1,14 +1,14 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+  <configuration default="false" name="Test Database" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
     <option name="command" value="test --features mock" />
-    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$/database" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
     <option name="allFeatures" value="false" />
     <option name="emulateTerminal" value="false" />
     <option name="withSudo" value="false" />
     <option name="buildTarget" value="REMOTE" />
-    <option name="backtrace" value="SHORT" />
+    <option name="backtrace" value="FULL" />
     <envs>
       <env name="DB_HOST" value="localhost" />
       <env name="DB_NAME" value="Rust" />

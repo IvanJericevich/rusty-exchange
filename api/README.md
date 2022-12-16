@@ -1,7 +1,7 @@
 <div align="center">
     <h3 align="center">Database</h3>
     <p align="center">
-        A binary crate for a RESTful API which will serve and receive data from a user via the http protocol.
+        A binary crate for a RESTful API which will serve and receive data to/from a user via the http protocol.
     </p>
 </div>
 
@@ -20,8 +20,6 @@
 
 <!-- OVERVIEW -->
 # Overview
-Routes can be found in the routes directory. All models and ORM operations are imported from the database library crate.
-Middleware can be found in the middleware directory. To view the OpenAPI schema navigate to ... To view the swagger docs navigate to ...
 
 <!-- STACK -->
 ## Stack
@@ -31,4 +29,14 @@ Middleware can be found in the middleware directory. To view the OpenAPI schema 
 
 <!-- USAGE -->
 # Usage
-During development it can be very handy to have cargo automatically recompile the code on changes. This can be accomplished very easily by running the binary with `cargo watch -x 'run'`. This requires that you install cargo-watch
+During development it can be very handy to have cargo automatically recompile the code on changes. This can be
+accomplished very easily by running the binary with `cargo watch -x 'run'`. This requires that you install cargo-watch
+(see dev-dependencies in [Cargo.toml](Cargo.toml)).
+
+Routes can be found in the [src/routes](src/routes) directory. All models and ORM operations are imported from the
+database library crate. Other needed models are created in the [src/models](src/models) directory.
+
+Middleware can be found in the [src/middleware](src/middleware) directory.
+
+To view the OpenAPI schemas and docs navigate to [localhost:8080/swagger/](localhost:8080/swagger/)
+
