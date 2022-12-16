@@ -1,5 +1,5 @@
-use crate::entities::{clients, markets, orders, sea_orm_active_enums, sub_accounts};
-use crate::{OrderStatus, SubAccountStatus};
+use crate::entities::{clients, markets, sub_accounts};
+use crate::{SubAccountStatus};
 use chrono::Utc;
 use sea_orm::prelude::*;
 use sea_orm::ActiveValue::Set;
@@ -38,7 +38,7 @@ impl Mutation {
         match client {
             Some(client) => {
                 let mut client: clients::ActiveModel = client.into();
-                client.email = Set(new_email.to_owned());
+                client.email = Set(new_email);
                 Ok(())
             }
             None => Err(DbErr::RecordNotFound(format!(
@@ -91,13 +91,13 @@ impl Mutation {
             .one(db)
             .await?;
         let sub_account = sub_accounts::Entity::find()
-            .filter(sub_accounts::Column::Name.eq(name.to_owned()))
+            .filter(sub_accounts::Column::Name.eq(name.clone()))
             .one(db)
             .await?;
         match (client, sub_account) {
             (Some(_), None) => {
                 sub_accounts::ActiveModel {
-                    name: Set(name.to_owned()),
+                    name: Set(name),
                     created_at: Set(Utc::now().naive_utc()),
                     client_id: Set(client_id),
                     status: Set(SubAccountStatus::Active),
@@ -149,12 +149,12 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Orders
-    pub async fn create_order(
-        db: &DbConn,
-        order: orders::ActiveModel,
-    ) -> Result<orders::Model, DbErr> {
-        order.insert(db).await
-    }
+    // pub async fn create_order(
+    //     db: &DbConn,
+    //     order: orders::ActiveModel,
+    // ) -> Result<orders::Model, DbErr> {
+    //     order.insert(db).await
+    // }
 
     // pub async fn create_orders(
     //     db: &DbConn,
@@ -164,80 +164,80 @@ impl Mutation {
     //
     // }
 
-    pub async fn update_order_by_id(
-        db: &DbConn,
-        order_id: i32,
-        price: Option<f32>,
-        size: Option<f32>,
-        filled_size: Option<f32>,
-        closed_at: Option<DateTime>,
-        status: Option<OrderStatus>,
-    ) -> Result<(), DbErr> {
-        let order: Option<orders::Model> = orders::Entity::find_by_id(order_id).one(db).await?;
+    // pub async fn update_order_by_id(
+    //     db: &DbConn,
+    //     order_id: i32,
+    //     price: Option<f32>,
+    //     size: Option<f32>,
+    //     filled_size: Option<f32>,
+    //     closed_at: Option<DateTime>,
+    //     status: Option<OrderStatus>,
+    // ) -> Result<(), DbErr> {
+    //     let order: Option<orders::Model> = orders::Entity::find_by_id(order_id).one(db).await?;
+    //
+    //     match order {
+    //         Some(order) => {
+    //             let mut order: orders::ActiveModel = order.into();
+    //             if price.is_some() && price > Some(0.0) {
+    //                 order.price = Set(price.unwrap());
+    //             }
+    //             if size.is_some() && size > Some(0.0) {
+    //                 order.size = Set(size.unwrap());
+    //             }
+    //             if filled_size.is_some() && filled_size > Some(0.0) {
+    //                 order.filled_size = Set(filled_size);
+    //             }
+    //             order.closed_at = Set(closed_at);
+    //             if status.is_some() {
+    //                 order.status = Set(status.unwrap());
+    //             }
+    //             Ok(())
+    //         }
+    //         None => Err(DbErr::RecordNotFound(format!(
+    //             "Order with id {order_id} does not exist."
+    //         ))),
+    //     }
+    // }
 
-        match order {
-            Some(order) => {
-                let mut order: orders::ActiveModel = order.into();
-                if price.is_some() && price > Some(0.0) {
-                    order.price = Set(price.unwrap());
-                }
-                if size.is_some() && size > Some(0.0) {
-                    order.size = Set(size.unwrap());
-                }
-                if filled_size.is_some() && filled_size > Some(0.0) {
-                    order.filled_size = Set(filled_size);
-                }
-                order.closed_at = Set(closed_at);
-                if status.is_some() {
-                    order.status = Set(status.unwrap());
-                }
-                Ok(())
-            }
-            None => Err(DbErr::RecordNotFound(format!(
-                "Order with id {order_id} does not exist."
-            ))),
-        }
-    }
-
-    pub async fn update_order_by_client_order_id(
-        // TODO: What about updating open orders or market/limit orders
-        db: &DbConn,
-        client_order_id: i32,
-        price: Option<f32>,
-        size: Option<f32>,
-        filled_size: Option<f32>,
-        closed_at: Option<DateTime>,
-        status: Option<OrderStatus>,
-    ) -> Result<(), DbErr> {
-        let order: Option<orders::Model> = orders::Entity::find()
-            .filter(orders::Column::ClientOrderId.eq(client_order_id))
-            .one(db)
-            .await?;
-
-        match order {
-            Some(order) => {
-                let mut order: orders::ActiveModel = order.into();
-                if price.is_some() && price > Some(0.0) {
-                    // TODO: use is_some_and instead
-                    order.price = Set(price.unwrap());
-                }
-                if size.is_some() && size > Some(0.0) {
-                    order.size = Set(size.unwrap());
-                }
-                if filled_size.is_some() && filled_size > Some(0.0) {
-                    order.filled_size = Set(filled_size);
-                }
-                order.closed_at = Set(closed_at);
-                if status.is_some() {
-                    order.status = Set(status.unwrap());
-                }
-                Ok(())
-            }
-            None => Err(DbErr::RecordNotFound(format!(
-                "Order with client order id {client_order_id} does not exist."
-            ))),
-        }
-    }
+    // pub async fn update_order_by_client_order_id(
+    //     // TODO: What about updating open orders or market/limit orders
+    //     db: &DbConn,
+    //     client_order_id: i32,
+    //     price: Option<f32>,
+    //     size: Option<f32>,
+    //     filled_size: Option<f32>,
+    //     closed_at: Option<DateTime>,
+    //     status: Option<OrderStatus>,
+    // ) -> Result<(), DbErr> {
+    //     let order: Option<orders::Model> = orders::Entity::find()
+    //         .filter(orders::Column::ClientOrderId.eq(client_order_id))
+    //         .one(db)
+    //         .await?;
+    //
+    //     match order {
+    //         Some(order) => {
+    //             let mut order: orders::ActiveModel = order.into();
+    //             if price.is_some() && price > Some(0.0) {
+    //                 // TODO: use is_some_and instead
+    //                 order.price = Set(price.unwrap());
+    //             }
+    //             if size.is_some() && size > Some(0.0) {
+    //                 order.size = Set(size.unwrap());
+    //             }
+    //             if filled_size.is_some() && filled_size > Some(0.0) {
+    //                 order.filled_size = Set(filled_size);
+    //             }
+    //             order.closed_at = Set(closed_at);
+    //             if status.is_some() {
+    //                 order.status = Set(status.unwrap());
+    //             }
+    //             Ok(())
+    //         }
+    //         None => Err(DbErr::RecordNotFound(format!(
+    //             "Order with client order id {client_order_id} does not exist."
+    //         ))),
+    //     }
+    // }
 
     // pub async fn update_orders(
     //     db: &DbConn,
@@ -246,69 +246,69 @@ impl Mutation {
     //     todo!()
     // }
 
-    pub async fn delete_order_by_order_id(db: &DbConn, order_id: i32) -> Result<(), DbErr> {
-        todo!()
-    }
-
-    pub async fn delete_order_by_client_order_id(
-        db: &DbConn,
-        client_order_id: i32,
-    ) -> Result<(), DbErr> {
-        todo!()
-    }
-
-    pub async fn delete_orders(db: &DbConn) -> Result<(), DbErr> {
-        todo!()
-    }
+    // pub async fn delete_order_by_order_id(db: &DbConn, order_id: i32) -> Result<(), DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn delete_order_by_client_order_id(
+    //     db: &DbConn,
+    //     client_order_id: i32,
+    // ) -> Result<(), DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn delete_orders(db: &DbConn) -> Result<(), DbErr> {
+    //     todo!()
+    // }
     // ----------------------------------------------------------------------
 
     // Positions
-    pub async fn create_position(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<orders::Model, DbErr> {
-        todo!()
-    }
-
-    pub async fn create_positions(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<Vec<orders::Model>, DbErr> {
-        todo!()
-    }
-
-    pub async fn update_position(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<(), DbErr> {
-        todo!()
-    }
-
-    pub async fn update_positions(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<(), DbErr> {
-        todo!()
-    }
-
-    pub async fn delete_position(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<(), DbErr> {
-        todo!()
-    }
-
-    pub async fn delete_positions(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: i32,
-    ) -> Result<(), DbErr> {
-        todo!()
-    }
+    // pub async fn create_position(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<orders::Model, DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn create_positions(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<Vec<orders::Model>, DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn update_position(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<(), DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn update_positions(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<(), DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn delete_position(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<(), DbErr> {
+    //     todo!()
+    // }
+    //
+    // pub async fn delete_positions(
+    //     db: &DbConn,
+    //     client_id: i32,
+    //     sub_account_id: i32,
+    // ) -> Result<(), DbErr> {
+    //     todo!()
+    // }
     // ----------------------------------------------------------------------
 }
