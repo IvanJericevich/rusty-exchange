@@ -14,6 +14,8 @@
     <envs>
       <env name="DATABASE_URL" value="postgresql://postgres:Boomers4life!123@localhost:5432/Rust" />
     </envs>
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Start Postgres" run_configuration_type="ShConfigurationType" />
+    </method>
   </configuration>
 </component>
