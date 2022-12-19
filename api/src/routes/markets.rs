@@ -17,6 +17,7 @@ use utoipa::OpenApi;
     responses(
         (status = 200, description = "Returns a market with the matching base currency and quote currency", body = Market),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 404, description = "Not found", body = String, example = json!(String::from("Market with symbol <base_currency>/<quote_currency> does not exist."))),
     ),
     params(
         ("base_currency", description = "Base currency of the ticker to search for"),

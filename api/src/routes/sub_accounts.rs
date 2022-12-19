@@ -17,6 +17,7 @@ use utoipa::OpenApi;
     responses(
         (status = 200, description = "Returns a market with the matching base currency and quote currency", body = [SubAccount]),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 404, description = "Not found", body = String, example = json!(String::from("Client with id <id> does not exist."))),
     ),
     params(
         ("client_id", description = "Client ID for which to search sub-accounts"),
@@ -49,7 +50,7 @@ async fn index(
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
     let sub_accounts =
-        Query::find_sub_accounts(&data.db, query.page.clone(), query.page_size.clone())
+        Query::find_sub_accounts(&data.db, query.status.clone(), query.page.clone(), query.page_size.clone())
             .await
             .map_err(|e| Exception::Database(e))?;
 

@@ -17,6 +17,7 @@ use utoipa::OpenApi;
     responses(
         (status = 200, description = "Returns a client with the matching email address", body = Client),
         (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 404, description = "Not found", body = String, example = json!(String::from("Client with email <email> does not exist."))),
     ),
     params(
         ("email", description = "Email of the client to search for")

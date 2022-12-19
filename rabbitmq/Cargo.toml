@@ -13,3 +13,5 @@ name = "rabbitmq"
 path = "src/lib.rs"
 
 [dependencies]
+async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
+rabbitmq-stream-client = "0.1.0"

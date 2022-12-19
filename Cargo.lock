@@ -22,7 +22,7 @@ dependencies = [
  "memchr",
  "pin-project-lite",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.4",
 ]
 
 [[package]]
@@ -991,6 +991,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e77a43b28d0668df09411cb0bc9a8c2adc40f9a048afe863e05fd43251e8e39c"
+dependencies = [
+ "cfg-if 1.0.0",
+ "num_cpus",
+]
+
+[[package]]
 name = "database"
 version = "0.0.0"
 dependencies = [
@@ -1494,7 +1504,7 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.4",
  "tracing",
 ]
 
@@ -2161,6 +2171,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "num_enum"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf5395665662ef45796a4ff5486c5d41d29e0c09640af4c5f17fd94ee2c119c9"
+dependencies = [
+ "num_enum_derive",
+]
+
+[[package]]
+name = "num_enum_derive"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b0498641e53dd6ac1a4f22547548caa6864cc4933784319cd1775271c5a46ce"
+dependencies = [
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "objc"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2238,6 +2269,15 @@ dependencies = [
  "libc",
  "pkg-config",
  "vcpkg",
+]
+
+[[package]]
+name = "ordered-float"
+version = "2.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7940cf2ca942593318d07fcf2596cdca60a85c9e7fab408a5e21a4f9dcd40d87"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -2543,6 +2583,44 @@ dependencies = [
 [[package]]
 name = "rabbitmq"
 version = "0.0.0"
+dependencies = [
+ "async-std",
+ "rabbitmq-stream-client",
+]
+
+[[package]]
+name = "rabbitmq-stream-client"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0de6d1030f2952937f986b16ac5a7afcb3400c4f444293f82ca0ffa3cdf5cf15"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "dashmap",
+ "futures",
+ "rabbitmq-stream-protocol",
+ "rand 0.8.5",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tokio-util 0.6.10",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "rabbitmq-stream-protocol"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "128973335489351500bc5b597ed6e6877ba553d5ae748a6e24d1ff8465bce810"
+dependencies = [
+ "byteorder",
+ "chrono",
+ "derive_more",
+ "num_enum",
+ "ordered-float",
+ "uuid 0.8.2",
+]
 
 [[package]]
 name = "rand"
@@ -2824,7 +2902,7 @@ dependencies = [
  "time 0.3.17",
  "tracing",
  "url",
- "uuid",
+ "uuid 1.2.1",
 ]
 
 [[package]]
@@ -2900,7 +2978,7 @@ dependencies = [
  "sea-query-derive",
  "serde_json",
  "time 0.3.17",
- "uuid",
+ "uuid 1.2.1",
 ]
 
 [[package]]
@@ -2915,7 +2993,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "time 0.3.17",
- "uuid",
+ "uuid 1.2.1",
 ]
 
 [[package]]
@@ -3274,7 +3352,7 @@ dependencies = [
  "thiserror",
  "time 0.3.17",
  "url",
- "uuid",
+ "uuid 1.2.1",
  "whoami",
 ]
 
@@ -3548,7 +3626,44 @@ dependencies = [
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
+ "tokio-macros",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d266c00fde287f55d3f1c3e96c500c362a2b8c695076ec180f27918820bc6df8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "tokio-stream"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d660770404473ccd7bc9f8b28494a811bc18542b915c0855c51e8f419d5223ce"
+dependencies = [
+ "futures-core",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.6.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36943ee01a6d67977dd3f84a5a1d2efeb4ada3a1ae771cadfaa535d9d9fc6507"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -3753,6 +3868,12 @@ dependencies = [
  "utoipa",
  "zip",
 ]
+
+[[package]]
+name = "uuid"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 
 [[package]]
 name = "uuid"

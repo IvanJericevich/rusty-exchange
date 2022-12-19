@@ -1,4 +1,4 @@
-use database::SubAccount as BaseSubAccount;
+use database::{SubAccount as BaseSubAccount, SubAccountStatus};
 
 use utoipa::{IntoParams, ToSchema};
 
@@ -55,6 +55,7 @@ impl ToSchema for SubAccount {
 
 #[derive(Deserialize, IntoParams)]
 pub struct Request {
+    pub status: Option<SubAccountStatus>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
 }

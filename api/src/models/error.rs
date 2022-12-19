@@ -18,6 +18,7 @@ pub enum Exception {
 impl ResponseError for Exception {
     fn status_code(&self) -> StatusCode {
         match *self {
+            Exception::Database(DbErr::RecordNotFound(_)) => StatusCode::NOT_FOUND,
             Exception::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

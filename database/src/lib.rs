@@ -9,5 +9,5 @@ mod models; // Export models
 
 // Export required modules
 pub use crate::core::*;
-pub use migrator::*;
-pub use models::*;
+pub use crate::migrator::*;
+pub use crate::models::*;
