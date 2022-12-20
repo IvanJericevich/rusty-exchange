@@ -3,17 +3,13 @@ use rabbitmq_stream_client::Environment;
 use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
 
 #[async_std::main]
-async fn main() -> Result<(), _> {
-    // let subscriber = FmtSubscriber::builder()
-    //     .with_max_level(Level::TRACE)
-    //     .finish();
-    // tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-    // std::env::set_var("RUST_LOG", "debug");
-    // std::env::set_var("RUST_BACKTRACE", "1");
-    // tracing_subscriber::fmt().init(); // Log SQL operations
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_BACKTRACE", "1");
+    tracing_subscriber::fmt().init(); // Log SQL operations
     let environment = Environment::builder()
         .host("localhost")
-        .port(5552)
+        .port(5672)
         .build()
         .await?;
     let _ = environment.delete_stream("data").await;
@@ -46,7 +42,7 @@ async fn main() -> Result<(), _> {
         .unwrap();
     for _ in 0..message_count {
         let delivery = consumer.next().await.unwrap()?;
-        info!(
+        println!(
             "Got message : {:?} with offset {}",
             delivery
                 .message()

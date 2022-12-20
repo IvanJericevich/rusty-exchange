@@ -45,7 +45,12 @@ impl ToSchema for Client {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct Request {
+pub struct GetRequest {
     pub page: Option<u64>,
     pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PutRequest { // TODO: Add descriptions
+    pub new_email: String
 }

@@ -2585,7 +2585,9 @@ name = "rabbitmq"
 version = "0.0.0"
 dependencies = [
  "async-std",
+ "database",
  "rabbitmq-stream-client",
+ "tracing-subscriber",
 ]
 
 [[package]]
