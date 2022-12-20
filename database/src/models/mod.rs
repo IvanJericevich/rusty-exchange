@@ -3,8 +3,10 @@ use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 
 pub use crate::entities::{
-    clients::Model as Client, markets::Model as Market, orders::Model as BaseOrder,
-    sea_orm_active_enums::*, sub_accounts::Model as SubAccount,
+    clients::ActiveModel as ActiveClientModel, clients::Model as ClientModel,
+    markets::ActiveModel as ActiveMarketModel, markets::Model as MarketModel,
+    orders::ActiveModel as ActiveOrderModel, orders::Model as OrderModel, sea_orm_active_enums::*,
+    sub_accounts::ActiveModel as ActiveSubAccountModel, sub_accounts::Model as SubAccountModel,
 };
 
 // ----------------------------------------------------------------------

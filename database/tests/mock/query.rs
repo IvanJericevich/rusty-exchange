@@ -1,4 +1,4 @@
-use database::{Client, DbErr, Market, Query, SubAccount, SubAccountStatus};
+use database::{ClientModel, DbErr, MarketModel, Query, SubAccountModel, SubAccountStatus};
 use sea_orm::{DatabaseBackend, MockDatabase};
 
 // ----------------------------------------------------------------------
@@ -8,12 +8,12 @@ pub async fn clients() {
     let db = &MockDatabase::new(DatabaseBackend::Postgres)
         .append_query_results(vec![
             vec![
-                Client {
+                ClientModel {
                     id: 1,
                     email: "ivanjericevich96@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                Client {
+                ClientModel {
                     id: 2,
                     email: "ivanjericevich@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -21,12 +21,12 @@ pub async fn clients() {
             ],
             vec![],
             vec![
-                Client {
+                ClientModel {
                     id: 1,
                     email: "ivanjericevich96@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                Client {
+                ClientModel {
                     id: 2,
                     email: "ivanjericevich@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -39,7 +39,7 @@ pub async fn clients() {
     // Find one by id
     assert_eq!(
         Query::find_client_by_id(db, 1).await.unwrap(),
-        Client {
+        ClientModel {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -55,7 +55,7 @@ pub async fn clients() {
         Query::find_client_by_email(db, "ivanjericevich96@gmail.com".to_owned())
             .await
             .unwrap(),
-        Client {
+        ClientModel {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -77,7 +77,7 @@ pub async fn markets() {
     let db = &MockDatabase::new(DatabaseBackend::Postgres)
         .append_query_results(vec![
             vec![
-                Market {
+                MarketModel {
                     id: 1,
                     base_currency: "BTC".to_owned(),
                     quote_currency: "USD".to_owned(),
@@ -85,7 +85,7 @@ pub async fn markets() {
                     size_increment: 0.01,
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                Market {
+                MarketModel {
                     id: 2,
                     base_currency: "ETH".to_owned(),
                     quote_currency: "USD".to_owned(),
@@ -96,7 +96,7 @@ pub async fn markets() {
             ],
             vec![],
             vec![
-                Market {
+                MarketModel {
                     id: 1,
                     base_currency: "BTC".to_owned(),
                     quote_currency: "USD".to_owned(),
@@ -104,7 +104,7 @@ pub async fn markets() {
                     size_increment: 0.01,
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                Market {
+                MarketModel {
                     id: 2,
                     base_currency: "ETH".to_owned(),
                     quote_currency: "USD".to_owned(),
@@ -120,7 +120,7 @@ pub async fn markets() {
     // Find one by id
     assert_eq!(
         Query::find_market_by_id(db, 1).await.unwrap(),
-        Market {
+        MarketModel {
             id: 1,
             base_currency: "BTC".to_owned(),
             quote_currency: "USD".to_owned(),
@@ -139,7 +139,7 @@ pub async fn markets() {
         Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned())
             .await
             .unwrap(),
-        Market {
+        MarketModel {
             id: 1,
             base_currency: "BTC".to_owned(),
             quote_currency: "USD".to_owned(),
@@ -161,31 +161,41 @@ pub async fn markets() {
 
 #[async_std::test]
 pub async fn sub_accounts() {
+    let empty_sub_account_vector: Vec<SubAccountModel> = vec![];
     let db = &MockDatabase::new(DatabaseBackend::Postgres)
-        .append_query_results(vec![vec![SubAccount {
-            id: 1,
-            name: "Test".to_owned(),
-            created_at: "2022-01-01T00:00:00".parse().unwrap(),
-            client_id: 1,
-            status: SubAccountStatus::Active,
-        }]])
-        .append_query_results(vec![vec![Client {
+        .append_query_results(vec![
+            vec![SubAccountModel {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }],
+            vec![],
+        ])
+        .append_query_results(vec![vec![ClientModel {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
         }]])
-        .append_query_results(vec![vec![SubAccount {
+        .append_query_results(vec![vec![SubAccountModel {
             id: 1,
             name: "Test".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
             client_id: 1,
             status: SubAccountStatus::Active,
         }]])
+        .append_query_results(vec![vec![ClientModel {
+            id: 1,
+            email: "ivanjericevich96@gmail.com".to_owned(),
+            created_at: "2022-01-01T00:00:00".parse().unwrap(),
+        }]])
+        .append_query_results(vec![empty_sub_account_vector])
         .into_connection();
-
+    // Find one by id
     assert_eq!(
         Query::find_sub_account_by_id(db, 1).await.unwrap(),
-        SubAccount {
+        SubAccountModel {
             id: 1,
             name: "Test".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -193,15 +203,26 @@ pub async fn sub_accounts() {
             status: SubAccountStatus::Active
         }
     );
+    // Find None by id
+    assert_eq!(
+        Query::find_sub_account_by_id(db, 1).await.unwrap_err(),
+        DbErr::RecordNotFound("Sub-account with id 1 does not exist.".to_owned())
+    );
+    // Find some by client_id
     assert_eq!(
         Query::find_sub_accounts_by_client_id(db, 1).await.unwrap(),
-        vec![SubAccount {
+        vec![SubAccountModel {
             id: 1,
             name: "Test".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
             client_id: 1,
             status: SubAccountStatus::Active
         }]
+    );
+    // Find None by client_id
+    assert_eq!(
+        Query::find_sub_accounts_by_client_id(db, 1).await.unwrap(),
+        vec![]
     );
 }
 
