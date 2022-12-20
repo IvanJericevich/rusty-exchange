@@ -37,6 +37,7 @@
 <!-- PREREQUISITES -->
 ## Prerequisites
 * postgresql@14
+* Docker
 * (Optional) A UI for viewing/editing/managing databases such as PgAdmin or DBeaver
 
 <!-- USAGE -->
