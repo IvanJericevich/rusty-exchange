@@ -1,6 +1,6 @@
-use std::sync::{Arc, Barrier};
-use rabbitmq_stream_client::Environment;
 use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
+use rabbitmq_stream_client::Environment;
+use std::sync::{Arc, Barrier};
 
 #[async_std::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

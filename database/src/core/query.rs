@@ -102,12 +102,15 @@ impl Query {
         id: i32,
     ) -> Result<Vec<sub_accounts::Model>, DbErr> {
         if let Some(client) = clients::Entity::find_by_id(id).one(db).await? {
-            client.find_related(sub_accounts::Entity)
+            client
+                .find_related(sub_accounts::Entity)
                 .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
                 .all(db)
                 .await
         } else {
-            Err(DbErr::RecordNotFound(format!("Client with id {id} does not exist.")))
+            Err(DbErr::RecordNotFound(format!(
+                "Client with id {id} does not exist."
+            )))
         }
     }
 

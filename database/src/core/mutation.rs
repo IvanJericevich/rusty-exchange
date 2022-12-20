@@ -25,8 +25,8 @@ impl Mutation {
                 created_at: Set(Utc::now().naive_utc()),
                 ..Default::default()
             }
-                .insert(db)
-                .await
+            .insert(db)
+            .await
         }
     }
 
@@ -69,8 +69,8 @@ impl Mutation {
                 created_at: Set(Utc::now().naive_utc()),
                 ..Default::default()
             }
-                .insert(db)
-                .await
+            .insert(db)
+            .await
         }
     }
 
@@ -82,15 +82,20 @@ impl Mutation {
         price_increment: Option<f32>,
         size_increment: Option<f32>,
     ) -> Result<(), DbErr> {
-        if let Some(market) = markets::Entity::find_by_id(market_id)
-            .one(db)
-            .await?
-        {
+        if let Some(market) = markets::Entity::find_by_id(market_id).one(db).await? {
             let mut market: markets::ActiveModel = market.into();
-            if base_currency.is_some() { market.base_currency = Set(base_currency.unwrap()) }
-            if quote_currency.is_some() { market.quote_currency = Set(quote_currency.unwrap()) }
-            if price_increment.is_some() { market.price_increment = Set(price_increment.unwrap()) }
-            if size_increment.is_some() { market.size_increment = Set(size_increment.unwrap()) }
+            if base_currency.is_some() {
+                market.base_currency = Set(base_currency.unwrap())
+            }
+            if quote_currency.is_some() {
+                market.quote_currency = Set(quote_currency.unwrap())
+            }
+            if price_increment.is_some() {
+                market.price_increment = Set(price_increment.unwrap())
+            }
+            if size_increment.is_some() {
+                market.size_increment = Set(size_increment.unwrap())
+            }
             Ok(())
         } else {
             Err(DbErr::RecordNotFound(format!(
@@ -98,7 +103,6 @@ impl Mutation {
             )))
         }
     }
-
 
     // ----------------------------------------------------------------------
 
@@ -152,8 +156,12 @@ impl Mutation {
         match (client, sub_account) {
             (Some(_), Some(sub_account)) => {
                 let mut sub_account: sub_accounts::ActiveModel = sub_account.into();
-                if name.is_some() { sub_account.name = Set(name.unwrap().to_owned()) }
-                if status.is_some() { sub_account.status = Set(status.unwrap()) }
+                if name.is_some() {
+                    sub_account.name = Set(name.unwrap().to_owned())
+                }
+                if status.is_some() {
+                    sub_account.status = Set(status.unwrap())
+                }
                 Ok(())
             }
             (None, _) => Err(DbErr::RecordNotFound(format!(

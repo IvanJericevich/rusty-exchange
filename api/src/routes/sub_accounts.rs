@@ -49,10 +49,14 @@ async fn index(
     query: web::Query<Request>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let sub_accounts =
-        Query::find_sub_accounts(&data.db, query.status.clone(), query.page.clone(), query.page_size.clone())
-            .await
-            .map_err(|e| Exception::Database(e))?;
+    let sub_accounts = Query::find_sub_accounts(
+        &data.db,
+        query.status.clone(),
+        query.page.clone(),
+        query.page_size.clone(),
+    )
+    .await
+    .map_err(|e| Exception::Database(e))?;
 
     Ok(HttpResponse::Ok().json(sub_accounts))
 }

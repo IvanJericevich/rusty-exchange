@@ -1,4 +1,4 @@
-use database::{Client, Market, Query, SubAccount, SubAccountStatus, DbErr};
+use database::{Client, DbErr, Market, Query, SubAccount, SubAccountStatus};
 use sea_orm::{DatabaseBackend, MockDatabase};
 
 // ----------------------------------------------------------------------
@@ -17,7 +17,7 @@ async fn clients() {
                     id: 2,
                     email: "ivanjericevich@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                }
+                },
             ],
             vec![],
             vec![
@@ -26,13 +26,13 @@ async fn clients() {
                     email: "ivanjericevich96@gmail.com".to_owned(),
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
                 },
-                 Client {
-                     id: 2,
-                     email: "ivanjericevich@gmail.com".to_owned(),
-                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                 }
+                Client {
+                    id: 2,
+                    email: "ivanjericevich@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                },
             ],
-            vec![]
+            vec![],
         ])
         .into_connection();
 
@@ -92,7 +92,7 @@ async fn markets() {
                     price_increment: 0.01,
                     size_increment: 0.01,
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                }
+                },
             ],
             vec![],
             vec![
@@ -111,9 +111,9 @@ async fn markets() {
                     price_increment: 0.01,
                     size_increment: 0.01,
                     created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                }
+                },
             ],
-            vec![]
+            vec![],
         ])
         .into_connection();
 

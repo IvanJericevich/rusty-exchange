@@ -51,6 +51,7 @@ pub struct GetRequest {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct PutRequest { // TODO: Add descriptions
-    pub new_email: String
+pub struct PutRequest {
+    // TODO: Add descriptions
+    pub new_email: String,
 }

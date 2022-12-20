@@ -111,10 +111,7 @@ async fn update(
 // ----------------------------------------------------------------------
 
 #[derive(OpenApi)]
-#[openapi(
-    paths(get_by_email, get, create, update),
-    components(schemas(Client))
-)]
+#[openapi(paths(get_by_email, get, create, update), components(schemas(Client)))]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
