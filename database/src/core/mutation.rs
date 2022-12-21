@@ -34,6 +34,7 @@ impl Mutation {
         if let Some(client) = clients::Entity::find_by_id(id).one(db).await? {
             let mut client: clients::ActiveModel = client.into();
             client.email = Set(new_email);
+            let _ = client.update(db).await;
             Ok(())
         } else {
             Err(DbErr::RecordNotFound(format!(

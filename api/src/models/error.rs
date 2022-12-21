@@ -11,14 +11,14 @@ use derive_more::{Display, Error};
 
 #[derive(Debug, Display, Error)]
 pub enum Exception {
-    #[display(fmt = "An internal server error occurred. Please try again later.")]
     Database(DbErr),
 }
 
 impl ResponseError for Exception {
     fn status_code(&self) -> StatusCode {
         match *self {
-            Exception::Database(DbErr::RecordNotFound(_)) => StatusCode::NOT_FOUND,
+            Exception::Database(DbErr::RecordNotFound(_)) => StatusCode::BAD_REQUEST,
+            Exception::Database(DbErr::Custom(_)) => StatusCode::BAD_REQUEST,
             Exception::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

@@ -1,4 +1,4 @@
-use database::{SubAccount as BaseSubAccount, SubAccountStatus};
+use database::{SubAccountModel, SubAccountStatus};
 
 use utoipa::{IntoParams, ToSchema};
 
@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
-pub struct SubAccount(BaseSubAccount);
+pub struct SubAccount(SubAccountModel);
 
 impl ToSchema for SubAccount {
     fn schema() -> utoipa::openapi::schema::Schema {

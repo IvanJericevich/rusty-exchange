@@ -40,3 +40,14 @@ Middleware can be found in the [src/middleware](src/middleware) directory.
 
 To view the OpenAPI schemas and docs navigate to [localhost:8080/swagger/](localhost:8080/swagger/)
 
+## Testing
+Unit tests can be found in each of the routes. In order to run the tests, the user must create an empty postgres
+database instance with credentials:
+* `DB_NAME`: Rust - the name of the database to connect to.
+* `DB_HOST`: localhost - the host on which the postgres server is running.
+* `DB_USERNAME`: postgres - the username associated with the database.
+* `DB_PASSWORD`: Boomers4life!123 - the password for connecting to the database.
+
+Set the above as environment variables as well and run `cargo test`. Alternatively one can run the "Test API" IntelliJ
+run configuration. For each route the test will set up by running all migrations on the empty database and end by
+rolling back the migrations after the tests complete.

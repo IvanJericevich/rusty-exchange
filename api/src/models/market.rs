@@ -1,4 +1,4 @@
-use database::Market as BaseMarket;
+use database::MarketModel;
 
 use utoipa::{IntoParams, ToSchema};
 
@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
-pub struct Market(BaseMarket);
+pub struct Market(MarketModel);
 
 impl ToSchema for Market {
     fn schema() -> utoipa::openapi::schema::Schema {

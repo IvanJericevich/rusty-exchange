@@ -1,4 +1,4 @@
-use database::Client as BaseClient;
+use database::ClientModel;
 
 use utoipa::{IntoParams, ToSchema};
 
@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
-pub struct Client(BaseClient);
+pub struct Client(ClientModel);
 
 impl ToSchema for Client {
     fn schema() -> utoipa::openapi::schema::Schema {
@@ -24,7 +24,6 @@ impl ToSchema for Client {
                 "email",
                 utoipa::openapi::Object::with_type(utoipa::openapi::SchemaType::String),
             )
-            // .title(Some("shjfchjwc"))
             .required("email")
             .property(
                 "created_at",
@@ -52,6 +51,5 @@ pub struct GetRequest {
 
 #[derive(Deserialize, IntoParams)]
 pub struct PutRequest {
-    // TODO: Add descriptions
     pub new_email: String,
 }

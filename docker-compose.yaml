@@ -28,7 +28,7 @@ services:
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Boomers4life!123}
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres

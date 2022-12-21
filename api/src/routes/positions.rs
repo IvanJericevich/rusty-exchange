@@ -25,18 +25,8 @@ async fn index(
     query: web::Query<Request>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let positions = Query::find_positions(
-        &data.db,
-        query.sub_account.clone(),
-        query.base_currency.clone(),
-        query.quote_currency.clone(),
-        query.page.clone(),
-        query.page_size.clone(),
-    )
-    .await
-    .map_err(|e| Exception::Database(e))?;
 
-    Ok(HttpResponse::Ok().json(positions))
+    Ok(HttpResponse::Ok().finish())
 }
 
 // ----------------------------------------------------------------------

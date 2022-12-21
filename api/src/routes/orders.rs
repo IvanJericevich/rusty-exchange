@@ -25,24 +25,8 @@ async fn index(
     query: web::Query<Request>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let orders = Query::find_orders(
-        &data.db,
-        query.side.clone(),
-        query.r#type.clone(),
-        query.sub_account.clone(),
-        query.client_id.clone(),
-        query.status.clone(),
-        query.base_currency.clone(),
-        query.quote_currency.clone(),
-        None,
-        None,
-        query.page.clone(),
-        query.page_size.clone(),
-    )
-    .await
-    .map_err(|e| Exception::Database(e))?;
 
-    Ok(HttpResponse::Ok().json(orders))
+    Ok(HttpResponse::Ok().finish())
 }
 
 // ----------------------------------------------------------------------
