@@ -20,7 +20,7 @@
 
 <!-- OVERVIEW -->
 # Overview
-Inspired by [CoinTossX](), this repo aims to create a high-throughput, low-latency fullstack matching engine written
+Inspired by [CoinTossX](https://github.com/dharmeshsing/CoinTossX), this repo aims to create a high-throughput, low-latency fullstack matching engine written
 entirely in Rust
 
 <!-- CRATES -->
@@ -37,6 +37,7 @@ entirely in Rust
 ### Libraries
 * SeaOrm
 * Actix-Web
+* Utopia
 
 <!-- CONTRIBUTION -->
 ## Contribution

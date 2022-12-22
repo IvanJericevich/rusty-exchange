@@ -36,7 +36,7 @@ async fn get(
     context_path = "/markets",
     responses(
         (status = 200, description = "Returns a market with the matching base currency and quote currency", body = Market),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> does not exist.")),
     ),
     params(
@@ -62,7 +62,8 @@ async fn get_by_symbol(
     params(
         ("base_currency", description = "New base currency of the market to create."),
         ("quote_currency", description = "New quote currency of the market to create.")
-    ), // TODO: How to do payload in utopia
+    ),
+    request_body = PostRequest,
     responses(
         (status = 200, description = "Returns the created market record", body = Client),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
@@ -93,9 +94,9 @@ async fn create(
 #[utoipa::path(
 context_path = "/markets",
     params(
-        PutRequest,
         ("id", description = "ID of the market to update")
     ),
+    request_body = PutRequest,
     responses(
         (status = 200, description = "Returns none", body = None),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
@@ -156,7 +157,7 @@ mod tests {
         // Set up
         let db = Engine::connect().await.unwrap();
         let state = AppState { db: db.clone() }; // Build app state
-        Migrator::up(&db, None).await.unwrap(); // Apply all pending migrations
+        Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
@@ -182,7 +183,7 @@ mod tests {
         // Create one
         let req = test::TestRequest::post()
             .uri("/BTC/USD")
-            .set_json(json!({"price_increment": 0.01, "price_increment": 0.01}))
+            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
@@ -204,21 +205,26 @@ mod tests {
 
         // Update one
         let req = test::TestRequest::put()
-            .uri("/BTC/USD")
+            .uri("/1")
+            .set_json(json!({
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01
+            }))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
         // Update one with error
         let req = test::TestRequest::put()
-            .uri("/2?new_email=joe@gmail.com")
-            .to_request();
-        let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_client_error());
-
-        // Update one with error
-        let req = test::TestRequest::put()
-            .uri("/1?new_email=joe@gmail.com")
+            .uri("/2")
+            .set_json(json!({
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01
+            }))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());

@@ -73,7 +73,7 @@ impl Mutation {
         } else {
             markets::ActiveModel {
                 base_currency: Set(base_currency.to_owned()),
-                quote_currency: Set(base_currency.to_owned()),
+                quote_currency: Set(quote_currency.to_owned()),
                 price_increment: Set(price_increment),
                 size_increment: Set(size_increment),
                 created_at: Set(Utc::now().naive_utc()),

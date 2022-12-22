@@ -142,7 +142,7 @@ mod tests {
         // Set up
         let db = Engine::connect().await.unwrap();
         let state = AppState { db: db.clone() }; // Build app state
-        Migrator::up(&db, None).await.unwrap(); // Apply all pending migrations
+        Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
