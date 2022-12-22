@@ -17,7 +17,7 @@ use utoipa::OpenApi;
     params(GetRequest),
     responses(
         (status = 200, description = "Returns all clients", body = [Client]),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Clients",
 )]
@@ -37,8 +37,8 @@ async fn get(
     context_path = "/clients",
     responses(
         (status = 200, description = "Returns a client with the matching email address", body = Client),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
-        (status = 400, description = "Not found", body = String, example = json!(String::from("Client with email <email> does not exist."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Client with email <email> does not exist.")),
     ),
     params(
         ("email", description = "Email of the client to search for")
@@ -59,13 +59,14 @@ async fn get_by_email(
 }
 
 // ----------------------------------------------------------------------
-// TODO: Add more status codes
+
 #[utoipa::path(
     context_path = "/clients",
     params(GetRequest),
     responses(
         (status = 201, description = "Returns the created client record", body = Client),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Client with email <email> already exists.")),
     ),
     tag = "Clients",
 )]
@@ -90,7 +91,9 @@ async fn create(
     ),
     responses(
         (status = 200, description = "Returns none", body = None),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Client with id <id> does not exist.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Client with email <new_email> already exists.")),
     ),
     tag = "Clients",
 )]
@@ -190,6 +193,13 @@ mod tests {
         // Update one with error
         let req = test::TestRequest::put()
             .uri("/2?new_email=joe@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
+        // Update one with error
+        let req = test::TestRequest::put()
+            .uri("/1?new_email=joe@gmail.com")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());

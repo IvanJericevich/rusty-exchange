@@ -6,8 +6,6 @@ use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
 
-use database::Query;
-
 use utoipa::OpenApi;
 
 // ----------------------------------------------------------------------

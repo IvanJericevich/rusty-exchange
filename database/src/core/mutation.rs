@@ -31,15 +31,24 @@ impl Mutation {
     }
 
     pub async fn update_client(db: &DbConn, id: i32, new_email: String) -> Result<(), DbErr> {
-        if let Some(client) = clients::Entity::find_by_id(id).one(db).await? {
-            let mut client: clients::ActiveModel = client.into();
-            client.email = Set(new_email);
-            let _ = client.update(db).await;
-            Ok(())
-        } else {
-            Err(DbErr::RecordNotFound(format!(
+        let other_client = clients::Entity::find()
+            .filter(clients::Column::Email.eq(new_email.clone()))
+            .one(db)
+            .await?;
+        let client = clients::Entity::find_by_id(id).one(db).await?;
+        match (client, other_client) {
+            (Some(client), None) => {
+                let mut client: clients::ActiveModel = client.into();
+                client.email = Set(new_email);
+                let _ = client.update(db).await;
+                Ok(())
+            }
+            (None, _) => Err(DbErr::RecordNotFound(format!(
                 "Client with id {id} does not exist."
-            )))
+            ))),
+            (_, Some(_)) => Err(DbErr::Custom(format!(
+                "Client with email {new_email} already exists."
+            ))),
         }
     }
     // ----------------------------------------------------------------------
@@ -97,6 +106,7 @@ impl Mutation {
             if size_increment.is_some() {
                 market.size_increment = Set(size_increment.unwrap())
             }
+            let _ = market.update(db).await;
             Ok(())
         } else {
             Err(DbErr::RecordNotFound(format!(
@@ -163,6 +173,7 @@ impl Mutation {
                 if status.is_some() {
                     sub_account.status = Set(status.unwrap())
                 }
+                let _ = sub_account.update(db).await;
                 Ok(())
             }
             (None, _) => Err(DbErr::RecordNotFound(format!(
