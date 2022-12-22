@@ -20,11 +20,23 @@
 
 <!-- OVERVIEW -->
 # Overview
+Inspired by [CoinTossX](), this repo aims to create a high-throughput, low-latency fullstack matching engine written
+entirely in Rust
 
 <!-- CRATES -->
 ## Crates
 * [API](api) ([docs](api/README.md))
 * [Database](database) ([docs](database/README.md))
+
+## Stack
+### Services
+* Postgres
+* RabbitMQ
+* Docker
+
+### Libraries
+* SeaOrm
+* Actix-Web
 
 <!-- CONTRIBUTION -->
 ## Contribution
@@ -39,6 +51,7 @@ One can apply these code style changes directly by running `cargo run clippy --f
 IntelliJ).
 
 # TODO
-* Improve mock database tests
 * Create database integration tests
 * Create API tests
+
+# Whitepapers

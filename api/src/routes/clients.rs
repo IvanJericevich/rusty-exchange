@@ -62,7 +62,7 @@ async fn get_by_email(
 
 #[utoipa::path(
     context_path = "/clients",
-    params(GetRequest),
+    params(("email", description = "Email of the new client")),
     responses(
         (status = 201, description = "Returns the created client record", body = Client),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
@@ -100,7 +100,7 @@ async fn create(
 #[put("/{id}")]
 async fn update(
     path: web::Path<i32>,
-    query: web::Query<PutRequest>,
+    query: web::Query<PutRequest>, // TODO: Use body instead of params?
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
     let id = path.into_inner();
@@ -114,7 +114,11 @@ async fn update(
 // ----------------------------------------------------------------------
 
 #[derive(OpenApi)]
-#[openapi(paths(get_by_email, get, create, update), components(schemas(Client)))]
+#[openapi(
+    paths(get_by_email, get, create, update),
+    components(schemas(Client)),
+    tags((name = "Clients", description = "Client management endpoints.")),
+)]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
@@ -145,7 +149,6 @@ mod tests {
             App::new()
                 .app_data(web::Data::new(state.clone()))
                 .configure(router)
-
         ).await;
 
         // Get all

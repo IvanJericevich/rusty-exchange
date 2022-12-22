@@ -70,7 +70,21 @@ impl ToSchema for Market {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct Request {
+pub struct GetRequest {
     pub page: Option<u64>,
     pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PostRequest {
+    pub price_increment: f32,
+    pub size_increment: f32,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PutRequest {
+    pub base_currency: Option<String>,
+    pub quote_currency: Option<String>,
+    pub price_increment: Option<f32>,
+    pub size_increment: Option<f32>,
 }
