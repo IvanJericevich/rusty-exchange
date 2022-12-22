@@ -54,7 +54,21 @@ impl ToSchema for SubAccount {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct Request {
+pub struct GetRequest {
+    pub status: Option<SubAccountStatus>,
+    pub page: Option<u64>,
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PostRequest {
+    pub status: Option<SubAccountStatus>,
+    pub page: Option<u64>,
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PutRequest {
     pub status: Option<SubAccountStatus>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,

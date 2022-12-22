@@ -1,12 +1,12 @@
 use crate::models::{
     error::Exception,
-    sub_account::{Request, SubAccount},
+    sub_account::{GetRequest, PostRequest, PutRequest, SubAccount},
 };
 use crate::AppState;
 
-use actix_web::{get, web, HttpResponse};
+use actix_web::{get, post, put, web, HttpResponse};
 
-use database::Query;
+use database::{Query, Mutation};
 
 use utoipa::OpenApi;
 
@@ -14,10 +14,35 @@ use utoipa::OpenApi;
 
 #[utoipa::path(
     context_path = "/sub_accounts",
+    params(GetRequest),
+    responses(
+        (status = 200, description = "Returns all sub-accounts", body = [SubAccount]),
+        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+    ),
+)]
+#[get("")]
+async fn get(
+    query: web::Query<GetRequest>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
+    let sub_accounts = Query::find_sub_accounts(
+        &data.db,
+        query.status.clone(),
+        query.page.clone(),
+        query.page_size.clone(),
+    )
+        .await
+        .map_err(|e| Exception::Database(e))?;
+
+    Ok(HttpResponse::Ok().json(sub_accounts))
+}
+
+#[utoipa::path(
+    context_path = "/sub_accounts",
     responses(
         (status = 200, description = "Returns a market with the matching base currency and quote currency", body = [SubAccount]),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
-        (status = 404, description = "Not found", body = String, example = json!(String::from("Client with id <id> does not exist."))),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Client with id <id> does not exist.")),
     ),
     params(
         ("client_id", description = "Client ID for which to search sub-accounts"),
@@ -37,45 +62,178 @@ async fn get_by_client_id(
 }
 
 #[utoipa::path(
-    context_path = "/sub_accounts",
-    params(Request),
-    responses(
-        (status = 200, description = "Returns all sub-accounts", body = [SubAccount]),
-        (status = 500, description = "Internal server error", body = String, example = json!(String::from("An internal server error occurred. Please try again later."))),
+    context_path = "/markets",
+    params(
+        ("base_currency", description = "New base currency of the market to create."),
+        ("quote_currency", description = "New quote currency of the market to create.")
     ),
+    request_body = PostRequest,
+    responses(
+        (status = 200, description = "Returns the created market record", body = Client),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> already exists.")),
+    ),
+    tag = "Markets",
 )]
-#[get("")]
-async fn index(
-    query: web::Query<Request>,
+#[post("/{base_currency}/{quote_currency}")]
+async fn create(
+    path: web::Path<(String, String)>,
+    body: web::Json<PostRequest>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let sub_accounts = Query::find_sub_accounts(
+    let (base_currency, quote_currency) = path.into_inner();
+    let market = Mutation::create_market(
         &data.db,
-        query.status.clone(),
-        query.page.clone(),
-        query.page_size.clone(),
+        base_currency,
+        quote_currency,
+        body.price_increment.clone(),
+        body.size_increment.clone()
     )
-    .await
-    .map_err(|e| Exception::Database(e))?;
+        .await
+        .map_err(|e| Exception::Database(e))?;
 
-    Ok(HttpResponse::Ok().json(sub_accounts))
+    Ok(HttpResponse::Ok().json(market))
+}
+
+#[utoipa::path(
+    context_path = "/markets",
+    params(
+        ("id", description = "ID of the market to update")
+    ),
+    request_body = PutRequest,
+    responses(
+        (status = 200, description = "Returns none", body = None),
+        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request", body = String, example = json!("Market with id <id> does not exist.")),
+    ),
+    tag = "Markets",
+)]
+#[put("/{id}")]
+async fn update(
+    path: web::Path<i32>,
+    body: web::Json<PutRequest>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
+    let id = path.into_inner();
+    Mutation::update_market(
+        &data.db,
+        id,
+        body.base_currency.clone(),
+        body.quote_currency.clone(),
+        body.price_increment.clone(),
+        body.size_increment.clone(),
+    )
+        .await
+        .map_err(|e| Exception::Database(e))?;
+
+    Ok(HttpResponse::Ok().finish())
 }
 
 // ----------------------------------------------------------------------
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(index, get_by_client_id),
-    components(
-        schemas(SubAccount)
-    ),
-    tags(
-        (name = "Sub-accounts", description = "Sub-account management endpoints.")
-    ),
+    paths(get, get_by_client_id, create, update),
+    components(schemas(SubAccount)),
+    tags((name = "Sub-accounts", description = "Sub-account management endpoints.")),
 )]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
+    cfg.service(get);
     cfg.service(get_by_client_id);
-    cfg.service(index);
+    cfg.service(create);
+    cfg.service(update);
+}
+
+// ----------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use actix_web::{test, App};
+    use serde_json::json;
+    use database::{Engine, Migrator, MigratorTrait};
+
+    use super::*;
+
+    #[actix_web::test]
+    async fn main() {
+        // Set up
+        let db = Engine::connect().await.unwrap();
+        let state = AppState { db: db.clone() }; // Build app state
+        Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
+
+        // Mock server
+        let app = test::init_service(
+            App::new()
+                .app_data(web::Data::new(state.clone()))
+                .configure(router)
+        ).await;
+
+        // Get all
+        let req = test::TestRequest::get()
+            .uri("/")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Get one with error
+        let req = test::TestRequest::get()
+            .uri("/BTC/USD")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
+        // Create one
+        let req = test::TestRequest::post()
+            .uri("/BTC/USD")
+            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Create one with error
+        let req = test::TestRequest::post()
+            .uri("/BTC/USD")
+            .set_json(json!({"price_increment": 0.01, "price_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
+        // Get one
+        let req = test::TestRequest::get()
+            .uri("/BTC/USD")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Update one
+        let req = test::TestRequest::put()
+            .uri("/1")
+            .set_json(json!({
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01
+            }))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Update one with error
+        let req = test::TestRequest::put()
+            .uri("/2")
+            .set_json(json!({
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01
+            }))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
+        // Tear down
+        Migrator::reset(&db).await.unwrap(); // Rollback migrations
+    }
 }
