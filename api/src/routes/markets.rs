@@ -19,6 +19,7 @@ use utoipa::OpenApi;
         (status = 200, description = "Returns all markets", body = [Market]),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
+    tag = "Markets",
 )]
 #[get("/")]
 async fn get(
@@ -43,6 +44,7 @@ async fn get(
         ("base_currency", description = "Base currency of the ticker to search for."),
         ("quote_currency", description = "Quote currency of the ticker to search for.")
     ),
+    tag = "Markets",
 )]
 #[get("/{base_currency}/{quote_currency}")]
 async fn get_by_symbol(

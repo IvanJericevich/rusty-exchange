@@ -62,14 +62,12 @@ pub struct GetRequest {
 
 #[derive(Deserialize, IntoParams)]
 pub struct PostRequest {
-    pub status: Option<SubAccountStatus>,
-    pub page: Option<u64>,
-    pub page_size: Option<u64>,
+    pub name: String,
 }
 
 #[derive(Deserialize, IntoParams)]
 pub struct PutRequest {
+    pub id: i32,
+    pub name: Option<String>,
     pub status: Option<SubAccountStatus>,
-    pub page: Option<u64>,
-    pub page_size: Option<u64>,
 }
