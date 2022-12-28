@@ -16,8 +16,8 @@ use utoipa::OpenApi;
     context_path = "/markets",
     params(GetRequest),
     responses(
-        (status = 200, description = "Returns all markets", body = [Market]),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 200, description = "Returns all markets.", body = [Market]),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Markets",
 )]
@@ -36,9 +36,9 @@ async fn get(
 #[utoipa::path(
     context_path = "/markets",
     responses(
-        (status = 200, description = "Returns a market with the matching base currency and quote currency", body = Market),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> does not exist.")),
+        (status = 200, description = "Returns a market with the matching base currency and quote currency.", body = Market),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> does not exist.")),
     ),
     params(
         ("base_currency", description = "Base currency of the ticker to search for."),
@@ -67,9 +67,9 @@ async fn get_by_symbol(
     ),
     request_body = PostRequest,
     responses(
-        (status = 200, description = "Returns the created market record", body = Client),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> already exists.")),
+        (status = 200, description = "Returns the created market record.", body = Client),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> already exists.")),
     ),
     tag = "Markets",
 )]
@@ -96,13 +96,13 @@ async fn create(
 #[utoipa::path(
 context_path = "/markets",
     params(
-        ("id", description = "ID of the market to update")
+        ("id", description = "ID of the market to update.")
     ),
     request_body = PutRequest,
     responses(
-        (status = 200, description = "Returns none", body = None),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Market with id <id> does not exist.")),
+        (status = 200, description = "Returns null.", body = None),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with id <id> does not exist.")),
     ),
     tag = "Markets",
 )]

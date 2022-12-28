@@ -6,7 +6,7 @@ use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
-use database::{Query, Mutation, SubAccountStatus};
+use database::{Query, Mutation};
 
 use utoipa::OpenApi;
 
@@ -152,7 +152,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 mod tests {
     use actix_web::{test, App};
     use serde_json::json;
-    use database::{Engine, Migrator, MigratorTrait};
+    use database::{Engine, Migrator, MigratorTrait, SubAccountStatus};
 
     use super::*;
 
@@ -178,6 +178,7 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get all for client
+        let _ = Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned()).await;
         let req = test::TestRequest::get()
             .uri("/1")
             .to_request();
@@ -186,14 +187,13 @@ mod tests {
 
         // Create one with error
         let req = test::TestRequest::post()
-            .uri("/1")
+            .uri("/2")
             .set_json(json!({"name": "Test"}))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
         // Create one
-        let _ = Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned()).await;
         let req = test::TestRequest::post()
             .uri("/1")
             .set_json(json!({"name": "Test"}))

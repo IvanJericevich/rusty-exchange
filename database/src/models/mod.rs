@@ -1,11 +1,12 @@
 use sea_orm::prelude::*;
-use sea_orm::FromQueryResult;
+use sea_orm::{FromQueryResult};
 use serde::{Deserialize, Serialize};
 
 pub use crate::entities::{
     clients::ActiveModel as ActiveClientModel, clients::Model as ClientModel,
     markets::ActiveModel as ActiveMarketModel, markets::Model as MarketModel,
-    orders::ActiveModel as ActiveOrderModel, orders::Model as OrderModel, sea_orm_active_enums::*,
+    orders::ActiveModel as ActiveOrderModel, orders::Model as OrderModel,
+    sea_orm_active_enums::*,
     sub_accounts::ActiveModel as ActiveSubAccountModel, sub_accounts::Model as SubAccountModel,
 };
 
@@ -13,7 +14,6 @@ pub use crate::entities::{
 
 #[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Order {
-    pub id: i32,
     pub client_order_id: Option<String>,
     pub price: f32,
     pub size: f32,
@@ -31,18 +31,24 @@ pub struct Order {
     pub sub_account: String,
 }
 
+// #[derive(DeriveIntoActiveModel)]
+// pub struct NewOrder {
+//     pub client_order_id: Option<String>,
+//     pub price: f32,
+//     pub size: f32,
+//     pub side: OrderSide,
+//     pub r#type: OrderType,
+//     pub market_id: i32,
+// }
+
 #[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Position {
-    // pub id: i32,
     pub avg_entry_price: f32,
     pub size: f32,
     pub side: OrderSide,
-    // pub sub_account_id: i32,
-    // pub market_id: i32,
     pub base_currency: String,
     pub quote_currency: String,
     pub price_increment: f32,
     pub size_increment: f32,
     pub sub_account: String,
-    // pub client_id: i32,
 }

@@ -4,6 +4,14 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_type")]
+pub enum OrderType {
+    #[sea_orm(string_value = "limit")]
+    Limit,
+    #[sea_orm(string_value = "market")]
+    Market,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_side")]
 pub enum OrderSide {
     #[sea_orm(string_value = "buy")]
@@ -26,12 +34,4 @@ pub enum OrderStatus {
     Closed,
     #[sea_orm(string_value = "open")]
     Open,
-}
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_type")]
-pub enum OrderType {
-    #[sea_orm(string_value = "limit")]
-    Limit,
-    #[sea_orm(string_value = "market")]
-    Market,
 }

@@ -13,14 +13,16 @@ networks:
 
 services:
   rabbitmq:
-    image: rabbitmq:3-management-alpine  # arm64v8/  add this to beginning if on m1 mac
-    container_name: 'rabbitmq'
+    image: rabbitmq:management  # arm64v8/  add this to beginning if on m1 mac
+    container_name: rabbitmq_container
     ports:
       - '5672:5672'
+      - '5552:5552'
       - '15672:15672'
     volumes:
       - rabbitmq:/var/lib/rabbitmq/
       - rabbitmq:/var/log/rabbitmq
+      - ./rabbitmq/config:/etc/rabbitmq/enabled_plugins" # Enable stream plugin
     networks:
       - rabbitmq
   postgres:

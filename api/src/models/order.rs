@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use database::{
-    Order as BaseOrder, OrderSide as BaseOrderSide, OrderStatus as BaseOrderStatus,
-    OrderType as BaseOrderType,
+    Order as OrderModel, OrderSide, OrderStatus, OrderType,
 };
 
 use utoipa::{IntoParams, ToSchema};
@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 // ----------------------------------------------------------------------
 
-pub struct Order(BaseOrder);
+pub struct Order(OrderModel);
 
 impl ToSchema for Order {
     fn schema() -> utoipa::openapi::schema::Schema {
@@ -152,9 +152,9 @@ impl ToSchema for Order {
                 "price": 100,
                 "size": 100,
                 "filled_size": 30,
-                "side": BaseOrderSide::Buy,
-                "type": BaseOrderType::Limit,
-                "status": BaseOrderStatus::Open,
+                "side": OrderSide::Buy,
+                "type": OrderType::Limit,
+                "status": OrderStatus::Open,
                 "open_at": "2022-01-01T00:00:00",
                 "closed_at": null,
                 "sub_account_id": 1,
@@ -171,16 +171,40 @@ impl ToSchema for Order {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct Request {
-    pub side: Option<BaseOrderSide>,
-    pub r#type: Option<BaseOrderType>,
-    pub sub_account: Option<String>,
+pub struct GetRequest {
+    pub side: Option<OrderSide>,
+    pub r#type: Option<OrderType>,
+    pub sub_account_id: Option<i32>,
     pub client_id: Option<i32>,
-    pub status: Option<BaseOrderStatus>,
-    pub base_currency: Option<String>,
-    pub quote_currency: Option<String>,
-    pub start_time: Option<String>,
-    pub end_time: Option<String>,
+    pub status: Option<OrderStatus>,
+    pub market_id: Option<i32>,
+    pub start_time: Option<DateTime<Utc>>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub page: Option<u64>,
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct ClientGetRequest {
+    pub sub_account_id: Option<i32>,
+    pub market_id: Option<i32>,
+    pub client_order_id: Option<String>,
+    pub side: Option<OrderSide>,
+    pub r#type: Option<OrderType>,
+    pub status: Option<OrderStatus>,
+    pub start_time: Option<DateTime<Utc>>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub page: Option<u64>,
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct MarketGetRequest {
+    pub side: Option<OrderSide>,
+    pub r#type: Option<OrderType>,
+    pub status: Option<OrderStatus>,
+    pub start_time: Option<DateTime<Utc>>,
+    pub end_time: Option<DateTime<Utc>>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
 }

@@ -1,12 +1,12 @@
-use database::Position as BasePosition;
+use database::{OrderSide, Position as PositionModel};
 
 use utoipa::{IntoParams, ToSchema};
 
 use serde::Deserialize;
-
+// TODO: Rename Position to model
 // ----------------------------------------------------------------------
 
-pub struct Position(BasePosition);
+pub struct Position(PositionModel);
 
 impl ToSchema for Position {
     fn schema() -> utoipa::openapi::schema::Schema {
@@ -124,10 +124,10 @@ impl ToSchema for Position {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct Request {
-    pub sub_account: Option<String>,
-    pub base_currency: Option<String>,
-    pub quote_currency: Option<String>,
+pub struct ClientGetRequest {
+    pub sub_account_id: Option<i32>,
+    pub market_id: Option<i32>,
+    pub side: Option<OrderSide>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
 }

@@ -16,8 +16,8 @@ use utoipa::OpenApi;
     context_path = "/clients",
     params(GetRequest),
     responses(
-        (status = 200, description = "Returns all clients", body = [Client]),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 200, description = "Returns all clients.", body = [Client]),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Clients",
 )]
@@ -36,12 +36,12 @@ async fn get(
 #[utoipa::path(
     context_path = "/clients",
     responses(
-        (status = 200, description = "Returns a client with the matching email address", body = Client),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Client with email <email> does not exist.")),
+        (status = 200, description = "Returns a client with the matching email address.", body = Client),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Client with email <email> does not exist.")),
     ),
     params(
-        ("email", description = "Email of the client to search for")
+        ("email", description = "Email of the client to search for.")
     ),
     tag = "Clients",
 )]
@@ -62,11 +62,11 @@ async fn get_by_email(
 
 #[utoipa::path(
     context_path = "/clients",
-    params(("email", description = "Email of the new client")),
+    params(("email", description = "Email of the new client.")),
     responses(
-        (status = 201, description = "Returns the created client record", body = Client),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Client with email <email> already exists.")),
+        (status = 201, description = "Returns the created client record.", body = Client),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Client with email <email> already exists.")),
     ),
     tag = "Clients",
 )]
@@ -87,13 +87,13 @@ async fn create(
     context_path = "/clients",
     params(
         PutRequest,
-        ("id", description = "ID of the client to update")
+        ("id", description = "ID of the client to update.")
     ),
     responses(
-        (status = 200, description = "Returns none", body = None),
-        (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Client with id <id> does not exist.")),
-        (status = 400, description = "Bad request", body = String, example = json!("Client with email <new_email> already exists.")),
+        (status = 200, description = "Returns null.", body = None),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Client with id <id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Client with email <new_email> already exists.")),
     ),
     tag = "Clients",
 )]

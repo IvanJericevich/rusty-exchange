@@ -258,6 +258,7 @@ version = "0.0.0"
 dependencies = [
  "actix-web",
  "cargo-watch",
+ "chrono",
  "database",
  "derive_more",
  "serde",
@@ -2586,7 +2587,10 @@ version = "0.0.0"
 dependencies = [
  "async-std",
  "database",
+ "futures",
  "rabbitmq-stream-client",
+ "tokio",
+ "tracing",
  "tracing-subscriber",
 ]
 
@@ -3614,9 +3618,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.21.2"
+version = "1.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9e03c497dc955702ba729190dc4aac6f2a0ce97f913e5b1b5912fc5039d9099"
+checksum = "eab6d665857cc6ca78d6e80303a02cea7a7851e85dfbd77cbdc09bd129f1ef46"
 dependencies = [
  "autocfg",
  "bytes",
@@ -3629,7 +3633,7 @@ dependencies = [
  "signal-hook-registry",
  "socket2",
  "tokio-macros",
- "winapi 0.3.9",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -3857,9 +3861,9 @@ dependencies = [
 
 [[package]]
 name = "utoipa-swagger-ui"
-version = "2.0.1"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ec49afbc72cb3dfbdcc3498143f5ac6cdbd5fa8bd085636d97c24754ce1a53f"
+checksum = "415579aea02656b767cf7643bbd5b89db2a6ea78147bfc9210f63552c1c5afdf"
 dependencies = [
  "actix-web",
  "mime_guess",

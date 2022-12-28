@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use sea_orm::prelude::*;
 use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
@@ -135,12 +136,14 @@ impl Query {
     // Orders
     pub async fn find_orders(
         db: &DbConn,
-        client_order_id: Option<String>,
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
+        sub_account_id: Option<i32>,
+        client_id: Option<i32>,
         status: Option<OrderStatus>,
-        start_time: Option<DateTime>,
-        end_time: Option<DateTime>,
+        market_id: Option<i32>,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
@@ -156,17 +159,23 @@ impl Query {
                 Some(OrderStatus::Open) => orders::Column::OpenAt,
                 _ => orders::Column::ClosedAt,
             });
-        if let Some(client_order_id) = client_order_id {
-            query = query.filter(orders::Column::ClientOrderId.eq(client_order_id));
-        }
         if let Some(side) = side {
             query = query.filter(orders::Column::Side.eq(side));
         }
         if let Some(r#type) = r#type {
             query = query.filter(orders::Column::Type.eq(r#type));
         }
+        if let Some(sub_account_id) = sub_account_id {
+            query = query.filter(sub_accounts::Column::Id.eq(sub_account_id));
+        }
+        if let Some(client_id) = client_id {
+            query = query.filter(sub_accounts::Column::ClientId.eq(client_id));
+        }
         if let Some(status) = status.clone() {
             query = query.filter(orders::Column::Status.eq(status));
+        }
+        if let Some(market_id) = market_id {
+            query = query.filter(markets::Column::Id.eq(market_id));
         }
         if let Some(start_time) = start_time {
             query = query.filter(match status {
@@ -191,27 +200,49 @@ impl Query {
     pub async fn find_client_related_orders(
         db: &DbConn,
         client_id: i32,
+        sub_account_id: Option<i32>,
         market_id: Option<i32>,
         client_order_id: Option<String>,
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
         status: Option<OrderStatus>,
-        start_time: Option<DateTime>,
-        end_time: Option<DateTime>,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
             let mut conditions = Condition::all().add(
                 orders::Column::SubAccountId.in_subquery(
-                    SeaQuery::select()
-                        .column(sub_accounts::Column::Id)
-                        .from(sub_accounts::Entity)
-                        .and_where(sub_accounts::Column::ClientId.eq(client.id))
-                        .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned(),
+                    if let Some(sub_account_id) = sub_account_id {
+                        if let Some(sub_account) = sub_accounts::Entity::find_by_id(sub_account_id)
+                            .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                            .one(db)
+                            .await?
+                        {
+                            SeaQuery::select()
+                                .column(sub_accounts::Column::Id)
+                                .from(sub_accounts::Entity)
+                                .and_where(sub_accounts::Column::Id.eq(sub_account.id))
+                                .and_where(sub_accounts::Column::ClientId.eq(client.id))
+                                .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                                .to_owned()
+                        } else {
+                            return Err(DbErr::RecordNotFound(format!(
+                                "Sub-account with id {sub_account_id} does not exist."
+                            )))
+                        }
+                    } else {
+                        SeaQuery::select()
+                            .column(sub_accounts::Column::Id)
+                            .from(sub_accounts::Entity)
+                            .and_where(sub_accounts::Column::ClientId.eq(client.id))
+                            .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                            .to_owned()
+                    }
                 ),
             );
+
             if let Some(market_id) = market_id {
                 conditions = conditions.add(
                     orders::Column::MarketId.in_subquery(
@@ -225,7 +256,6 @@ impl Query {
             }
 
             let mut query = orders::Entity::find().filter(conditions);
-
             if let Some(client_order_id) = client_order_id {
                 query = query.filter(orders::Column::ClientOrderId.eq(client_order_id));
             }
@@ -274,117 +304,35 @@ impl Query {
         }
     }
 
-    pub async fn find_sub_account_related_orders(
+    pub async fn find_market_related_orders(
         db: &DbConn,
-        sub_account_id: i32,
-        market_id: Option<i32>,
-        client_order_id: Option<String>,
+        id: i32,
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
         status: Option<OrderStatus>,
-        start_time: Option<DateTime>,
-        end_time: Option<DateTime>,
+        start_time: Option<DateTime<Utc>>,
+        end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<Order>, DbErr> {
-        if let Some(sub_account) = sub_accounts::Entity::find_by_id(sub_account_id)
-            .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-            .one(db)
-            .await?
-        {
-            let mut conditions = Condition::all().add(
-                orders::Column::SubAccountId.in_subquery(
-                    SeaQuery::select()
-                        .column(sub_accounts::Column::Id)
-                        .from(sub_accounts::Entity)
-                        .and_where(sub_accounts::Column::Id.eq(sub_account.id))
-                        .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned(),
-                ),
-            );
-            if let Some(market_id) = market_id {
-                conditions = conditions.add(
-                    orders::Column::MarketId.in_subquery(
+        let mut query = orders::Entity::find().filter(
+            Condition::all().add(
+                if let Some(market) = markets::Entity::find_by_id(id)
+                    .one(db)
+                    .await?
+                {
+                    orders::Column::SubAccountId.in_subquery(
                         SeaQuery::select()
                             .column(markets::Column::Id)
                             .from(markets::Entity)
-                            .and_where(markets::Column::Id.eq(market_id))
+                            .and_where(markets::Column::Id.eq(market.id))
                             .to_owned(),
-                    ),
-                )
-            }
-
-            let mut query = orders::Entity::find().filter(conditions);
-
-            if let Some(client_order_id) = client_order_id {
-                query = query.filter(orders::Column::ClientOrderId.eq(client_order_id));
-            }
-            if let Some(side) = side {
-                query = query.filter(orders::Column::Side.eq(side));
-            }
-            if let Some(r#type) = r#type {
-                query = query.filter(orders::Column::Type.eq(r#type));
-            }
-            if let Some(status) = status.clone() {
-                query = query.filter(orders::Column::Status.eq(status));
-            }
-            if let Some(start_time) = start_time {
-                query = query.filter(match status {
-                    Some(OrderStatus::Open) => orders::Column::OpenAt.gt(start_time),
-                    _ => orders::Column::ClosedAt.gt(start_time),
-                });
-            }
-            if let Some(end_time) = end_time {
-                query = query.filter(match status {
-                    Some(OrderStatus::Open) => orders::Column::OpenAt.lt(end_time),
-                    _ => orders::Column::ClosedAt.lt(end_time),
-                });
-            }
-
-            query
-                .inner_join(sub_accounts::Entity)
-                .column_as(sub_accounts::Column::Name, "sub_account")
-                .inner_join(markets::Entity)
-                .column(markets::Column::BaseCurrency)
-                .column(markets::Column::QuoteCurrency)
-                .column(markets::Column::PriceIncrement)
-                .column(markets::Column::SizeIncrement)
-                .order_by_asc(match status {
-                    Some(OrderStatus::Open) => orders::Column::OpenAt,
-                    _ => orders::Column::ClosedAt,
-                })
-                .into_model::<Order>()
-                .paginate(db, page_size.unwrap_or(1))
-                .fetch_page(page.unwrap_or(1) - 1)
-                .await
-        } else {
-            Err(DbErr::RecordNotFound(format!(
-                "Sub-account with id {sub_account_id} does not exist."
-            )))
-        }
-    }
-
-    pub async fn find_market_related_orders(
-        db: &DbConn,
-        market_id: i32,
-        side: Option<OrderSide>,
-        r#type: Option<OrderType>,
-        status: Option<OrderStatus>,
-        start_time: Option<DateTime>,
-        end_time: Option<DateTime>,
-        page: Option<u64>,
-        page_size: Option<u64>,
-    ) -> Result<Vec<Order>, DbErr> {
-        // TODO: Check if market exists?
-        let mut query = orders::Entity::find().filter(
-            Condition::all().add(
-                orders::Column::SubAccountId.in_subquery(
-                    SeaQuery::select()
-                        .column(markets::Column::Id)
-                        .from(markets::Entity)
-                        .and_where(markets::Column::Id.eq(market_id))
-                        .to_owned(),
-                ),
+                    )
+                } else {
+                    return Err(DbErr::RecordNotFound(format!(
+                        "Market with id {id} does not exist."
+                    )))
+                },
             ),
         );
         if let Some(side) = side {
@@ -429,9 +377,10 @@ impl Query {
     // ----------------------------------------------------------------------
 
     // Positions
-    pub async fn find_client_related_positions(
+    pub async fn find_client_related_positions( // TODO: check if market exists and what if by symbol (overload method)
         db: &DbConn,
         client_id: i32,
+        sub_account_id: Option<i32>,
         market_id: Option<i32>,
         side: Option<OrderSide>,
         page: Option<u64>,
@@ -440,14 +389,35 @@ impl Query {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
             let mut conditions = Condition::all().add(
                 positions::Column::SubAccountId.in_subquery(
-                    SeaQuery::select()
-                        .column(sub_accounts::Column::Id)
-                        .from(sub_accounts::Entity)
-                        .and_where(sub_accounts::Column::ClientId.eq(client.id))
-                        .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned(),
+                    if let Some(sub_account_id) = sub_account_id {
+                        if let Some(sub_account) = sub_accounts::Entity::find_by_id(sub_account_id)
+                            .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                            .one(db)
+                            .await?
+                        {
+                            SeaQuery::select()
+                                .column(sub_accounts::Column::Id)
+                                .from(sub_accounts::Entity)
+                                .and_where(sub_accounts::Column::Id.eq(sub_account.id))
+                                .and_where(sub_accounts::Column::ClientId.eq(client.id))
+                                .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                                .to_owned()
+                        } else {
+                            return Err(DbErr::RecordNotFound(format!(
+                                "Sub-account with id {sub_account_id} does not exist."
+                            )))
+                        }
+                    } else { // This sub-query will still succeed if the client has no sub-accounts
+                        SeaQuery::select()
+                            .column(sub_accounts::Column::Id)
+                            .from(sub_accounts::Entity)
+                            .and_where(sub_accounts::Column::ClientId.eq(client.id))
+                            .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                            .to_owned()
+                    }
                 ),
             );
+
             if let Some(market_id) = market_id {
                 conditions = conditions.add(
                     positions::Column::MarketId.in_subquery(
@@ -461,7 +431,6 @@ impl Query {
             }
 
             let mut query = positions::Entity::find().filter(conditions);
-
             if let Some(side) = side {
                 query = query.filter(positions::Column::Side.eq(side));
             }
@@ -481,66 +450,6 @@ impl Query {
         } else {
             Err(DbErr::RecordNotFound(format!(
                 "Client with id {client_id} does not exist."
-            )))
-        }
-    }
-
-    pub async fn find_sub_account_related_positions(
-        db: &DbConn,
-        sub_account_id: i32,
-        market_id: Option<i32>,
-        side: Option<OrderSide>,
-        page: Option<u64>,
-        page_size: Option<u64>,
-    ) -> Result<Vec<Position>, DbErr> {
-        if let Some(sub_account) = sub_accounts::Entity::find_by_id(sub_account_id)
-            .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-            .one(db)
-            .await?
-        {
-            let mut conditions = Condition::all().add(
-                positions::Column::SubAccountId.in_subquery(
-                    SeaQuery::select()
-                        .column(sub_accounts::Column::Id)
-                        .from(sub_accounts::Entity)
-                        .and_where(sub_accounts::Column::Id.eq(sub_account.id))
-                        .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                        .to_owned(),
-                ),
-            );
-            if let Some(market_id) = market_id {
-                conditions = conditions.add(
-                    positions::Column::MarketId.in_subquery(
-                        SeaQuery::select()
-                            .column(markets::Column::Id)
-                            .from(markets::Entity)
-                            .and_where(markets::Column::Id.eq(market_id))
-                            .to_owned(),
-                    ),
-                )
-            }
-
-            let mut query = positions::Entity::find().filter(conditions);
-
-            if let Some(side) = side {
-                query = query.filter(positions::Column::Side.eq(side));
-            }
-
-            query
-                .inner_join(sub_accounts::Entity)
-                .column_as(sub_accounts::Column::Name, "sub_account")
-                .inner_join(markets::Entity)
-                .column(markets::Column::BaseCurrency)
-                .column(markets::Column::QuoteCurrency)
-                .column(markets::Column::PriceIncrement)
-                .column(markets::Column::SizeIncrement)
-                .into_model::<Position>()
-                .paginate(db, page_size.unwrap_or(1))
-                .fetch_page(page.unwrap_or(1) - 1)
-                .await
-        } else {
-            Err(DbErr::RecordNotFound(format!(
-                "Sub-account with id {sub_account_id} does not exist."
             )))
         }
     }
