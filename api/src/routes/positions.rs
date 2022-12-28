@@ -22,6 +22,10 @@ use database::Query;
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with id <client_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with quote currency <quote_currency> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
     tag = "Orders",
 )]
@@ -36,7 +40,10 @@ async fn get_client_related(
         &data.db,
         client_id,
         query.sub_account_id.clone(),
+        query.sub_account_name.clone(),
         query.market_id.clone(),
+        query.base_currency.clone(),
+        query.quote_currency.clone(),
         query.side.clone(),
         query.page.clone(),
         query.page_size.clone()

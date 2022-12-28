@@ -68,7 +68,7 @@ impl Mutation {
             .await?
         {
             Err(DbErr::Custom(format!(
-                "Market with symbol {base_currency}/{quote_currency} already exists."
+                "Market with base currency {base_currency} and quote currency {quote_currency} already exists."
             )))
         } else {
             markets::ActiveModel {

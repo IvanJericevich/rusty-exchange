@@ -13,39 +13,6 @@ use database::Query;
 
 #[utoipa::path(
     context_path = "/orders",
-    params(GetRequest),
-    responses(
-        (status = 200, description = "Returns all orders.", body = [Order]),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-    ),
-    tag = "Orders",
-)]
-#[get("/")]
-async fn get(
-    query: web::Query<GetRequest>,
-    data: web::Data<AppState>,
-) -> Result<HttpResponse, Exception> {
-    let orders = Query::find_orders(
-        &data.db,
-        query.side.clone(),
-        query.r#type.clone(),
-        query.sub_account_id.clone(),
-        query.client_id.clone(),
-        query.status.clone(),
-        query.market_id.clone(),
-        query.start_time.clone(),
-        query.end_time.clone(),
-        query.page.clone(),
-        query.page_size.clone(),
-    )
-        .await
-        .map_err(|e| Exception::Database(e))?;
-
-    Ok(HttpResponse::Ok().json(orders))
-}
-
-#[utoipa::path(
-    context_path = "/orders",
     params(
         ("client_id", description = "Client ID for which to search orders."),
         ClientGetRequest
@@ -54,7 +21,12 @@ async fn get(
         (status = 200, description = "Returns all orders.", body = [Order]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with id <client_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with quote currency <quote_currency> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
     tag = "Orders",
 )]
@@ -69,7 +41,10 @@ async fn get_client_related(
         &data.db,
         client_id,
         query.sub_account_id.clone(),
+        query.sub_account_name.clone(),
         query.market_id.clone(),
+        query.base_currency.clone(),
+        query.quote_currency.clone(),
         query.client_order_id.clone(),
         query.side.clone(),
         query.r#type.clone(),

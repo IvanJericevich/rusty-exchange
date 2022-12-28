@@ -171,23 +171,12 @@ impl ToSchema for Order {
 }
 
 #[derive(Deserialize, IntoParams)]
-pub struct GetRequest {
-    pub side: Option<OrderSide>,
-    pub r#type: Option<OrderType>,
-    pub sub_account_id: Option<i32>,
-    pub client_id: Option<i32>,
-    pub status: Option<OrderStatus>,
-    pub market_id: Option<i32>,
-    pub start_time: Option<DateTime<Utc>>,
-    pub end_time: Option<DateTime<Utc>>,
-    pub page: Option<u64>,
-    pub page_size: Option<u64>,
-}
-
-#[derive(Deserialize, IntoParams)]
 pub struct ClientGetRequest {
     pub sub_account_id: Option<i32>,
+    pub sub_account_name: Option<String>,
     pub market_id: Option<i32>,
+    pub base_currency: Option<String>,
+    pub quote_currency: Option<String>,
     pub client_order_id: Option<String>,
     pub side: Option<OrderSide>,
     pub r#type: Option<OrderType>,

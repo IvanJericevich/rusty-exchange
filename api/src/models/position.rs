@@ -126,7 +126,10 @@ impl ToSchema for Position {
 #[derive(Deserialize, IntoParams)]
 pub struct ClientGetRequest {
     pub sub_account_id: Option<i32>,
+    pub sub_account_name: Option<String>,
     pub market_id: Option<i32>,
+    pub base_currency: Option<String>,
+    pub quote_currency: Option<String>,
     pub side: Option<OrderSide>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,

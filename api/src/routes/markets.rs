@@ -38,7 +38,7 @@ async fn get(
     responses(
         (status = 200, description = "Returns a market with the matching base currency and quote currency.", body = Market),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
     params(
         ("base_currency", description = "Base currency of the ticker to search for."),
@@ -47,7 +47,7 @@ async fn get(
     tag = "Markets",
 )]
 #[get("/{base_currency}/{quote_currency}")]
-async fn get_by_symbol(
+async fn get_by_ticker(
     path: web::Path<(String, String)>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
@@ -69,7 +69,7 @@ async fn get_by_symbol(
     responses(
         (status = 200, description = "Returns the created market record.", body = Client),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with symbol <base_currency>/<quote_currency> already exists.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> already exists.")),
     ),
     tag = "Markets",
 )]
@@ -131,7 +131,7 @@ async fn update(
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(get, get_by_symbol, create, update),
+    paths(get, get_by_ticker, create, update),
     components(schemas(Market)),
     tags((name = "Markets", description = "Market management endpoints.")),
 )]
@@ -139,7 +139,7 @@ pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
-    cfg.service(get_by_symbol);
+    cfg.service(get_by_ticker);
     cfg.service(create);
     cfg.service(update);
 }

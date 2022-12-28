@@ -4,6 +4,7 @@
 // TODO: Improve OpenApi schema code
 // TODO: Research the use of clone() or copy(). Should String arguments be &str?
 // TODO: Hide foreign keys from openapi schema
+// TODO: what about datetime provided as timestamps
 
 mod models;
 mod routes;
