@@ -115,7 +115,7 @@ async fn update(
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(get_by_email, get, create, update),
+    paths(get, get_by_email, create, update),
     components(schemas(Client)),
     tags((name = "Clients", description = "Client management endpoints.")),
 )]

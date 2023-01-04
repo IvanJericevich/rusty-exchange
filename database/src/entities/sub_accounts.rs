@@ -25,15 +25,23 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Clients,
-    #[sea_orm(has_many = "super::orders::Entity")]
-    Orders,
     #[sea_orm(has_many = "super::positions::Entity")]
     Positions,
+    #[sea_orm(has_many = "super::orders::Entity")]
+    Orders,
+    #[sea_orm(has_many = "super::fills::Entity")]
+    Fills,
 }
 
 impl Related<super::clients::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Clients.def()
+    }
+}
+
+impl Related<super::positions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Positions.def()
     }
 }
 
@@ -43,9 +51,9 @@ impl Related<super::orders::Entity> for Entity {
     }
 }
 
-impl Related<super::positions::Entity> for Entity {
+impl Related<super::fills::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Positions.def()
+        Relation::Fills.def()
     }
 }
 

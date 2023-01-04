@@ -27,7 +27,14 @@ impl MigrationTrait for Migration {
             .create_type(
                 Type::create()
                     .as_enum(OrderSide::Table)
-                    .values([OrderSide::Buy, OrderSide::Sell])
+                    .values([
+                        OrderSide::Buy,
+                        OrderSide::Long,
+                        OrderSide::Bid,
+                        OrderSide::Sell,
+                        OrderSide::Short,
+                        OrderSide::Ask
+                    ])
                     .to_owned(),
             )
             .await?;
@@ -139,13 +146,22 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Orders::ClientOrderId).string())
-                    .col(ColumnDef::new(Orders::Price).float().not_null())
+                    .col(ColumnDef::new(Orders::Price).float())
                     .col(ColumnDef::new(Orders::Size).float().not_null())
-                    .col(ColumnDef::new(Orders::QuoteSize).float().not_null())
-                    .col(ColumnDef::new(Orders::FilledSize).float())
+                    .col(ColumnDef::new(Orders::FilledSize).float().not_null())
                     .col(
                         ColumnDef::new(Orders::Side)
-                            .enumeration(OrderSide::Table, [OrderSide::Buy, OrderSide::Sell])
+                            .enumeration(
+                                OrderSide::Table,
+                                [
+                                    OrderSide::Buy,
+                                    OrderSide::Long,
+                                    OrderSide::Bid,
+                                    OrderSide::Sell,
+                                    OrderSide::Short,
+                                    OrderSide::Ask
+                                ]
+                            )
                             .not_null(),
                     )
                     .col(
@@ -184,6 +200,67 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
+                    .table(Fills::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Fills::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Fills::Price).float().not_null())
+                    .col(ColumnDef::new(Fills::Size).float().not_null())
+                    .col(ColumnDef::new(Fills::QuoteSize).float().not_null())
+                    .col(
+                        ColumnDef::new(Fills::Side)
+                            .enumeration(
+                                OrderSide::Table,
+                                [
+                                    OrderSide::Buy,
+                                    OrderSide::Long,
+                                    OrderSide::Bid,
+                                    OrderSide::Sell,
+                                    OrderSide::Short,
+                                    OrderSide::Ask
+                                ]
+                            )
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Fills::Type)
+                            .enumeration(OrderType::Table, [OrderType::Market, OrderType::Limit])
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(Fills::CreatedAt).timestamp().not_null())
+                    .col(ColumnDef::new(Fills::SubAccountId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("sub_account_id")
+                            .from(Fills::Table, Fills::SubAccountId)
+                            .to(SubAccounts::Table, SubAccounts::Id),
+                    )
+                    .col(ColumnDef::new(Fills::MarketId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("market_id")
+                            .from(Fills::Table, Fills::MarketId)
+                            .to(Markets::Table, Markets::Id),
+                    )
+                    .col(ColumnDef::new(Fills::OrderId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("order_id")
+                            .from(Fills::Table, Fills::OrderId)
+                            .to(Orders::Table, Orders::Id),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
                     .table(Positions::Table)
                     .if_not_exists()
                     .col(
@@ -197,7 +274,17 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Positions::Size).float().not_null())
                     .col(
                         ColumnDef::new(Positions::Side)
-                            .enumeration(OrderSide::Table, [OrderSide::Buy, OrderSide::Sell])
+                            .enumeration(
+                                OrderSide::Table,
+                                [
+                                    OrderSide::Buy,
+                                    OrderSide::Long,
+                                    OrderSide::Bid,
+                                    OrderSide::Sell,
+                                    OrderSide::Short,
+                                    OrderSide::Ask
+                                ]
+                            )
                             .not_null(),
                     )
                     .col(ColumnDef::new(Orders::SubAccountId).integer().not_null())
@@ -328,8 +415,16 @@ pub enum OrderSide {
     Table,
     #[iden = "buy"]
     Buy,
+    #[iden = "long"]
+    Long,
+    #[iden = "bid"]
+    Bid,
     #[iden = "sell"]
     Sell,
+    #[iden = "short"]
+    Short,
+    #[iden = "ask"]
+    Ask,
 }
 
 #[derive(Iden)]
@@ -357,7 +452,6 @@ enum Orders {
     ClientOrderId,
     Price,
     Size,
-    QuoteSize,
     FilledSize,
     Side,
     Type,
@@ -365,7 +459,22 @@ enum Orders {
     OpenAt,
     ClosedAt,
     SubAccountId, // Foreign key
-    MarketId,     // Foreign key
+    MarketId, // Foreign key
+}
+
+#[derive(Iden)]
+enum Fills {
+    Table,
+    Id, // Primary key
+    Price,
+    Size,
+    QuoteSize,
+    Side,
+    Type,
+    CreatedAt,
+    SubAccountId, // Foreign key
+    MarketId, // Foreign key
+    OrderId // Foreign key
 }
 
 #[derive(Iden)]
@@ -376,5 +485,5 @@ enum Positions {
     Size,
     Side,
     SubAccountId, // Foreign key
-    MarketId,     // Foreign key
+    MarketId, // Foreign key
 }

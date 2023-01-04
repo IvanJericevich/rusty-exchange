@@ -1,48 +1,55 @@
-use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
-use rabbitmq_stream_client::Environment;
-use std::sync::{Arc, Barrier};
+use futures::StreamExt;
+use rabbitmq_stream_client::{
+    types::{ByteCapacity, Message, OffsetSpecification},
+    Environment,
+};
+use tracing::{info, Level};
+use tracing_subscriber::FmtSubscriber;
 
-#[async_std::main]
+#[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
-    tracing_subscriber::fmt().init(); // Log SQL operations
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::TRACE)
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let environment = Environment::builder()
         .host("localhost")
-        .port(5672)
+        .port(5552)
         .build()
         .await?;
-    let _ = environment.delete_stream("data").await;
+
     let message_count = 10;
     environment
         .stream_creator()
         .max_length(ByteCapacity::GB(2))
-        .create("data")
+        .create("test")
         .await?;
-    let producer = environment.producer().build("data").await?;
-    let barrier = Arc::new(Barrier::new(message_count + 1));
+
+    let mut producer = environment
+        .producer()
+        .name("test_producer")
+        .build("test")
+        .await?;
+
     for i in 0..message_count {
-        let producer_cloned = producer.clone();
-        let barrier_cloned = barrier.clone();
-        tokio::task::spawn(async move {
-            producer_cloned
-                .send_with_confirm(Message::builder().body(format!("message{}", i)).build())
-                .await
-                .unwrap();
-            barrier_cloned.wait().await;
-        });
+        producer
+            .send_with_confirm(Message::builder().body(format!("message{}", i)).build())
+            .await?;
     }
-    barrier.wait().await;
+
     producer.close().await?;
+
     let mut consumer = environment
         .consumer()
         .offset(OffsetSpecification::First)
-        .build("data")
+        .build("test")
         .await
         .unwrap();
+
     for _ in 0..message_count {
         let delivery = consumer.next().await.unwrap()?;
-        println!(
+        info!(
             "Got message : {:?} with offset {}",
             delivery
                 .message()
@@ -51,7 +58,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             delivery.offset()
         );
     }
+
     consumer.handle().close().await.unwrap();
-    environment.delete_stream("data").await?;
+
+    environment.delete_stream("test").await?;
     Ok(())
 }

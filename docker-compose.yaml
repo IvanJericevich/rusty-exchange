@@ -22,9 +22,11 @@ services:
     volumes:
       - rabbitmq:/var/lib/rabbitmq/
       - rabbitmq:/var/log/rabbitmq
-      - ./rabbitmq/config:/etc/rabbitmq/enabled_plugins" # Enable stream plugin
+      - $PWD/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins # Enable stream plugin
     networks:
       - rabbitmq
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_stream advertised_host localhost
   postgres:
     container_name: postgres_container
     image: postgres

@@ -1,8 +1,9 @@
-use crate::entities::{clients, markets, sub_accounts};
-use crate::SubAccountStatus;
-use chrono::Utc;
+use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
+use crate::{Fill, OrderSide, OrderStatus, OrderType, SubAccountStatus};
+use chrono::{Duration, Utc};
 use sea_orm::prelude::*;
-use sea_orm::ActiveValue::Set;
+use sea_orm::*;
+use sea_orm_migration::sea_query::Query as SeaQuery;
 
 // ----------------------------------------------------------------------
 
@@ -94,17 +95,17 @@ impl Mutation {
     ) -> Result<(), DbErr> {
         if let Some(market) = markets::Entity::find_by_id(market_id).one(db).await? {
             let mut market: markets::ActiveModel = market.into();
-            if base_currency.is_some() {
-                market.base_currency = Set(base_currency.unwrap())
+            if let Some(base_currency) = base_currency {
+                market.base_currency = Set(base_currency);
             }
-            if quote_currency.is_some() {
-                market.quote_currency = Set(quote_currency.unwrap())
+            if let Some(quote_currency) = quote_currency {
+                market.quote_currency = Set(quote_currency);
             }
-            if price_increment.is_some() {
-                market.price_increment = Set(price_increment.unwrap())
+            if let Some(price_increment) = price_increment {
+                market.price_increment = Set(price_increment);
             }
-            if size_increment.is_some() {
-                market.size_increment = Set(size_increment.unwrap())
+            if let Some(size_increment) = size_increment {
+                market.size_increment = Set(size_increment);
             }
             let _ = market.update(db).await;
             Ok(())
@@ -187,166 +188,203 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Orders
-    // pub async fn create_order(
-    //     db: &DbConn,
-    //     order: orders::ActiveModel,
-    // ) -> Result<orders::Model, DbErr> {
-    //     order.insert(db).await
-    // }
+    pub async fn update_order(
+        db: &DbConn,
+        order: orders::ActiveModel,
+    ) -> Result<(), DbErr> {
+        let _ = order.update(db).await?;
+        Ok(())
+    }
 
-    // pub async fn create_orders(
-    //     db: &DbConn,
-    //     orders: Vec<orders::ActiveModel>,
-    // ) -> Result<orders::Model, DbErr> {
-    //     let res: InsertResult = orders::Model::insert_many(orders).exec(db).await?;
-    //
-    // }
+    pub async fn update_order_from_fill(
+        db: &DbConn,
+        fill: fills::Model,
+    ) -> Result<(), DbErr> {
+        if let Some(order) = fill.find_related(orders::Entity)
+            .filter(orders::Column::Status.eq(OrderStatus::Open))
+            .filter(orders::Column::SubAccountId.eq(fill.sub_account_id))
+            .filter(orders::Column::MarketId.eq(fill.market_id))
+            .one(db)
+            .await?
+        {
+            let mut order = order.into_active_model();
+            order.filled_size = Set(order.filled_size.unwrap() + fill.size);
+            if order.filled_size == order.size {
+                order.status = Set(OrderStatus::Closed);
+                order.closed_at = Set(Some(Utc::now().naive_utc()));
+            }
+            Ok(())
+        } else {
+            Err(DbErr::RecordNotFound(format!(
+                "Found no order matching fill {:?}", fill
+            )))
+        }
+    }
 
-    // pub async fn update_order_by_id(
-    //     db: &DbConn,
-    //     order_id: i32,
-    //     price: Option<f32>,
-    //     size: Option<f32>,
-    //     filled_size: Option<f32>,
-    //     closed_at: Option<DateTime>,
-    //     status: Option<OrderStatus>,
-    // ) -> Result<(), DbErr> {
-    //     let order: Option<orders::Model> = orders::Entity::find_by_id(order_id).one(db).await?;
-    //
-    //     match order {
-    //         Some(order) => {
-    //             let mut order: orders::ActiveModel = order.into();
-    //             if price.is_some() && price > Some(0.0) {
-    //                 order.price = Set(price.unwrap());
-    //             }
-    //             if size.is_some() && size > Some(0.0) {
-    //                 order.size = Set(size.unwrap());
-    //             }
-    //             if filled_size.is_some() && filled_size > Some(0.0) {
-    //                 order.filled_size = Set(filled_size);
-    //             }
-    //             order.closed_at = Set(closed_at);
-    //             if status.is_some() {
-    //                 order.status = Set(status.unwrap());
-    //             }
-    //             Ok(())
-    //         }
-    //         None => Err(DbErr::RecordNotFound(format!(
-    //             "Order with id {order_id} does not exist."
-    //         ))),
-    //     }
-    // }
+    pub async fn create_order(
+        db: &DbConn,
+        client_id: i32,
+        sub_account_id: i32,
+        size: f32,
+        side: OrderSide,
+        r#type: OrderType,
+        price: Option<f32>,
+        client_order_id: Option<String>,
+        market_id: Option<i32>,
+        base_currency: Option<String>,
+        quote_currency: Option<String>,
+    ) -> Result<orders::Model, DbErr> {
+        let sub_account_and_client: Option<(sub_accounts::Model, Option<clients::Model>)> =
+            sub_accounts::Entity::find_by_id(sub_account_id)
+                .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                .find_also_related(clients::Entity)
+                .one(db)
+                .await?;
+        let market = if let Some(market_id) = market_id {
+             markets::Entity::find_by_id(market_id)
+                .one(db)
+                .await?
+        } else {
+            match (base_currency, quote_currency) {
+                (Some(base_currency), Some(quote_currency)) => {
+                    markets::Entity::find()
+                        .filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()))
+                        .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
+                        .one(db)
+                        .await?
+                },
+                _ => return Err(DbErr::Custom(format!(
+                    "Missing query arguments."
+                ))),
+            }
+        };
+        match (sub_account_and_client, market) {
+            (Some((sub_account, Some(_))), Some(market)) => {
+                let price: ActiveValue<Option<f32>> = if let Some(price) = price {
+                    if price < market.price_increment || r#type == OrderType::Market || size < market.size_increment {
+                        return Err(DbErr::Custom(format!(
+                            "Invalid order parameters."
+                        )))
+                    }
+                    Set(Some(price))
+                } else {
+                    if r#type == OrderType::Limit || size < market.size_increment {
+                        return Err(DbErr::Custom(format!(
+                            "Invalid order parameters."
+                        )))
+                    }
+                    NotSet
+                };
+                orders::ActiveModel {
+                    client_order_id: Set(client_order_id),
+                    price,
+                    size: Set(size),
+                    filled_size: Set(0.0),
+                    side: Set(side),
+                    r#type: Set(r#type),
+                    status: Set(OrderStatus::Open),
+                    open_at: Set(Utc::now().naive_utc()),
+                    closed_at: NotSet,
+                    sub_account_id: Set(sub_account.id),
+                    market_id: Set(market.id),
+                    ..Default::default()
+                }
+                    .insert(db)
+                    .await
+            }
+            (None, _) => Err(DbErr::RecordNotFound(format!(
+                "Sub-account with id {sub_account_id} does not exist."
+            ))),
+            (Some((_, None)), _) => Err(DbErr::RecordNotFound(format!(
+                "Client with id {client_id} does not exist."
+            ))),
+            (_, None) => Err(DbErr::RecordNotFound(format!(
+                "Market does not exist."
+            ))),
+        }
+    }
+    // ----------------------------------------------------------------------
 
-    // pub async fn update_order_by_client_order_id(
-    //     // TODO: What about updating open orders or market/limit orders
-    //     db: &DbConn,
-    //     client_order_id: i32,
-    //     price: Option<f32>,
-    //     size: Option<f32>,
-    //     filled_size: Option<f32>,
-    //     closed_at: Option<DateTime>,
-    //     status: Option<OrderStatus>,
-    // ) -> Result<(), DbErr> {
-    //     let order: Option<orders::Model> = orders::Entity::find()
-    //         .filter(orders::Column::ClientOrderId.eq(client_order_id))
-    //         .one(db)
-    //         .await?;
-    //
-    //     match order {
-    //         Some(order) => {
-    //             let mut order: orders::ActiveModel = order.into();
-    //             if price.is_some() && price > Some(0.0) {
-    //                 // TODO: use is_some_and instead
-    //                 order.price = Set(price.unwrap());
-    //             }
-    //             if size.is_some() && size > Some(0.0) {
-    //                 order.size = Set(size.unwrap());
-    //             }
-    //             if filled_size.is_some() && filled_size > Some(0.0) {
-    //                 order.filled_size = Set(filled_size);
-    //             }
-    //             order.closed_at = Set(closed_at);
-    //             if status.is_some() {
-    //                 order.status = Set(status.unwrap());
-    //             }
-    //             Ok(())
-    //         }
-    //         None => Err(DbErr::RecordNotFound(format!(
-    //             "Order with client order id {client_order_id} does not exist."
-    //         ))),
-    //     }
-    // }
-
-    // pub async fn update_orders(
-    //     db: &DbConn,
-    //     orders: Vec<UpdateOrderRequest>,
-    // ) -> Result<orders::Model, DbErr> {
-    //     todo!()
-    // }
-
-    // pub async fn delete_order_by_order_id(db: &DbConn, order_id: i32) -> Result<(), DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn delete_order_by_client_order_id(
-    //     db: &DbConn,
-    //     client_order_id: i32,
-    // ) -> Result<(), DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn delete_orders(db: &DbConn) -> Result<(), DbErr> {
-    //     todo!()
-    // }
+    // Fills
+    pub async fn create_fill(
+        db: &DbConn,
+        fill: fills::Model,
+    ) -> Result<Fill, DbErr> {
+        let fill = fill.into_active_model().insert(db).await?;
+        let sub_account = fill.find_related(sub_accounts::Entity)
+            .select_only()
+            .column(sub_accounts::Column::Name)
+            .one(db)
+            .await?
+            .unwrap();
+        let market = fill.find_related(markets::Entity).one(db).await?.unwrap();
+        Ok(Fill {
+            price: fill.price,
+            size: fill.size,
+            quote_size: fill.quote_size,
+            side: fill.side,
+            r#type: fill.r#type,
+            created_at: fill.created_at,
+            base_currency: market.base_currency,
+            quote_currency: market.quote_currency,
+            price_increment: market.price_increment,
+            size_increment: market.size_increment,
+            sub_account: sub_account.name,
+            order_id: fill.order_id,
+        })
+    }
     // ----------------------------------------------------------------------
 
     // Positions
-    // pub async fn create_position(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<orders::Model, DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn create_positions(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<Vec<orders::Model>, DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn update_position(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<(), DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn update_positions(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<(), DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn delete_position(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<(), DbErr> {
-    //     todo!()
-    // }
-    //
-    // pub async fn delete_positions(
-    //     db: &DbConn,
-    //     client_id: i32,
-    //     sub_account_id: i32,
-    // ) -> Result<(), DbErr> {
-    //     todo!()
-    // }
+    pub async fn upsert_position_from_fill(
+        db: &DbConn,
+        fill: fills::Model,
+    ) -> Result<(), DbErr> {
+        if let Some(position) = positions::Entity::find()
+            .filter(
+                Condition::all().add(
+                    positions::Column::SubAccountId.in_subquery(
+                        SeaQuery::select()
+                            .column(sub_accounts::Column::Id)
+                            .from(sub_accounts::Entity)
+                            .and_where(sub_accounts::Column::Id.eq(fill.sub_account_id.clone()))
+                            .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                            .to_owned()
+                    )
+                ).add(
+                    positions::Column::MarketId.in_subquery(
+                        SeaQuery::select()
+                            .column(markets::Column::Id)
+                            .from(markets::Entity)
+                            .and_where(markets::Column::Id.eq(fill.market_id.clone()))
+                            .to_owned()
+                    )
+                )
+            )
+            .one(db).await?
+        {
+            let mut position = position.into_active_model();
+            position.size = Set(position.size.unwrap() + fill.size.clone());
+            position.avg_entry_price = Set(
+                (
+                    position.avg_entry_price.unwrap() * position.size.clone().unwrap()
+                        + fill.price.clone() * fill.size
+                ) / position.size.clone().unwrap()
+            );
+            let _ = position.update(db).await;
+        } else {
+            positions::ActiveModel {
+                avg_entry_price: Set(fill.price),
+                size: Set(fill.size),
+                side: Set(fill.side),
+                sub_account_id: Set(fill.sub_account_id),
+                market_id: Set(fill.market_id),
+                ..Default::default()
+            }
+                .insert(db)
+                .await?;
+        }
+        Ok(())
+    }
     // ----------------------------------------------------------------------
 }

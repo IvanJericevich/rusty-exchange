@@ -37,3 +37,10 @@
 Begin by starting a RabbitMQ server. Then set the following environment variables in
 the [.env](.env) file:
 * `RMQ_URL`: The name of the database to connect to.
+
+docker run -it --rm --name rabbitmq -p 5552:5552 \
+-e RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS='-rabbitmq_stream advertised_host localhost' \
+rabbitmq:3.9
+
+docker exec rabbitmq rabbitmq-plugins enable rabbitmq_stream
+

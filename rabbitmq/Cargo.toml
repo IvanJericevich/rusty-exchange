@@ -16,6 +16,10 @@ path = "src/lib.rs"
 async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
 rabbitmq-stream-client = "0.1.0"
 database = { path = "../database" }
+futures = "0.3.25"
+tokio = "1.23.0"
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
 
 [dev-dependencies]
 tracing-subscriber = "0.3.16"

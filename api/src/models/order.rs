@@ -188,6 +188,18 @@ pub struct ClientGetRequest {
 }
 
 #[derive(Deserialize, IntoParams)]
+pub struct ClientGetOpenRequest {
+    pub id: Option<i32>,
+    pub client_order_id: Option<String>,
+    pub sub_account_id: Option<i32>,
+    pub sub_account_name: Option<String>,
+    pub market_id: Option<i32>,
+    pub base_currency: Option<String>,
+    pub quote_currency: Option<String>,
+    pub side: Option<OrderSide>,
+}
+
+#[derive(Deserialize, IntoParams)]
 pub struct MarketGetRequest {
     pub side: Option<OrderSide>,
     pub r#type: Option<OrderType>,
@@ -196,4 +208,17 @@ pub struct MarketGetRequest {
     pub end_time: Option<DateTime<Utc>>,
     pub page: Option<u64>,
     pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PostRequest {
+    pub sub_account_id: i32,
+    pub size: f32,
+    pub side: OrderSide,
+    pub r#type: OrderType,
+    pub price: Option<f32>,
+    pub client_order_id: Option<String>,
+    pub market_id: Option<i32>,
+    pub base_currency: Option<String>,
+    pub quote_currency: Option<String>,
 }

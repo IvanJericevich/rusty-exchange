@@ -3,6 +3,7 @@
 pub mod prelude;
 
 pub mod clients;
+pub mod fills;
 pub mod markets;
 pub mod orders;
 pub mod positions;

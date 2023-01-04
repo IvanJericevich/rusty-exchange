@@ -15,10 +15,9 @@ pub use crate::entities::{
 #[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Order {
     pub client_order_id: Option<String>,
-    pub price: f32,
+    pub price: Option<f32>,
     pub size: f32,
-    pub quote_size: f32,
-    pub filled_size: Option<f32>,
+    pub filled_size: f32,
     pub side: OrderSide,
     pub r#type: OrderType,
     pub status: OrderStatus,
@@ -31,15 +30,21 @@ pub struct Order {
     pub sub_account: String,
 }
 
-// #[derive(DeriveIntoActiveModel)]
-// pub struct NewOrder {
-//     pub client_order_id: Option<String>,
-//     pub price: f32,
-//     pub size: f32,
-//     pub side: OrderSide,
-//     pub r#type: OrderType,
-//     pub market_id: i32,
-// }
+#[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
+pub struct Fill {
+    pub price: f32,
+    pub size: f32,
+    pub quote_size: f32,
+    pub side: OrderSide,
+    pub r#type: OrderType,
+    pub created_at: DateTime,
+    pub base_currency: String,
+    pub quote_currency: String,
+    pub price_increment: f32,
+    pub size_increment: f32,
+    pub sub_account: String,
+    pub order_id: i32,
+}
 
 #[derive(Clone, Debug, PartialEq, FromQueryResult, Serialize, Deserialize)]
 pub struct Position {
