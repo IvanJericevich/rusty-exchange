@@ -4,3 +4,4 @@ pub mod market;
 pub mod order;
 pub mod position;
 pub mod sub_account;
+pub mod fill;

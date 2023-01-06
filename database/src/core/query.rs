@@ -290,12 +290,12 @@ impl Query {
             } else if let Some(client_order_id) = client_order_id {
                 orders::Entity::find()
                     .filter(conditions)
-                    .filter(orders::Column::ClientOrderId.like(client_order_id.clone().as_str())) // TODO: Is this correct
+                    .filter(orders::Column::ClientOrderId.contains(client_order_id.clone().as_str()))
                     .filter(orders::Column::Status.eq(OrderStatus::Open))
             } else {
-                return Err(DbErr::Custom(format!(
-                    "Missing query arguments."
-                )));
+                orders::Entity::find()
+                    .filter(conditions)
+                    .filter(orders::Column::Status.eq(OrderStatus::Open))
             };
             if let Some(side) = side {
                 query = query.filter(orders::Column::Side.eq(side));
@@ -592,7 +592,7 @@ impl Query {
     // ----------------------------------------------------------------------
 
     // Fills
-    pub async fn find_fills(
+    pub async fn find_client_related_fills(
         db: &DbConn,
         client_id: i32,
         sub_account_id: Option<i32>,

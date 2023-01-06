@@ -169,6 +169,28 @@ mod tests {
                 .app_data(web::Data::new(state.clone()))
                 .configure(router)
         ).await;
+        let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
+        let _ = Mutation::create_client(&db, "b@gmail.com".to_owned()).await;
+
+        // Create records
+        let req = test::TestRequest::post()
+            .uri("/1")
+            .set_json(json!({"name": "Test1"}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/1")
+            .set_json(json!({"name": "Test2"}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/2")
+            .set_json(json!({"name": "Test1"}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
 
         // Get all
         let req = test::TestRequest::get()
@@ -177,8 +199,14 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
+        // Get some
+        let req = test::TestRequest::get()
+            .uri("/?status=Active&page=1&page_size=2")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
         // Get all for client
-        let _ = Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned()).await;
         let req = test::TestRequest::get()
             .uri("/1")
             .to_request();
@@ -187,26 +215,24 @@ mod tests {
 
         // Create one with error
         let req = test::TestRequest::post()
-            .uri("/2")
+            .uri("/100")
             .set_json(json!({"name": "Test"}))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
-
-        // Create one
         let req = test::TestRequest::post()
-            .uri("/1")
-            .set_json(json!({"name": "Test"}))
+            .uri("/2")
+            .set_json(json!({"name": "Test1"}))
             .to_request();
         let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_success());
+        assert!(resp.status().is_client_error());
 
         // Update one
         let req = test::TestRequest::put()
             .uri("/1")
             .set_json(json!({
                 "id": 1,
-                "name": "Test2",
+                "name": "Test100",
                 "status": SubAccountStatus::Inactive,
             }))
             .to_request();
@@ -215,21 +241,19 @@ mod tests {
 
         // Update one with error
         let req = test::TestRequest::put()
-            .uri("/2")
+            .uri("/100")
             .set_json(json!({
                 "id": 1,
-                "name": "Test2",
+                "name": "Test",
                 "status": SubAccountStatus::Inactive,
             }))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
-
-        // Update one with error
         let req = test::TestRequest::put()
             .uri("/1")
             .set_json(json!({
-                "id": 2,
+                "id": 100,
                 "name": "Test2",
                 "status": SubAccountStatus::Inactive,
             }))

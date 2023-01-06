@@ -168,6 +168,33 @@ mod tests {
                 .configure(router)
         ).await;
 
+        // Create records
+        let req = test::TestRequest::post()
+            .uri("/BTC/USD")
+            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/ETH/USD")
+            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/XRP/USD")
+            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        // Create one with error
+        let req = test::TestRequest::post()
+            .uri("/BTC/USD")
+            .set_json(json!({"price_increment": 0.01, "price_increment": 0.01}))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
         // Get all
         let req = test::TestRequest::get()
             .uri("/")
@@ -175,25 +202,16 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
-        // Get one with error
+        // Get some
         let req = test::TestRequest::get()
-            .uri("/BTC/USD")
-            .to_request();
-        let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_client_error());
-
-        // Create one
-        let req = test::TestRequest::post()
-            .uri("/BTC/USD")
-            .set_json(json!({"price_increment": 0.01, "size_increment": 0.01}))
+            .uri("/?page=1&page_size=2")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
-        // Create one with error
-        let req = test::TestRequest::post()
-            .uri("/BTC/USD")
-            .set_json(json!({"price_increment": 0.01, "price_increment": 0.01}))
+        // Get one with error
+        let req = test::TestRequest::get()
+            .uri("/LTC/USD")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
@@ -209,7 +227,7 @@ mod tests {
         let req = test::TestRequest::put()
             .uri("/1")
             .set_json(json!({
-                "base_currency": "BTC",
+                "base_currency": "BUSD",
                 "quote_currency": "USD",
                 "price_increment": 0.01,
                 "size_increment": 0.01
@@ -220,9 +238,20 @@ mod tests {
 
         // Update one with error
         let req = test::TestRequest::put()
-            .uri("/2")
+            .uri("/100")
             .set_json(json!({
                 "base_currency": "BTC",
+                "quote_currency": "USD",
+                "price_increment": 0.01,
+                "size_increment": 0.01
+            }))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+        let req = test::TestRequest::put()
+            .uri("/2")
+            .set_json(json!({
+                "base_currency": "BUSD",
                 "quote_currency": "USD",
                 "price_increment": 0.01,
                 "size_increment": 0.01

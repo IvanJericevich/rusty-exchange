@@ -1,6 +1,6 @@
 use crate::models::{
     error::Exception,
-    order::{Order, ClientGetRequest, MarketGetRequest, ClientGetOpenRequest, PostRequest},
+    order::{Order, ClientGetRequest, ClientGetOpenRequest, PostRequest},
 };
 use crate::AppState;
 
@@ -104,42 +104,42 @@ async fn get_client_related(
     Ok(HttpResponse::Ok().json(orders))
 }
 
-#[utoipa::path(
-    context_path = "/orders",
-    params(
-        ("market_id", description = "Market ID for which to search orders."),
-        MarketGetRequest
-    ),
-    responses(
-        (status = 200, description = "Returns all orders.", body = [Order]),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
-    ),
-    tag = "Orders",
-)]
-#[get("/{market_id}")]
-async fn get_market_related(
-    path: web::Path<i32>,
-    query: web::Query<MarketGetRequest>,
-    data: web::Data<AppState>,
-) -> Result<HttpResponse, Exception> {
-    let market_id = path.into_inner();
-    let orders = Query::find_market_related_orders(
-        &data.db,
-        market_id,
-        query.side.clone(),
-        query.r#type.clone(),
-        query.status.clone(),
-        query.start_time.clone(),
-        query.end_time.clone(),
-        query.page.clone(),
-        query.page_size.clone()
-    )
-        .await
-        .map_err(|e| Exception::Database(e))?;
-
-    Ok(HttpResponse::Ok().json(orders))
-}
+// #[utoipa::path(
+//     context_path = "/orders",
+//     params(
+//         ("market_id", description = "Market ID for which to search orders."),
+//         MarketGetRequest
+//     ),
+//     responses(
+//         (status = 200, description = "Returns all orders.", body = [Order]),
+//         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+//         (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
+//     ),
+//     tag = "Orders",
+// )]
+// #[get("/{market_id}")]
+// async fn get_market_related(
+//     path: web::Path<i32>,
+//     query: web::Query<MarketGetRequest>,
+//     data: web::Data<AppState>,
+// ) -> Result<HttpResponse, Exception> {
+//     let market_id = path.into_inner();
+//     let orders = Query::find_market_related_orders(
+//         &data.db,
+//         market_id,
+//         query.side.clone(),
+//         query.r#type.clone(),
+//         query.status.clone(),
+//         query.start_time.clone(),
+//         query.end_time.clone(),
+//         query.page.clone(),
+//         query.page_size.clone()
+//     )
+//         .await
+//         .map_err(|e| Exception::Database(e))?;
+//
+//     Ok(HttpResponse::Ok().json(orders))
+// }
 
 #[utoipa::path(
     context_path = "/orders",
@@ -188,7 +188,7 @@ async fn create(
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(get_client_related_open, get_client_related, get_market_related, create),
+    paths(get_client_related_open, get_client_related, create),
     components(schemas(Order)),
     tags((name = "Orders", description = "Order management endpoints.")),
 )]
@@ -197,7 +197,6 @@ pub struct ApiDoc;
 pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(get_client_related_open);
     cfg.service(get_client_related);
-    cfg.service(get_market_related);
     cfg.service(create);
 }
 
@@ -206,7 +205,8 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use actix_web::{test, App};
-    use database::{Engine, Migrator, MigratorTrait, Mutation};
+    use serde_json::json;
+    use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
 
     use super::*;
 
@@ -223,25 +223,85 @@ mod tests {
                 .app_data(web::Data::new(state.clone()))
                 .configure(router)
         ).await;
-
-        // Get all
-        let req = test::TestRequest::get()
-            .uri("/")
+        let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
+        let _ = Mutation::create_sub_account(&db, 1, "Test".to_owned()).await;
+        let _ = Mutation::create_market(
+            &db,
+            "BTC".to_owned(),
+            "USD".to_owned(),
+            0.01,
+            0.01
+        ).await;
+        let _ = Mutation::create_market(
+            &db,
+            "ETH".to_owned(),
+            "USD".to_owned(),
+            0.01,
+            0.01
+        ).await;
+        // Create records
+        let req = test::TestRequest::post()
+            .uri("/1")
+            .set_json(json!({
+                "sub_account_id": 1,
+                "size": 100.0,
+                "side": OrderSide::Buy,
+                "type": OrderType::Limit,
+                "price": 100.0,
+                "client_order_id": "abc123",
+                "market_id": 1,
+                "base_currency": "BTC",
+                "quote_currency": "USD",
+            }))
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/1")
+            .set_json(json!({
+                "sub_account_id": 1,
+                "size": 100.0,
+                "side": OrderSide::Buy,
+                "type": OrderType::Limit,
+                "price": 100.0,
+                "client_order_id": "abc123",
+                "market_id": 1,
+                "base_currency": "ETH",
+                "quote_currency": "USD",
+            }))
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
         // Get all for client with error
         let req = test::TestRequest::get()
-            .uri("/1")
+            .uri("/2")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
         // Get all for client
-        let _ = Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned()).await;
         let req = test::TestRequest::get()
             .uri("/1")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Get some for client
+        let req = test::TestRequest::get()
+            .uri("/1?sub_account_id=1&market_id=1&side=Buy&type=Limit&status=Closed")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::get()
+            .uri("/1?sub_account_name=Test&base_currency=BTC&quote_currency=USD&side=Buy&type=Limit&status=Open")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        // Get all open for client
+        let req = test::TestRequest::get()
+            .uri("/open/1")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());

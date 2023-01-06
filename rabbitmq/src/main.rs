@@ -1,3 +1,4 @@
+use chrono::{Utc};
 use futures::StreamExt;
 use rabbitmq_stream_client::{
     types::{ByteCapacity, Message, OffsetSpecification},
@@ -5,6 +6,7 @@ use rabbitmq_stream_client::{
 };
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
+use database::{OrderModel, OrderSide, OrderStatus, OrderType};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,10 +33,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .name("test_producer")
         .build("test")
         .await?;
-
+    let x = OrderModel {
+        id: 1,
+        client_order_id: None,
+        price: None,
+        size: 10.0,
+        filled_size: 0.0,
+        side: OrderSide::Buy,
+        r#type: OrderType::Limit,
+        status: OrderStatus::Open,
+        open_at: Utc::now().naive_utc(),
+        closed_at: None,
+        sub_account_id: 1,
+        market_id: 1,
+    };
     for i in 0..message_count {
         producer
-            .send_with_confirm(Message::builder().body(format!("message{}", i)).build())
+            .send_with_confirm(Message::builder().body(serde_json::to_string(&x).unwrap()).build())
             .await?;
     }
 
@@ -54,7 +69,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             delivery
                 .message()
                 .data()
-                .map(|data| String::from_utf8(data.to_vec())),
+                .map(|data| serde_json::from_str::<OrderModel>(
+                std::str::from_utf8(&data.to_vec()).unwrap()).unwrap()
+            ),
             delivery.offset()
         );
     }

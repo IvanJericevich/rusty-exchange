@@ -151,6 +151,29 @@ mod tests {
                 .configure(router)
         ).await;
 
+        // Create records
+        let req = test::TestRequest::post()
+            .uri("/a@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/b@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::post()
+            .uri("/c@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        // Create one with error
+        let req = test::TestRequest::post()
+            .uri("/a@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
+
         // Get all
         let req = test::TestRequest::get()
             .uri("/")
@@ -158,33 +181,26 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
-        // Get one with error
+        // Get some
         let req = test::TestRequest::get()
-            .uri("/ivanjericevich96@gmail.com")
-            .to_request();
-        let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_client_error());
-
-        // Create one
-        let req = test::TestRequest::post()
-            .uri("/ivanjericevich96@gmail.com")
+            .uri("/?page=1&page_size=2")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
-
-        // Create one with error
-        let req = test::TestRequest::post()
-            .uri("/ivanjericevich96@gmail.com")
-            .to_request();
-        let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_client_error());
 
         // Get one
         let req = test::TestRequest::get()
-            .uri("/ivanjericevich96@gmail.com")
+            .uri("/a@gmail.com")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
+
+        // Get one with error
+        let req = test::TestRequest::get()
+            .uri("/unknown@gmail.com")
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_client_error());
 
         // Update one
         let req = test::TestRequest::put()
@@ -195,12 +211,10 @@ mod tests {
 
         // Update one with error
         let req = test::TestRequest::put()
-            .uri("/2?new_email=joe@gmail.com")
+            .uri("/100?new_email=joe@gmail.com")
             .to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
-
-        // Update one with error
         let req = test::TestRequest::put()
             .uri("/1?new_email=joe@gmail.com")
             .to_request();

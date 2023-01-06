@@ -1,6 +1,6 @@
 use crate::models::{
     error::Exception,
-    position::{Position, ClientGetRequest},
+    fill::{Fill, ClientGetRequest},
 };
 use crate::AppState;
 
@@ -12,22 +12,23 @@ use database::Query;
 // ----------------------------------------------------------------------
 
 #[utoipa::path(
-    context_path = "/orders",
+    context_path = "/fills",
     params(
-        ("client_id", description = "Client ID for which to search positions."),
+        ("client_id", description = "Client ID for which to search fills."),
         ClientGetRequest
     ),
     responses(
-        (status = 200, description = "Returns all positions.", body = [Position]),
+        (status = 200, description = "Returns all positions.", body = [Fill]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
+        (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with id <client_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with quote currency <quote_currency> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
-    tag = "Orders",
+    tag = "Fills",
 )]
 #[get("/{client_id}")]
 async fn get_client_related(
@@ -36,7 +37,7 @@ async fn get_client_related(
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
     let client_id = path.into_inner();
-    let positions = Query::find_client_related_positions(
+    let fills = Query::find_client_related_fills(
         &data.db,
         client_id,
         query.sub_account_id.clone(),
@@ -44,14 +45,18 @@ async fn get_client_related(
         query.market_id.clone(),
         query.base_currency.clone(),
         query.quote_currency.clone(),
+        query.order_id.clone(),
         query.side.clone(),
+        query.r#type.clone(),
+        query.start_time.clone(),
+        query.end_time.clone(),
         query.page.clone(),
         query.page_size.clone()
     )
         .await
         .map_err(|e| Exception::Database(e))?;
 
-    Ok(HttpResponse::Ok().json(positions))
+    Ok(HttpResponse::Ok().json(fills))
 }
 
 // ----------------------------------------------------------------------
@@ -59,8 +64,8 @@ async fn get_client_related(
 #[derive(OpenApi)]
 #[openapi(
     paths(get_client_related),
-    components(schemas(Position)),
-    tags((name = "Positions", description = "Position management endpoints.")),
+    components(schemas(Fill)),
+    tags((name = "Fills", description = "Fill management endpoints.")),
 )]
 pub struct ApiDoc;
 
@@ -73,7 +78,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 #[cfg(test)]
 mod tests {
     use actix_web::{test, App};
-    use database::{Engine, Migrator, MigratorTrait, Mutation, SubAccountStatus};
+    use database::{Engine, Migrator, MigratorTrait, Mutation};
 
     use super::*;
 

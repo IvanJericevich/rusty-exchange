@@ -8,6 +8,7 @@ mod markets;
 mod orders;
 mod positions;
 mod sub_accounts;
+mod fills;
 
 // ----------------------------------------------------------------------
 
@@ -16,6 +17,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/markets").configure(markets::router));
     cfg.service(web::scope("/sub_accounts").configure(sub_accounts::router));
     cfg.service(web::scope("/orders").configure(orders::router));
+    cfg.service(web::scope("/fills").configure(fills::router));
     cfg.service(web::scope("/positions").configure(positions::router));
     cfg.service(SwaggerUi::new("/swagger/{_:.*}").urls(vec![
         (
@@ -29,6 +31,10 @@ pub fn router(cfg: &mut web::ServiceConfig) {
         (
             Url::new("orders", "/doc/orders-openapi.json"),
             orders::ApiDoc::openapi(),
+        ),
+        (
+            Url::new("fills", "/doc/fills-openapi.json"),
+            fills::ApiDoc::openapi(),
         ),
         (
             Url::new("positions", "/doc/positions-openapi.json"),

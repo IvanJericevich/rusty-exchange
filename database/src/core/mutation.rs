@@ -1,6 +1,6 @@
 use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
 use crate::{Fill, OrderSide, OrderStatus, OrderType, SubAccountStatus};
-use chrono::{Duration, Utc};
+use chrono::{Utc};
 use sea_orm::prelude::*;
 use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
@@ -94,21 +94,33 @@ impl Mutation {
         size_increment: Option<f32>,
     ) -> Result<(), DbErr> {
         if let Some(market) = markets::Entity::find_by_id(market_id).one(db).await? {
-            let mut market: markets::ActiveModel = market.into();
-            if let Some(base_currency) = base_currency {
-                market.base_currency = Set(base_currency);
+            if let Some(other_market) = markets::Entity::find()
+                .filter(markets::Column::BaseCurrency.eq(base_currency.clone())) // If base_currency = None, will return None
+                .filter(markets::Column::QuoteCurrency.eq(quote_currency.clone())) // If quote_currency = None, will return None
+                .one(db)
+                .await?
+            {
+                Err(DbErr::RecordNotFound(format!(
+                    "Market with base currency {} and quote currency {} already exists.",
+                    other_market.base_currency, other_market.quote_currency
+                )))
+            } else {
+                let mut market: markets::ActiveModel = market.into();
+                if let Some(base_currency) = base_currency {
+                    market.base_currency = Set(base_currency);
+                }
+                if let Some(quote_currency) = quote_currency {
+                    market.quote_currency = Set(quote_currency);
+                }
+                if let Some(price_increment) = price_increment {
+                    market.price_increment = Set(price_increment);
+                }
+                if let Some(size_increment) = size_increment {
+                    market.size_increment = Set(size_increment);
+                }
+                let _ = market.update(db).await;
+                Ok(())
             }
-            if let Some(quote_currency) = quote_currency {
-                market.quote_currency = Set(quote_currency);
-            }
-            if let Some(price_increment) = price_increment {
-                market.price_increment = Set(price_increment);
-            }
-            if let Some(size_increment) = size_increment {
-                market.size_increment = Set(size_increment);
-            }
-            let _ = market.update(db).await;
-            Ok(())
         } else {
             Err(DbErr::RecordNotFound(format!(
                 "Market with id {market_id} does not exist."
@@ -124,15 +136,16 @@ impl Mutation {
         client_id: i32,
         name: String,
     ) -> Result<sub_accounts::Model, DbErr> {
-        let client = clients::Entity::find_by_id(client_id.clone())
+        if let Some(client) = clients::Entity::find_by_id(client_id.clone())
             .one(db)
-            .await?;
-        let sub_account = sub_accounts::Entity::find()
-            .filter(sub_accounts::Column::Name.eq(name.clone()))
-            .one(db)
-            .await?;
-        match (client, sub_account) {
-            (Some(_), None) => {
+            .await?
+        {
+            if let None = client.find_related(sub_accounts::Entity)
+                .filter(sub_accounts::Column::Name.eq(name.clone()))
+                .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                .one(db)
+                .await?
+            {
                 sub_accounts::ActiveModel {
                     name: Set(name),
                     created_at: Set(Utc::now().naive_utc()),
@@ -140,15 +153,17 @@ impl Mutation {
                     status: Set(SubAccountStatus::Active),
                     ..Default::default()
                 }
-                .insert(db)
-                .await
+                    .insert(db)
+                    .await
+            } else {
+                Err(DbErr::Custom(format!(
+                    "Sub-account with name {name} already exists."
+                )))
             }
-            (None, _) => Err(DbErr::RecordNotFound(format!(
+        } else {
+            Err(DbErr::RecordNotFound(format!(
                 "Client with id {client_id} does not exist."
-            ))),
-            (_, Some(_)) => Err(DbErr::Custom(format!(
-                "Sub-account with name {name} already exists."
-            ))),
+            )))
         }
     }
 
@@ -159,30 +174,42 @@ impl Mutation {
         name: Option<String>,
         status: Option<SubAccountStatus>,
     ) -> Result<(), DbErr> {
-        let client = clients::Entity::find_by_id(client_id).one(db).await?;
-        let sub_account: Option<sub_accounts::Model> =
-            sub_accounts::Entity::find_by_id(sub_account_id)
+        if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
+            if let Some(sub_account) = client.find_related(sub_accounts::Entity)
+                .filter(sub_accounts::Column::Id.eq(sub_account_id))
                 .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
                 .one(db)
-                .await?;
-        match (client, sub_account) {
-            (Some(_), Some(sub_account)) => {
-                let mut sub_account: sub_accounts::ActiveModel = sub_account.into();
-                if name.is_some() {
-                    sub_account.name = Set(name.unwrap().to_owned())
+                .await?
+            {
+                let mut sub_account: sub_accounts::ActiveModel = sub_account.into_active_model();
+                if let Some(name) = name {
+                    if let None = client.find_related(sub_accounts::Entity)
+                        .filter(sub_accounts::Column::Name.eq(name.clone()))
+                        .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
+                        .one(db)
+                        .await?
+                    {
+                        sub_account.name = Set(name.to_owned())
+                    } else {
+                        return Err(DbErr::Custom(format!(
+                            "Sub-account with name {name} already exists."
+                        )))
+                    }
                 }
-                if status.is_some() {
-                    sub_account.status = Set(status.unwrap())
+                if let Some(status) = status {
+                    sub_account.status = Set(status)
                 }
                 let _ = sub_account.update(db).await;
                 Ok(())
+            } else {
+                Err(DbErr::RecordNotFound(format!(
+                    "Sub-account with id {sub_account_id} does not exist."
+                )))
             }
-            (None, _) => Err(DbErr::RecordNotFound(format!(
+        } else {
+            Err(DbErr::RecordNotFound(format!(
                 "Client with id {client_id} does not exist."
-            ))),
-            (_, None) => Err(DbErr::RecordNotFound(format!(
-                "Sub-account with id {sub_account_id} does not exist."
-            ))),
+            )))
         }
     }
     // ----------------------------------------------------------------------

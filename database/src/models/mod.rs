@@ -6,6 +6,7 @@ pub use crate::entities::{
     clients::ActiveModel as ActiveClientModel, clients::Model as ClientModel,
     markets::ActiveModel as ActiveMarketModel, markets::Model as MarketModel,
     orders::ActiveModel as ActiveOrderModel, orders::Model as OrderModel,
+    fills::ActiveModel as ActiveFillModel, fills::Model as FillModel,
     sea_orm_active_enums::*,
     sub_accounts::ActiveModel as ActiveSubAccountModel, sub_accounts::Model as SubAccountModel,
 };

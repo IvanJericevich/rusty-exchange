@@ -344,6 +344,7 @@ impl MigrationTrait for Migration {
                     .table(Clients::Table)
                     .table(Markets::Table)
                     .table(SubAccounts::Table)
+                    .table(Fills::Table)
                     .table(Orders::Table)
                     .table(Positions::Table)
                     .to_owned(),
