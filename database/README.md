@@ -1,7 +1,7 @@
 <div align="center">
     <h3 align="center">Database</h3>
     <p align="center">
-        A library crate for the management of a postgresql database and the versions thereof using an asynchronous ORM.
+        A binary and library crate for the management of a postgresql database and the versions thereof using an asynchronous ORM.
     </p>
 </div>
 
@@ -27,6 +27,7 @@
 
 <!-- OVERVIEW -->
 # Overview
+This crate serves to provide all the functionality relating to the database of an exchange.
 
 <!-- STACK -->
 ## Stack
@@ -37,27 +38,30 @@
 <!-- PREREQUISITES -->
 ## Prerequisites
 * postgresql@14
-* Docker
 * (Optional) A UI for viewing/editing/managing databases such as PgAdmin or DBeaver
 
 <!-- USAGE -->
 # Usage
 Begin by starting a postgres server and creating a database instance. Then set the following environment variables in
-the [.env](.env) file:
-* `DB_NAME`: The name of the database to connect to.
-* `DB_HOST`: The host on which the postgres server is running.
-* `DB_USERNAME`: The username associated with the database.
-* `DB_PASSWORD`: The password for connecting to the database.
+the run configurations:
+* `DB_NAME`: The name of the database to connect to (default = `Rust`).
+* `DB_HOST`: The host on which the postgres server is running (default = `localhost`).
+* `DB_USERNAME`: The username associated with the database (default = `postgres`).
+* `DB_PASSWORD`: The password for connecting to the database (default = `Boomers4life!123`).
 
-This will allow for the database connection to be properly authenticated when each migration is run.
+Alternatively one can choose to rather provide a single environment variable for the `DATABASE_URL`
+(default = `postgresql://postgres:Boomers4life!123@localhost:5432/Rust`).
+
+This will allow for the database connection to be properly authenticated when each migration is run. Note that all run
+configurations come with pre-launch commands to build the crate and start postgres.
 
 All core SQL query operations are found in [src/core/query.rs](src/core/query.rs). All core mutation/CRUD operations
 are found in [src/core/mutation.rs](src/core/mutation.rs).
 
 All functionality relating to migrations are found in the [src/migrator](src/migrator) directory.
 
-Code generated SeaOrm entities are re-exported in the [src/models](src/models) for adding additional model properties
-(e.g. OpenApi schema, binary encodings, custom response formats, etc.).
+Code generated SeaOrm entities are exported in the [src/entities](src/entities) directory along with API request models
+and their respective OpenApi schemas.
 
 <!-- MIGRATIONS -->
 ## Migrations
@@ -143,7 +147,7 @@ export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB
   ```
 
 <!-- CODEGEN -->
-## Generate models/entities
+## Generate models/entities from database schema
 Once the database has been successfully migrated, the updated models/entities can be generated. This is done by the
 `sea-orm` cli which looks at the table schemas on the connected postgresql server. You may be required run
 `cargo install sea-orm-cli` if not done already (see dev-dependencies in [Cargo.toml](Cargo.toml)). The command below
@@ -156,8 +160,13 @@ sea-orm-cli generate entity --with-serde both \
 ```
 The above command is also set as an IntelliJ run configuration
 
+## Generate database schema from models/entities
+
 <!-- TESTING -->
 ## Testing
 To run all unit tests and integrations tests run `cargo test --features mock`. All integration tests can be found in
 the [tests](tests) directory. Integration tests are conducted with a 'mock' database (a feature of `sea-orm`). This
 requires the optional 'mock' feature.
+
+# Additional Resources
+* 

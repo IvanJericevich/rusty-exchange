@@ -27,13 +27,13 @@
 
 <!-- OVERVIEW -->
 # Overview
-Inspired by [CoinTossX](https://github.com/dharmeshsing/CoinTossX), this repo aims to create a high-throughput, low-latency fullstack matching engine written
-entirely in Rust
+Inspired by [CoinTossX](https://github.com/dharmeshsing/CoinTossX), this repo aims to create a high-throughput,
+low-latency fullstack matching engine written entirely in Rust.
 
 <!-- CRATES -->
 ## Crates
-* [API](api) ([docs](api/README.md))
-* [Database](database) ([docs](database/README.md))
+* [API](api) ([README.md](api/README.md))
+* [Database](database) ([README.md](database/README.md))
 
 <!-- STACK -->
 ## Stack
@@ -45,7 +45,20 @@ entirely in Rust
 ### Libraries
 * SeaOrm
 * Actix-Web
-* Utopia
+* Utoipa
+* RabbitMQ Stream Client
+
+### Microservices
+* API
+  * Retrieve data for clients and frontend
+  * Handle requests for exchange information
+  * Serve market data to websocket channels
+  * Submit new/amended/canceled orders to the matching engine
+* Matching engine
+  * Listen for incoming orders via RabbitMQ
+  * Process new limit orders and store them in a limit order book
+  * Match market orders to existing limit orders
+  * Publish fills to the database and the API websocket via RabbitMQ
 
 <!-- USAGE -->
 # Usage
@@ -95,8 +108,11 @@ IntelliJ).
 
 <!-- TODO -->
 # To-do
-* Create database integration tests
-* Create API tests
+* Create github workflows
+* Create dockerfiles for each service
 
 <!-- WHITEPAPERS -->
 # Whitepapers
+
+<!-- RESOURCES -->
+# Additional Resources
