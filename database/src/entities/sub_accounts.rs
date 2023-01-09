@@ -3,15 +3,23 @@
 use super::sea_orm_active_enums::SubAccountStatus;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::{ToSchema, IntoParams};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+// ----------------------------------------------------------------------
+
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize, ToSchema)]
 #[sea_orm(table_name = "sub_accounts")]
 pub struct Model {
     #[sea_orm(primary_key)]
+    #[schema(example = 1)]
     pub id: i32,
+    #[schema(example = "Example")]
     pub name: String,
+    #[schema(example = "1970-01-01T00:00:00")]
     pub created_at: DateTime,
+    #[schema(example = "Example")]
     pub client_id: i32,
+    #[schema(example = SubAccountStatus::Active)]
     pub status: SubAccountStatus,
 }
 
@@ -25,10 +33,10 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Clients,
-    #[sea_orm(has_many = "super::positions::Entity")]
-    Positions,
     #[sea_orm(has_many = "super::orders::Entity")]
     Orders,
+    #[sea_orm(has_many = "super::positions::Entity")]
+    Positions,
     #[sea_orm(has_many = "super::fills::Entity")]
     Fills,
 }
@@ -39,15 +47,15 @@ impl Related<super::clients::Entity> for Entity {
     }
 }
 
-impl Related<super::positions::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Positions.def()
-    }
-}
-
 impl Related<super::orders::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Orders.def()
+    }
+}
+
+impl Related<super::positions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Positions.def()
     }
 }
 
@@ -58,3 +66,31 @@ impl Related<super::fills::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+// ----------------------------------------------------------------------
+
+#[derive(Deserialize, IntoParams)]
+pub struct GetRequest {
+    #[param(example = "Active")]
+    pub status: Option<SubAccountStatus>,
+    #[param(example = 0)]
+    pub page: Option<u64>,
+    #[param(example = 1000)]
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PostRequest {
+    #[param(example = "Example")]
+    pub name: String,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PutRequest {
+    #[param(example = 1)]
+    pub id: i32,
+    #[param(example = "Example")]
+    pub name: Option<String>,
+    #[param(example = "Active")]
+    pub status: Option<SubAccountStatus>,
+}

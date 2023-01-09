@@ -264,7 +264,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tracing-subscriber",
- "utoipa",
  "utoipa-swagger-ui",
 ]
 
@@ -1013,6 +1012,8 @@ dependencies = [
  "sea-orm-cli",
  "sea-orm-migration",
  "serde",
+ "serde_json",
+ "utoipa",
 ]
 
 [[package]]

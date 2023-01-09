@@ -1,13 +1,11 @@
-use crate::models::{
-    error::Exception,
-    order::{Order, ClientGetRequest, ClientGetOpenRequest, PostRequest},
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, web, HttpResponse};
 
-use utoipa::OpenApi;
+use database::utoipa;
 use database::{Mutation, Query};
+use database::orders::{Response, ClientGetOpenRequest, ClientGetRequest, PostRequest};
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +16,7 @@ use database::{Mutation, Query};
         ClientGetOpenRequest
     ),
     responses(
-        (status = 200, description = "Returns all orders.", body = Order),
+        (status = 200, description = "Returns all orders.", body = Response),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
@@ -62,7 +60,7 @@ async fn get_client_related_open(
         ClientGetRequest
     ),
     responses(
-        (status = 200, description = "Returns all orders.", body = [Order]),
+        (status = 200, description = "Returns all orders.", body = [Response]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
@@ -148,7 +146,7 @@ async fn get_client_related(
     ),
     request_body = PostRequest,
     responses(
-        (status = 200, description = "Returns the created order record", body = Order),
+        (status = 200, description = "Returns the created order record", body = Response),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request", body = String, example = json!("Missing query arguments.")),
         (status = 400, description = "Bad request", body = String, example = json!("Invalid order parameters.")),
@@ -186,10 +184,10 @@ async fn create(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related_open, get_client_related, create),
-    components(schemas(Order)),
+    components(schemas(Response)),
     tags((name = "Orders", description = "Order management endpoints.")),
 )]
 pub struct ApiDoc;

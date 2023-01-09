@@ -5,8 +5,6 @@ use sea_orm_migration::sea_query::Query as SeaQuery;
 
 use crate::entities::{clients, fills, markets, orders, positions, sea_orm_active_enums::{OrderSide, OrderStatus, OrderType, SubAccountStatus}, sub_accounts};
 
-use crate::models::{Order, Position, Fill};
-
 // ----------------------------------------------------------------------
 
 pub struct Query;
@@ -328,7 +326,7 @@ impl Query {
         end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<Order>, DbErr> {
+    ) -> Result<Vec<orders::Response>, DbErr> {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
             let mut conditions = Condition::all().add(
                 orders::Column::SubAccountId.in_subquery(
@@ -508,7 +506,7 @@ impl Query {
                     Some(OrderStatus::Open) => orders::Column::OpenAt,
                     _ => orders::Column::ClosedAt,
                 })
-                .into_model::<Order>()
+                .into_model::<orders::Response>()
                 .paginate(db, page_size.unwrap_or(1))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
@@ -529,7 +527,7 @@ impl Query {
         end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<Order>, DbErr> {
+    ) -> Result<Vec<orders::Response>, DbErr> {
         let mut query = orders::Entity::find().filter(
             Condition::all().add(
                 if let Some(market) = markets::Entity::find_by_id(id)
@@ -584,7 +582,7 @@ impl Query {
                 Some(OrderStatus::Open) => orders::Column::OpenAt,
                 _ => orders::Column::ClosedAt,
             })
-            .into_model::<Order>()
+            .into_model::<orders::Response>()
             .paginate(db, page_size.unwrap_or(1))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
@@ -607,7 +605,7 @@ impl Query {
         end_time: Option<DateTime<Utc>>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<Fill>, DbErr> {
+    ) -> Result<Vec<fills::Response>, DbErr> {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
             let mut conditions = Condition::all().add(
                 fills::Column::SubAccountId.in_subquery(
@@ -784,7 +782,7 @@ impl Query {
                 .column(markets::Column::PriceIncrement)
                 .column(markets::Column::SizeIncrement)
                 .order_by_asc(fills::Column::CreatedAt)
-                .into_model::<Fill>()
+                .into_model::<fills::Response>()
                 .paginate(db, page_size.unwrap_or(1))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
@@ -808,7 +806,7 @@ impl Query {
         side: Option<OrderSide>,
         page: Option<u64>,
         page_size: Option<u64>,
-    ) -> Result<Vec<Position>, DbErr> {
+    ) -> Result<Vec<positions::Response>, DbErr> {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
             let mut conditions = Condition::all().add(
                 positions::Column::SubAccountId.in_subquery(
@@ -964,7 +962,7 @@ impl Query {
                 .column(markets::Column::QuoteCurrency)
                 .column(markets::Column::PriceIncrement)
                 .column(markets::Column::SizeIncrement)
-                .into_model::<Position>()
+                .into_model::<positions::Response>()
                 .paginate(db, page_size.unwrap_or(1))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await

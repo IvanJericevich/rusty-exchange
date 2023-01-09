@@ -1,5 +1,5 @@
 use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
-use crate::{Fill, OrderSide, OrderStatus, OrderType, SubAccountStatus};
+use crate::{OrderSide, OrderStatus, OrderType, SubAccountStatus};
 use chrono::{Utc};
 use sea_orm::prelude::*;
 use sea_orm::*;
@@ -238,7 +238,7 @@ impl Mutation {
             order.filled_size = Set(order.filled_size.unwrap() + fill.size);
             if order.filled_size == order.size {
                 order.status = Set(OrderStatus::Closed);
-                order.closed_at = Set(Some(Utc::now().naive_utc()));
+                order.closed_at = Set(Some(Utc::now()));
             }
             Ok(())
         } else {
@@ -310,7 +310,7 @@ impl Mutation {
                     side: Set(side),
                     r#type: Set(r#type),
                     status: Set(OrderStatus::Open),
-                    open_at: Set(Utc::now().naive_utc()),
+                    open_at: Set(Utc::now()),
                     closed_at: NotSet,
                     sub_account_id: Set(sub_account.id),
                     market_id: Set(market.id),
@@ -336,7 +336,7 @@ impl Mutation {
     pub async fn create_fill(
         db: &DbConn,
         fill: fills::Model,
-    ) -> Result<Fill, DbErr> {
+    ) -> Result<fills::Response, DbErr> {
         let fill = fill.into_active_model().insert(db).await?;
         let sub_account = fill.find_related(sub_accounts::Entity)
             .select_only()
@@ -345,7 +345,7 @@ impl Mutation {
             .await?
             .unwrap();
         let market = fill.find_related(markets::Entity).one(db).await?.unwrap();
-        Ok(Fill {
+        Ok(fills::Response {
             price: fill.price,
             size: fill.size,
             quote_size: fill.quote_size,

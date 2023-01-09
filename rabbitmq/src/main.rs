@@ -1,3 +1,4 @@
+use std::time::Duration;
 use chrono::{Utc};
 use futures::StreamExt;
 use rabbitmq_stream_client::{
@@ -24,7 +25,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let message_count = 10;
     environment
         .stream_creator()
-        .max_length(ByteCapacity::GB(2))
+        .max_length(ByteCapacity::MB(50))
+        .max_age(Duration::new(30, 0))
         .create("test")
         .await?;
 

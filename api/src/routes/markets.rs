@@ -1,14 +1,12 @@
-use crate::models::{
-    error::Exception,
-    market::{Market, GetRequest, PostRequest, PutRequest},
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
 use database::{Mutation, Query};
+use database::markets::{Model, GetRequest, PostRequest, PutRequest};
 
-use utoipa::OpenApi;
+use database::utoipa;
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +14,7 @@ use utoipa::OpenApi;
     context_path = "/markets",
     params(GetRequest),
     responses(
-        (status = 200, description = "Returns all markets.", body = [Market]),
+        (status = 200, description = "Returns all markets.", body = [Model]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Markets",
@@ -36,7 +34,7 @@ async fn get(
 #[utoipa::path(
     context_path = "/markets",
     responses(
-        (status = 200, description = "Returns a market with the matching base currency and quote currency.", body = Market),
+        (status = 200, description = "Returns a market with the matching base currency and quote currency.", body = Model),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
@@ -67,7 +65,7 @@ async fn get_by_ticker(
     ),
     request_body = PostRequest,
     responses(
-        (status = 200, description = "Returns the created market record.", body = Client),
+        (status = 200, description = "Returns the created market record.", body = Model),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> already exists.")),
     ),
@@ -129,10 +127,10 @@ async fn update(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_ticker, create, update),
-    components(schemas(Market)),
+    components(schemas(Model)),
     tags((name = "Markets", description = "Market management endpoints.")),
 )]
 pub struct ApiDoc;

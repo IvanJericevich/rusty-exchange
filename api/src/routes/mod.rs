@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use utoipa::OpenApi;
+use database::utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
 
 mod clients;

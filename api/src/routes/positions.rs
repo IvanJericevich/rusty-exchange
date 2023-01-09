@@ -1,24 +1,22 @@
-use crate::models::{
-    error::Exception,
-    position::{Position, ClientGetRequest},
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
 
-use utoipa::OpenApi;
+use database::utoipa;
 use database::Query;
+use database::positions::{ClientGetRequest, Model};
 
 // ----------------------------------------------------------------------
 
 #[utoipa::path(
-    context_path = "/orders",
+    context_path = "/positions",
     params(
         ("client_id", description = "Client ID for which to search positions."),
         ClientGetRequest
     ),
     responses(
-        (status = 200, description = "Returns all positions.", body = [Position]),
+        (status = 200, description = "Returns all positions.", body = [Model]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with id <client_id> does not exist.")),
@@ -56,10 +54,10 @@ async fn get_client_related(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related),
-    components(schemas(Position)),
+    components(schemas(Model)),
     tags((name = "Positions", description = "Position management endpoints.")),
 )]
 pub struct ApiDoc;

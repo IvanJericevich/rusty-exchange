@@ -69,7 +69,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Clients::Email).string().not_null())
+                    .col(ColumnDef::new(Clients::Email).string().unique_key().not_null())
                     .col(ColumnDef::new(Clients::CreatedAt).timestamp().not_null())
                     .to_owned(),
             )
@@ -127,7 +127,8 @@ impl MigrationTrait for Migration {
                                 SubAccountStatus::Table,
                                 [SubAccountStatus::Active, SubAccountStatus::Inactive],
                             )
-                            .not_null(),
+                            .not_null()
+                            .default("active"),
                     )
                     .to_owned(),
             )

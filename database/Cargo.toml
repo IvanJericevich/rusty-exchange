@@ -19,6 +19,8 @@ sea-orm-migration = { version = "^0.10.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
 serde = { version = "1", features = ["derive"] } # Serialization and deserialization of entities
 chrono = "0.4.23"
+utoipa = { version = "2.3.0", features = ["actix_extras", "json"] } # OpenApi schema
+serde_json = "1.0.91"
 
 [features]
 mock = ["sea-orm/mock"]

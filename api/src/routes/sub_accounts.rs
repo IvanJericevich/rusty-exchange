@@ -1,14 +1,11 @@
-use crate::models::{
-    error::Exception,
-    sub_account::{GetRequest, PostRequest, PutRequest, SubAccount},
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
 use database::{Query, Mutation};
-
-use utoipa::OpenApi;
+use database::utoipa;
+use database::sub_accounts::{GetRequest, PostRequest, PutRequest, Model};
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +13,7 @@ use utoipa::OpenApi;
     context_path = "/sub_accounts",
     params(GetRequest),
     responses(
-        (status = 200, description = "Returns all sub-accounts", body = [SubAccount]),
+        (status = 200, description = "Returns all sub-accounts", body = [Model]),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Sub-Accounts",
@@ -41,7 +38,7 @@ async fn get(
 #[utoipa::path(
     context_path = "/sub_accounts",
     responses(
-        (status = 200, description = "Returns all sub-accounts with the matching client id", body = [SubAccount]),
+        (status = 200, description = "Returns all sub-accounts with the matching client id", body = [Model]),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request", body = String, example = json!("Client with id <id> does not exist.")),
     ),
@@ -70,7 +67,7 @@ async fn get_by_client_id(
     ),
     request_body = PostRequest,
     responses(
-        (status = 200, description = "Returns the created sub-account record", body = SubAccount),
+        (status = 200, description = "Returns the created sub-account record", body = Model),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request", body = String, example = json!("Client with id <client_id> does not exist.")),
         (status = 400, description = "Bad request", body = String, example = json!("Sub-account with name <name> already exists.")),
@@ -131,10 +128,10 @@ async fn update(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_client_id, create, update),
-    components(schemas(SubAccount)),
+    components(schemas(Model)),
     tags((name = "Sub-Accounts", description = "Sub-account management endpoints.")),
 )]
 pub struct ApiDoc;

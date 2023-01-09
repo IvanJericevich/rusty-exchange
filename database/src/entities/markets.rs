@@ -2,38 +2,47 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::{ToSchema, IntoParams};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+// ----------------------------------------------------------------------
+
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize, ToSchema)]
 #[sea_orm(table_name = "markets")]
 pub struct Model {
     #[sea_orm(primary_key)]
+    #[schema(example = 1)]
     pub id: i32,
+    #[schema(example = "BTC")]
     pub base_currency: String,
+    #[schema(example = "USD")]
     pub quote_currency: String,
+    #[schema(example = 0.01)]
     pub price_increment: f32,
+    #[schema(example = 0.01)]
     pub size_increment: f32,
+    #[schema(example = "1970-01-01T00:00:00")]
     pub created_at: DateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::positions::Entity")]
-    Positions,
     #[sea_orm(has_many = "super::orders::Entity")]
     Orders,
+    #[sea_orm(has_many = "super::positions::Entity")]
+    Positions,
     #[sea_orm(has_many = "super::fills::Entity")]
     Fills,
-}
-
-impl Related<super::positions::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Positions.def()
-    }
 }
 
 impl Related<super::orders::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Orders.def()
+    }
+}
+
+impl Related<super::positions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Positions.def()
     }
 }
 
@@ -44,3 +53,33 @@ impl Related<super::fills::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+// ----------------------------------------------------------------------
+
+#[derive(Deserialize, IntoParams)]
+pub struct GetRequest {
+    #[param(example = 0)]
+    pub page: Option<u64>,
+    #[param(example = 1000)]
+    pub page_size: Option<u64>,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PostRequest {
+    #[param(example = 0.01)]
+    pub price_increment: f32,
+    #[param(example = 0.01)]
+    pub size_increment: f32,
+}
+
+#[derive(Deserialize, IntoParams)]
+pub struct PutRequest {
+    #[param(example = "BTC")]
+    pub base_currency: Option<String>,
+    #[param(example = "USD")]
+    pub quote_currency: Option<String>,
+    #[param(example = 0.01)]
+    pub price_increment: Option<f32>,
+    #[param(example = 0.01)]
+    pub size_increment: Option<f32>,
+}

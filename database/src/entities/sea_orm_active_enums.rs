@@ -4,6 +4,14 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_status")]
+pub enum OrderStatus {
+    #[sea_orm(string_value = "closed")]
+    Closed,
+    #[sea_orm(string_value = "open")]
+    Open,
+}
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_side")]
 pub enum OrderSide {
     #[sea_orm(string_value = "ask")]
@@ -18,14 +26,6 @@ pub enum OrderSide {
     Sell,
     #[sea_orm(string_value = "short")]
     Short,
-}
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_status")]
-pub enum OrderStatus {
-    #[sea_orm(string_value = "closed")]
-    Closed,
-    #[sea_orm(string_value = "open")]
-    Open,
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "sub_account_status")]

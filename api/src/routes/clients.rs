@@ -1,14 +1,12 @@
-use crate::models::{
-    client::{Client, GetRequest, PutRequest},
-    error::Exception,
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
 use database::{Mutation, Query};
+use database::clients::{Model, GetRequest, PutRequest};
 
-use utoipa::OpenApi;
+use database::utoipa;
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +14,7 @@ use utoipa::OpenApi;
     context_path = "/clients",
     params(GetRequest),
     responses(
-        (status = 200, description = "Returns all clients.", body = [Client]),
+        (status = 200, description = "Returns all clients.", body = [Model]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
     ),
     tag = "Clients",
@@ -36,7 +34,7 @@ async fn get(
 #[utoipa::path(
     context_path = "/clients",
     responses(
-        (status = 200, description = "Returns a client with the matching email address.", body = Client),
+        (status = 200, description = "Returns a client with the matching email address.", body = Model),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with email <email> does not exist.")),
     ),
@@ -64,7 +62,7 @@ async fn get_by_email(
     context_path = "/clients",
     params(("email", description = "Email of the new client.")),
     responses(
-        (status = 201, description = "Returns the created client record.", body = Client),
+        (status = 201, description = "Returns the created client record.", body = Model),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with email <email> already exists.")),
     ),
@@ -113,10 +111,10 @@ async fn update(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_email, create, update),
-    components(schemas(Client)),
+    components(schemas(Model)),
     tags((name = "Clients", description = "Client management endpoints.")),
 )]
 pub struct ApiDoc;

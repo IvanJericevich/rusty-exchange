@@ -1,12 +1,10 @@
-use crate::models::{
-    error::Exception,
-    fill::{Fill, ClientGetRequest},
-};
+use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
+use database::fills::{Response, ClientGetRequest};
 
-use utoipa::OpenApi;
+use database::utoipa;
 use database::Query;
 
 // ----------------------------------------------------------------------
@@ -18,7 +16,7 @@ use database::Query;
         ClientGetRequest
     ),
     responses(
-        (status = 200, description = "Returns all positions.", body = [Fill]),
+        (status = 200, description = "Returns all positions.", body = [Response]),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
@@ -61,10 +59,10 @@ async fn get_client_related(
 
 // ----------------------------------------------------------------------
 
-#[derive(OpenApi)]
+#[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related),
-    components(schemas(Fill)),
+    components(schemas(Response)),
     tags((name = "Fills", description = "Fill management endpoints.")),
 )]
 pub struct ApiDoc;

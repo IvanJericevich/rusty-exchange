@@ -1,4 +1,4 @@
-use database::{ClientModel, MarketModel, Mutation, Set, SubAccountModel, SubAccountStatus};
+use database::{clients, markets, sub_accounts, Mutation, SubAccountStatus};
 use sea_orm::prelude::*;
 use sea_orm::{DatabaseBackend, MockDatabase, MockExecResult};
 
@@ -9,12 +9,12 @@ async fn clients() {
     let db = MockDatabase::new(DatabaseBackend::Postgres)
         .append_query_results(vec![
             vec![],
-            vec![ClientModel {
+            vec![clients::Model {
                 id: 1,
                 email: "ivanjericevich96@gmail.com".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
             }],
-            vec![ClientModel {
+            vec![clients::Model {
                 id: 1,
                 email: "ivanjericevich96@gmail.com".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -30,7 +30,7 @@ async fn clients() {
         Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned())
             .await
             .unwrap(),
-        ClientModel {
+        clients::Model {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -54,7 +54,7 @@ async fn markets() {
     let db = MockDatabase::new(DatabaseBackend::Postgres)
         .append_query_results(vec![
             vec![],
-            vec![MarketModel {
+            vec![markets::Model {
                 id: 1,
                 base_currency: "BTC".to_owned(),
                 quote_currency: "USD".to_owned(),
@@ -62,7 +62,7 @@ async fn markets() {
                 size_increment: 0.01,
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
             }],
-            vec![MarketModel {
+            vec![markets::Model {
                 id: 1,
                 base_currency: "BTC".to_owned(),
                 quote_currency: "USD".to_owned(),
@@ -87,7 +87,7 @@ async fn markets() {
         )
             .await
             .unwrap(),
-        MarketModel {
+        markets::Model {
             id: 1,
             base_currency: "BTC".to_owned(),
             quote_currency: "USD".to_owned(),
@@ -117,17 +117,17 @@ async fn markets() {
 
 #[async_std::test]
 async fn sub_accounts() {
-    let empty_sub_account_vector: Vec<SubAccountModel> = vec![];
-    let empty_client_vector: Vec<ClientModel> = vec![];
+    let empty_sub_account_vector: Vec<sub_accounts::Model> = vec![];
+    let empty_client_vector: Vec<clients::Model> = vec![];
     let db = MockDatabase::new(DatabaseBackend::Postgres)
-        .append_query_results(vec![vec![ClientModel {
+        .append_query_results(vec![vec![clients::Model {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
         }]])
         .append_query_results(vec![
             vec![],
-            vec![SubAccountModel {
+            vec![sub_accounts::Model {
                 id: 1,
                 name: "Test".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -141,13 +141,13 @@ async fn sub_accounts() {
         .append_query_results(vec![
             empty_sub_account_vector
         ])
-        .append_query_results(vec![vec![ClientModel {
+        .append_query_results(vec![vec![clients::Model {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
         }]])
         .append_query_results(vec![
-            vec![SubAccountModel {
+            vec![sub_accounts::Model {
                 id: 1,
                 name: "Test".to_owned(),
                 created_at: "2022-01-01T00:00:00".parse().unwrap(),
@@ -167,7 +167,7 @@ async fn sub_accounts() {
             1,
             "Test".to_owned()
         ).await.unwrap(),
-        SubAccountModel {
+        sub_accounts::Model {
             id: 1,
             name: "Test".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
