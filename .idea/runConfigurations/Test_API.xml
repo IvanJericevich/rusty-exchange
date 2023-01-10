@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Test API" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="test" />
+    <option name="command" value="test -- --test-threads=1" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/api" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />

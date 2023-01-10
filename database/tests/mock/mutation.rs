@@ -108,7 +108,7 @@ async fn markets() {
             .await
             .unwrap_err(),
         DbErr::Custom(format!(
-            "Market with symbol BTC/USD already exists."
+            "Market with base currency BTC and quote currency USD already exists."
         ))
     );
 }
@@ -126,7 +126,7 @@ async fn sub_accounts() {
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
         }]])
         .append_query_results(vec![
-            vec![],
+            empty_sub_account_vector,
             vec![sub_accounts::Model {
                 id: 1,
                 name: "Test".to_owned(),
@@ -137,9 +137,6 @@ async fn sub_accounts() {
         ])
         .append_query_results(vec![
             empty_client_vector
-        ])
-        .append_query_results(vec![
-            empty_sub_account_vector
         ])
         .append_query_results(vec![vec![clients::Model {
             id: 1,

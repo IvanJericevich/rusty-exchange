@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use sea_orm::prelude::*;
 use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
@@ -322,8 +321,8 @@ impl Query {
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
         status: Option<OrderStatus>,
-        start_time: Option<DateTime<Utc>>,
-        end_time: Option<DateTime<Utc>>,
+        start_time: Option<DateTime>,
+        end_time: Option<DateTime>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<orders::Response>, DbErr> {
@@ -523,8 +522,8 @@ impl Query {
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
         status: Option<OrderStatus>,
-        start_time: Option<DateTime<Utc>>,
-        end_time: Option<DateTime<Utc>>,
+        start_time: Option<DateTime>,
+        end_time: Option<DateTime>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<orders::Response>, DbErr> {
@@ -601,8 +600,8 @@ impl Query {
         order_id: Option<i32>,
         side: Option<OrderSide>,
         r#type: Option<OrderType>,
-        start_time: Option<DateTime<Utc>>,
-        end_time: Option<DateTime<Utc>>,
+        start_time: Option<DateTime>,
+        end_time: Option<DateTime>,
         page: Option<u64>,
         page_size: Option<u64>,
     ) -> Result<Vec<fills::Response>, DbErr> {

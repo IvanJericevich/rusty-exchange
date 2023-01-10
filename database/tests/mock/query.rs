@@ -153,7 +153,7 @@ pub async fn markets() {
         Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned())
             .await
             .unwrap_err(),
-        DbErr::RecordNotFound("Market with symbol BTC/USD does not exist.".to_owned())
+        DbErr::RecordNotFound("Market with base currency BTC and quote currency USD does not exist.".to_owned())
     );
 }
 

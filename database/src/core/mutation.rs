@@ -238,7 +238,7 @@ impl Mutation {
             order.filled_size = Set(order.filled_size.unwrap() + fill.size);
             if order.filled_size == order.size {
                 order.status = Set(OrderStatus::Closed);
-                order.closed_at = Set(Some(Utc::now()));
+                order.closed_at = Set(Some(Utc::now().naive_utc()));
             }
             Ok(())
         } else {
@@ -310,7 +310,7 @@ impl Mutation {
                     side: Set(side),
                     r#type: Set(r#type),
                     status: Set(OrderStatus::Open),
-                    open_at: Set(Utc::now()),
+                    open_at: Set(Utc::now().naive_utc()),
                     closed_at: NotSet,
                     sub_account_id: Set(sub_account.id),
                     market_id: Set(market.id),

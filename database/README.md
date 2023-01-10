@@ -160,8 +160,6 @@ sea-orm-cli generate entity --with-serde both \
 ```
 The above command is also set as an IntelliJ run configuration
 
-## Generate database schema from models/entities
-
 <!-- TESTING -->
 ## Testing
 To run all unit tests and integrations tests run `cargo test --features mock`. All integration tests can be found in
