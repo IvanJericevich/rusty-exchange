@@ -19,8 +19,8 @@
             <li><a href="#docker">Docker</a></li>
         </ol>
         <li><a href="#contribution">Contribution</a></li>
-        <li><a href="#todo">To-do</a></li>
         <li><a href="#whitepapers">Whitepapers</a></li>
+        <li><a href="#todo">To-do</a></li>
     </ol>
 </details>
 <br />
@@ -34,6 +34,7 @@ low-latency fullstack matching engine written entirely in Rust.
 ## Crates
 * [API](api) ([README.md](api/README.md))
 * [Database](database) ([README.md](database/README.md))
+* * [Order-book](orderbook) ([README.md](orderbook/README.md))
 
 <!-- STACK -->
 ## Stack
@@ -79,7 +80,7 @@ This docker-compose file contains the following environment variables:
 * `PGADMIN_DEFAULT_PASSWORD` the default value is **admin**
 
 ### Access to postgres:
-* `localhost:5432`
+* **Host** `localhost:5432`
 * **Username:** postgres (as a default)
 * **Password:** Boomers4life!123 (as a default)
 
@@ -106,13 +107,17 @@ To generate a new change-log, run cz changelog. This will generate new entries i
 One can apply these code style changes directly by running `cargo run clippy --fix` (set as a run configuration for
 IntelliJ).
 
+<!-- WHITEPAPERS -->
+# Whitepapers
+1. [Jericevich, I., Sing, D., Gebbie, T. (2021). Cointossx: An open-source low-latency high-throughput matching engine. arXiv:2102.10925.](https://arxiv.org/abs/2102.10925)
+2. [Jericevich, I., Chang, P., Gebbie, T. (2021). Simulation and estimation of a point-process market-model with a matching engine. arXiv:2105.02211.](https://arxiv.org/abs/2105.02211)
+3. [Jericevich, I., Chang, P., Gebbie, T. (2021). Simulation and estimation of an agent-based market-model with a matching engine. arXiv:2108.07806.](https://arxiv.org/abs/2108.07806)
+
+<!-- RESOURCES -->
+# Additional Resources
+* [CoinTossX](https://github.com/dharmeshsing/CoinTossX)
+
 <!-- TODO -->
 # To-do
 * Create github workflows
 * Create dockerfiles for each service
-
-<!-- WHITEPAPERS -->
-# Whitepapers
-
-<!-- RESOURCES -->
-# Additional Resources

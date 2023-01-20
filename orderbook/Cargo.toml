@@ -1,0 +1,13 @@
+[package]
+name = "orderbook"
+version = "0.0.0"
+edition = "2021"
+authors = ["ivanjericevich96@gmail.com"]
+description = "A crate for the matching and storage of incoming orders in a limit order book"
+readme = "README.md"
+keywords = ["orderbook,", "matching engine"]
+publish = false
+
+[dependencies]
+chrono = "0.4.23"
+database = { path = "../database" }

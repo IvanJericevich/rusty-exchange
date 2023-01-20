@@ -113,7 +113,7 @@ pub struct Response {
     pub order_id: i32,
 }
 
-#[derive(Serialize, Deserialize)] // TODO: Derive into active model
+#[derive(Serialize, Deserialize, Debug)] // TODO: Derive into active model
 pub struct Fill {
     pub price: f32,
     pub size: f32,

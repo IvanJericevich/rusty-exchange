@@ -116,14 +116,6 @@ pub struct Response {
     pub sub_account: String,
 }
 
-#[derive(Serialize, Deserialize)] // TODO: Derive into active model
-pub struct Order {
-    pub id: i32,
-    pub price: f32,
-    pub size: f32,
-    pub side: OrderSide
-}
-
 #[derive(Deserialize, IntoParams)]
 pub struct ClientGetRequest {
     #[param(example = 1)]
@@ -212,4 +204,15 @@ pub struct PostRequest {
     pub base_currency: Option<String>,
     #[param(example = "USD")]
     pub quote_currency: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, FromQueryResult, Clone, Debug)] // TODO: Derive into active model
+pub struct Order {
+    pub id: i32,
+    pub sub_account_id: i32,
+    pub price: Option<f32>,
+    pub size: f32,
+    pub side: OrderSide,
+    pub r#type: OrderType,
+    pub open_at: DateTime
 }

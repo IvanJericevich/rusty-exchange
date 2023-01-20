@@ -1,5 +1,5 @@
 [package]
-name = "fullstack-rs"
+name = "rusty-exchange"
 version = "0.0.0"
 edition = "2021"
 authors = ["ivanjericevich96@gmail.com"]
@@ -9,7 +9,16 @@ keywords = [""]
 publish = false
 
 [workspace]
-members = [".", "api", "database", "rabbitmq"]
+members = [".", "api", "database", "rabbitmq", "orderbook"]
 
 [dependencies]
 api = { path = "api" }
+orderbook = { path = "orderbook" }
+
+[[bin]]
+name = "api"
+path = "src/bin/api.rs"
+
+[[bin]]
+name = "matching_engine"
+path = "src/bin/matching_engine.rs"

@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/database/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rabbitmq/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/orderbook/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/database/target" />
     </content>

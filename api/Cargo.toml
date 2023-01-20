@@ -17,6 +17,3 @@ database = { path = "../database" }
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] } # Log SQL commands
 derive_more = "0.99.17"
 chrono = "0.4.23"
-
-[dev-dependencies]
-cargo-watch = "8.1.2"
