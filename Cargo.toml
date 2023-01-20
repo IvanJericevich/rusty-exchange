@@ -9,7 +9,7 @@ keywords = [""]
 publish = false
 
 [workspace]
-members = [".", "api", "database", "rabbitmq", "orderbook"]
+members = [".", "api", "database", "orderbook"]
 
 [dependencies]
 api = { path = "api" }

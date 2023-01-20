@@ -260,7 +260,7 @@ impl Mutation {
         market_id: Option<i32>,
         base_currency: Option<String>,
         quote_currency: Option<String>,
-    ) -> Result<orders::Model, DbErr> {
+    ) -> Result<orders::Order, DbErr> {
         let sub_account_and_client: Option<(sub_accounts::Model, Option<clients::Model>)> =
             sub_accounts::Entity::find_by_id(sub_account_id)
                 .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
@@ -302,7 +302,7 @@ impl Mutation {
                     }
                     NotSet
                 };
-                orders::ActiveModel {
+                let order = orders::ActiveModel {
                     client_order_id: Set(client_order_id),
                     price,
                     size: Set(size),
@@ -317,7 +317,16 @@ impl Mutation {
                     ..Default::default()
                 }
                     .insert(db)
-                    .await
+                    .await?;
+                Ok(orders::Order{
+                    id: order.id,
+                    sub_account_id: order.sub_account_id,
+                    price: order.price,
+                    size: order.size,
+                    side: order.side,
+                    r#type: order.r#type,
+                    open_at: order.open_at,
+                })
             }
             (None, _) => Err(DbErr::RecordNotFound(format!(
                 "Sub-account with id {sub_account_id} does not exist."

@@ -2,6 +2,7 @@ use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, web, HttpResponse};
+use rabbitmq_stream_client::types::Message;
 
 use database::utoipa;
 use database::{Mutation, Query};
@@ -146,7 +147,7 @@ async fn get_client_related(
     ),
     request_body = PostRequest,
     responses(
-        (status = 200, description = "Returns the created order record", body = Response),
+        (status = 200, description = "Returns the created order record", body = Order),
         (status = 500, description = "Internal server error", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request", body = String, example = json!("Missing query arguments.")),
         (status = 400, description = "Bad request", body = String, example = json!("Invalid order parameters.")),
@@ -178,6 +179,16 @@ async fn create(
     )
         .await
         .map_err(|e| Exception::Database(e))?;
+
+    if let Some(producer) = &data.producer {
+        let _ = producer
+            .send_with_confirm(
+                Message::builder()
+                    .body(serde_json::to_string(&order).unwrap())
+                    .build()
+            )
+            .await; // .map_err(|e| Exception::Database(e))?;
+    }
 
     Ok(HttpResponse::Ok().json(order))
 }
@@ -212,7 +223,7 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = AppState { db: db.clone(), producer: None }; // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
@@ -253,8 +264,7 @@ mod tests {
             }))
             .to_request();
         let resp = test::call_service(&app, req).await;
-        println!("{:?}", resp.into_body());
-        // assert!(resp.status().is_success());
+        assert!(resp.status().is_success());
         let req = test::TestRequest::post()
             .uri("/1")
             .set_json(json!({

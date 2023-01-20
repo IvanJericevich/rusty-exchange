@@ -206,7 +206,7 @@ pub struct PostRequest {
     pub quote_currency: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, FromQueryResult, Clone, Debug)] // TODO: Derive into active model
+#[derive(Serialize, Deserialize, FromQueryResult, Clone, Debug, ToSchema)]
 pub struct Order {
     pub id: i32,
     pub sub_account_id: i32,

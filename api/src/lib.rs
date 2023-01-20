@@ -14,32 +14,56 @@ use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
 
+use std::time::Duration;
+
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+use rabbitmq_stream_client::types::ByteCapacity;
+
 use routes::router;
 
 // ----------------------------------------------------------------------
-
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct AppState {
     db: DatabaseConnection,
+    producer: Option<Producer<NoDedup>> // Make optional for unit tests
 }
 
 #[actix_web::main]
 async fn run() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
     tracing_subscriber::fmt().init(); // Log SQL operations
+    std::env::set_var("RUST_LOG", "actix_web=trace");
 
     // Establish connection to database and apply migrations
     let db = Engine::connect().await.unwrap(); // Allow to panic if unsuccessful
     Migrator::up(&db, None).await.unwrap(); // Allow to panic if unsuccessful
 
-    let state = AppState { db }; // Build app state
+    // Establish connection to RabbitMQ
+    let environment = Environment::builder()
+        .host("localhost")
+        .port(5552)
+        .build()
+        .await
+        .unwrap();
+    environment
+        .stream_creator()
+        .max_length(ByteCapacity::MB(50))
+        .max_age(Duration::new(30, 0))
+        .create("orders")
+        .await
+        .unwrap();
+    let producer = Some(
+        environment
+            .producer()
+            .build("orders")
+            .await
+            .unwrap()
+    );
+
+    let state = AppState { db, producer }; // Build app state
 
     HttpServer::new(move || {
-        let logger = Logger::new("%r %s (%Ts)");
-
         App::new()
-            .wrap(logger)
+            .wrap(Logger::new("%r %s (%Ts)"))
             .app_data(web::Data::new(state.clone()))
             .configure(router)
     })

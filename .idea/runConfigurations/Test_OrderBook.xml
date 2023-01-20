@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Test OrderBook" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="test --package orderbook --lib test::main -- --exact" />
+    <option name="command" value="test --package orderbook --lib test::main -- --exact --test-threads=1" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
@@ -8,7 +8,7 @@
     <option name="emulateTerminal" value="false" />
     <option name="withSudo" value="false" />
     <option name="buildTarget" value="REMOTE" />
-    <option name="backtrace" value="SHORT" />
+    <option name="backtrace" value="FULL" />
     <envs />
     <option name="isRedirectInput" value="false" />
     <option name="redirectInputPath" value="" />
