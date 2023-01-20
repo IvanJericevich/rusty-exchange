@@ -14,6 +14,7 @@ members = [".", "api", "database", "orderbook"]
 [dependencies]
 api = { path = "api" }
 orderbook = { path = "orderbook" }
+async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
 
 [[bin]]
 name = "api"

@@ -1,7 +1,10 @@
 #![feature(binary_heap_retain)]
 mod queue;
 
+use futures::StreamExt;
 use chrono::Utc;
+use rabbitmq_stream_client::Environment;
+use rabbitmq_stream_client::types::OffsetSpecification;
 use database::orders::Order;
 use database::{OrderSide, OrderType};
 use database::fills::Fill;
@@ -24,7 +27,7 @@ impl OrderBook {
         }
     }
     
-    pub fn process(&mut self, order: Order) -> bool {
+    fn process(&mut self, order: Order) -> bool {
         match order.r#type {
             OrderType::Limit => self.process_limit(order),
             OrderType::Market => self.process_market(order),
@@ -109,12 +112,12 @@ impl OrderBook {
         }
     }
 
-    fn process_order_cancel(&mut self, order: Order) -> bool {
-        match order.side {
-            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => (&mut self.bids).cancel(order.id),
-            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => (&mut self.asks).cancel(order.id),
-        }
-    }
+    // fn process_order_cancel(&mut self, order: Order) -> bool {
+    //     match order.side {
+    //         OrderSide::Buy | OrderSide::Bid | OrderSide::Long => (&mut self.bids).cancel(order.id),
+    //         OrderSide::Sell | OrderSide::Ask | OrderSide::Short => (&mut self.asks).cancel(order.id),
+    //     }
+    // }
 
     pub fn spread(&mut self) -> Option<(f32, f32)> {
         let bid = self.bids.peek()?.price.unwrap();
@@ -144,9 +147,29 @@ impl OrderBook {
         };
     }
     
-    // pub fn run() -> () {
-    //     todo!()
-    // }
+    pub async fn run(&mut self) {
+        let mut consumer = Environment::builder()
+            .host("localhost")
+            .port(5552)
+            .build()
+            .await
+            .unwrap()
+            .consumer()
+            .offset(OffsetSpecification::First)
+            .build("orders")
+            .await
+            .unwrap();
+        while let Ok(delivery) = consumer.next().await.unwrap() { // TODO: Handle error
+            if let Some(order) = delivery
+                .message()
+                .data()
+                .map(|data| serde_json::from_str::<Order>(
+                    std::str::from_utf8(&data.to_vec()).unwrap()).unwrap()
+                ) {
+                self.process(order);
+            }
+        }
+    }
 }
 
 #[cfg(test)]

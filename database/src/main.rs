@@ -5,18 +5,3 @@ use sea_orm_migration::prelude::*;
 async fn main() {
     cli::run_cli(Migrator).await;
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use database::{Engine, Query};
-//
-//     use futures::executor::block_on;
-//
-//     #[test]
-//     fn test_connection() {
-//         // Test that a connection to the database can be established
-//         let db = block_on(Engine::connect()).unwrap();
-//         let res = block_on(Query::find_orders(&db, None, None, None, None, Some(1), None, None, None, None, None, None, None)).unwrap();
-//         print!("{:?}", res);
-//     }
-// }

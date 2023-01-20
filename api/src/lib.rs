@@ -44,7 +44,7 @@ async fn run() -> std::io::Result<()> {
         .build()
         .await
         .unwrap();
-    environment
+    environment // Create stream at producer
         .stream_creator()
         .max_length(ByteCapacity::MB(50))
         .max_age(Duration::new(30, 0))
