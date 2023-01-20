@@ -1,6 +1,6 @@
 #![feature(binary_heap_retain)]
 mod queue;
-
+// TODO: add rmq env variable to run config
 use futures::StreamExt;
 use chrono::Utc;
 use rabbitmq_stream_client::Environment;
@@ -144,7 +144,7 @@ impl OrderBook {
             sub_account_id,
             market_id: self.id,
             order_id,
-        };
+        }; // TODO: Fill producer
     }
     
     pub async fn run(&mut self) {
@@ -159,7 +159,7 @@ impl OrderBook {
             .build("orders")
             .await
             .unwrap();
-        while let Ok(delivery) = consumer.next().await.unwrap() { // TODO: Handle error
+        while let Ok(delivery) = consumer.next().await.unwrap() { // TODO: Handle errors
             if let Some(order) = delivery
                 .message()
                 .data()
