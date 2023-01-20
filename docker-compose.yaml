@@ -22,7 +22,7 @@ services:
     volumes:
       - rabbitmq:/var/lib/rabbitmq/
       - rabbitmq:/var/log/rabbitmq
-      - $PWD/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins # Enable stream plugin
+      - $PWD/rmq_enabled_plugins:/etc/rabbitmq/enabled_plugins # Enable stream plugin
     networks:
       - rabbitmq
     environment:
