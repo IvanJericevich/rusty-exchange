@@ -251,6 +251,7 @@ dependencies = [
  "chrono",
  "database",
  "derive_more",
+ "parking_lot 0.12.1",
  "rabbitmq-stream-client",
  "serde",
  "serde_json",

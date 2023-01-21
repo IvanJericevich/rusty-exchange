@@ -1,3 +1,4 @@
+use std::cmp::min;
 use sea_orm::prelude::*;
 use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
@@ -35,7 +36,7 @@ impl Query {
         page_size: Option<u64>,
     ) -> Result<Vec<clients::Model>, DbErr> {
         clients::Entity::find()
-            .paginate(db, page_size.unwrap_or(1))
+            .paginate(db, min(page_size.unwrap_or(1), 1000))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -72,7 +73,7 @@ impl Query {
         page_size: Option<u64>,
     ) -> Result<Vec<markets::Model>, DbErr> {
         markets::Entity::find()
-            .paginate(db, page_size.unwrap_or(1))
+            .paginate(db, min(page_size.unwrap_or(1), 1000))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -120,7 +121,7 @@ impl Query {
         }
 
         query
-            .paginate(db, page_size.unwrap_or(1))
+            .paginate(db, min(page_size.unwrap_or(1), 1000))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -506,7 +507,7 @@ impl Query {
                     _ => orders::Column::ClosedAt,
                 })
                 .into_model::<orders::Response>()
-                .paginate(db, page_size.unwrap_or(1))
+                .paginate(db, min(page_size.unwrap_or(1), 1000))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
         } else {
@@ -582,7 +583,7 @@ impl Query {
                 _ => orders::Column::ClosedAt,
             })
             .into_model::<orders::Response>()
-            .paginate(db, page_size.unwrap_or(1))
+            .paginate(db, min(page_size.unwrap_or(1), 1000))
             .fetch_page(page.unwrap_or(1) - 1)
             .await
     }
@@ -782,7 +783,7 @@ impl Query {
                 .column(markets::Column::SizeIncrement)
                 .order_by_asc(fills::Column::CreatedAt)
                 .into_model::<fills::Response>()
-                .paginate(db, page_size.unwrap_or(1))
+                .paginate(db, min(page_size.unwrap_or(1), 1000))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
         } else {
@@ -962,7 +963,7 @@ impl Query {
                 .column(markets::Column::PriceIncrement)
                 .column(markets::Column::SizeIncrement)
                 .into_model::<positions::Response>()
-                .paginate(db, page_size.unwrap_or(1))
+                .paginate(db, min(page_size.unwrap_or(1), 1000))
                 .fetch_page(page.unwrap_or(1) - 1)
                 .await
         } else {

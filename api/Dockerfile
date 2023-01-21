@@ -9,5 +9,7 @@ RUN cargo build --release
 FROM debian:buster-slim
 # Copy binary from first stage
 COPY --from=builder ./target/release/api ./target/release/api
+# Expose port
+EXPOSE 8080
 # Execute binary
 CMD ["/target/release/api"]

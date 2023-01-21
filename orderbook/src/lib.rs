@@ -133,7 +133,7 @@ impl OrderBook {
         r#type: OrderType,
         sub_account_id: i32,
         order_id: i32
-    ) -> () {
+    ) {
         let x = Fill {
             price,
             size,

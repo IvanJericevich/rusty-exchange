@@ -1,10 +1,7 @@
 // TODO: Think about using &str so we dont use clone() all the time
 // TODO: having vs filter
 // TODO: should models implement display (for logging and errors)
-// TODO: create custom active model
 // TODO: Use system time instead of datetime
-// TODO: Ensure page size is not greater than 1000
-// TODO: Generate migration from models
 // Bring modules into scope
 mod core; // Export core SQL queries/mutations
 mod entities; // Do not export entities - re-export them in the "models" module

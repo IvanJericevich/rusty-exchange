@@ -14,6 +14,7 @@
       <env name="DB_NAME" value="Rust" />
       <env name="DB_PASSWORD" value="Boomers4life!123" />
       <env name="DB_USERNAME" value="postgres" />
+      <env name="RUST_LOG" value="actix_web=trace" />
     </envs>
     <option name="isRedirectInput" value="false" />
     <option name="redirectInputPath" value="" />
