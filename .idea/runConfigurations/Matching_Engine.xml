@@ -1,20 +1,16 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Matching Engine" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package rusty-exchange --bin matching_engine" />
-    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-    <option name="channel" value="DEFAULT" />
-    <option name="requiredFeatures" value="true" />
-    <option name="allFeatures" value="false" />
-    <option name="emulateTerminal" value="false" />
-    <option name="withSudo" value="false" />
-    <option name="buildTarget" value="REMOTE" />
-    <option name="backtrace" value="FULL" />
-    <envs />
-    <option name="isRedirectInput" value="false" />
-    <option name="redirectInputPath" value="" />
-    <method v="2">
-      <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="RabbitMQ" run_configuration_type="docker-deploy" />
-    </method>
+  <configuration default="false" name="Matching Engine" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envFilePath" value="" />
+        <option name="services">
+          <list>
+            <option value="matching_engine" />
+          </list>
+        </option>
+        <option name="sourceFilePath" value="docker-compose.yaml" />
+      </settings>
+    </deployment>
+    <method v="2" />
   </configuration>
 </component>

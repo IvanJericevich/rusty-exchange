@@ -39,8 +39,8 @@ async fn get(
         (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
     ),
     params(
-        ("base_currency", description = "Base currency of the ticker to search for."),
-        ("quote_currency", description = "Quote currency of the ticker to search for.")
+        ("base_currency", description = "Base currency of the ticker to search for.", example = "BTC"),
+        ("quote_currency", description = "Quote currency of the ticker to search for.", example = "USD")
     ),
     tag = "Markets",
 )]
@@ -60,8 +60,8 @@ async fn get_by_ticker(
 #[utoipa::path(
     context_path = "/markets",
     params(
-        ("base_currency", description = "New base currency of the market to create."),
-        ("quote_currency", description = "New quote currency of the market to create.")
+        ("base_currency", description = "New base currency of the market to create.", example = "BTC"),
+        ("quote_currency", description = "New quote currency of the market to create.", example = "USD")
     ),
     request_body = PostRequest,
     responses(
@@ -94,11 +94,11 @@ async fn create(
 #[utoipa::path(
 context_path = "/markets",
     params(
-        ("id", description = "ID of the market to update.")
+        ("id", description = "ID of the market to update.", example = 1)
     ),
     request_body = PutRequest,
     responses(
-        (status = 200, description = "Returns null.", body = None),
+        (status = 200, description = "Returns null."),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Market with id <id> does not exist.")),
     ),
@@ -130,7 +130,7 @@ async fn update(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_ticker, create, update),
-    components(schemas(Model)),
+    components(schemas(Model, PostRequest, PutRequest)),
     tags((name = "Markets", description = "Market management endpoints.")),
 )]
 pub struct ApiDoc;
@@ -149,6 +149,7 @@ mod tests {
     use actix_web::{test, App};
     use serde_json::json;
     use database::{Engine, Migrator, MigratorTrait};
+    use crate::StopHandle;
 
     use super::*;
 
@@ -156,13 +157,17 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
             App::new()
-                .app_data(web::Data::new(state.clone()))
+                .app_data(state.clone())
                 .configure(router)
         ).await;
 

@@ -3,7 +3,7 @@ FROM rust:latest AS builder
 # Copy source files
 COPY . .
 # Run build
-RUN cargo build --release
+RUN cargo build --release --bin matching_engine
 
 # Debian lightweight image (Second stage)
 FROM debian:buster-slim

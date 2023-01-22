@@ -3,7 +3,7 @@ name = "database"
 version = "0.0.0"
 edition = "2021"
 authors = ["ivanjericevich96@gmail.com"]
-description = "A crate for the management of a postgresql database and the versions thereof using an asynchronous ORM"
+description = "A crate for the management of a postgresql database and the versions thereof using an asynchronous ORM."
 readme = "README.md"
 keywords = ["database", "postgres", "sql", "sea-orm", "async"]
 publish = false
@@ -19,7 +19,7 @@ sea-orm-migration = { version = "^0.10.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
 serde = { version = "1", features = ["derive"] } # Serialization and deserialization of entities
 chrono = "0.4.23"
-utoipa = { version = "2.3.0", features = ["actix_extras", "json"] } # OpenApi schema
+utoipa = { version = "2.4.2", features = ["actix_extras", "json", "chrono"] } # OpenApi schema
 serde_json = "1.0.91"
 
 [features]

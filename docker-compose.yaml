@@ -55,3 +55,17 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  api:
+    container_name: api_container
+    image: api
+    build:
+      context: .
+      dockerfile: ./api
+    ports:
+      - "8080:8080"
+  matching_engine:
+    container_name: matching_engine_container
+    image: matching_engine
+    build:
+      context: .
+      dockerfile: ./orderbook

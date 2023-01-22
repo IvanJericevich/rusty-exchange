@@ -1,0 +1,9 @@
+.idea/
+Dockerfile
+README.md
+.gitignore
+.cz.yaml
+.pre-commit-config.yaml
+commitlint.config.cjs
+LICENSE
+.DS_Store

@@ -1,11 +1,10 @@
-use crate::models::error::Exception;
 use crate::AppState;
+use crate::models::error::Exception;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
 use database::{Mutation, Query};
 use database::clients::{Model, GetRequest, PutRequest};
-
 use database::utoipa;
 
 // ----------------------------------------------------------------------
@@ -39,7 +38,7 @@ async fn get(
         (status = 400, description = "Bad request.", body = String, example = json!("Client with email <email> does not exist.")),
     ),
     params(
-        ("email", description = "Email of the client to search for.")
+        ("email", description = "Email of the client to search for.", example = "example@gmail.com")
     ),
     tag = "Clients",
 )]
@@ -60,7 +59,7 @@ async fn get_by_email(
 
 #[utoipa::path(
     context_path = "/clients",
-    params(("email", description = "Email of the new client.")),
+    params(("email", description = "Email of the new client.", example = "example@gmail.com")),
     responses(
         (status = 201, description = "Returns the created client record.", body = Model),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
@@ -84,11 +83,11 @@ async fn create(
 #[utoipa::path(
     context_path = "/clients",
     params(
-        PutRequest,
-        ("id", description = "ID of the client to update.")
+        ("id", description = "ID of the client to update.", example = 1)
     ),
+    request_body = PutRequest,
     responses(
-        (status = 200, description = "Returns null.", body = None),
+        (status = 200, description = "Returns null."),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with id <id> does not exist.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Client with email <new_email> already exists.")),
@@ -98,11 +97,11 @@ async fn create(
 #[put("/{id}")]
 async fn update(
     path: web::Path<i32>,
-    query: web::Query<PutRequest>, // TODO: Use body instead of params?
+    body: web::Query<PutRequest>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
     let id = path.into_inner();
-    Mutation::update_client(&data.db, id, query.new_email.clone())
+    Mutation::update_client(&data.db, id, body.new_email.clone())
         .await
         .map_err(|e| Exception::Database(e))?;
 
@@ -114,7 +113,7 @@ async fn update(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_email, create, update),
-    components(schemas(Model)),
+    components(schemas(Model, PutRequest)),
     tags((name = "Clients", description = "Client management endpoints.")),
 )]
 pub struct ApiDoc;
@@ -132,6 +131,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 mod tests {
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait};
+    use crate::StopHandle;
 
     use super::*;
 
@@ -139,13 +139,17 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
             App::new()
-                .app_data(web::Data::new(state.clone()))
+                .app_data(state.clone())
                 .configure(router)
         ).await;
 

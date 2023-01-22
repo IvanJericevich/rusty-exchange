@@ -1,7 +1,7 @@
 <div align="center">
     <h3 align="center">Database</h3>
     <p align="center">
-        A binary crate for a RESTful API which will serve and receive data to/from a user via the http protocol.
+        A library crate for a RESTful API which will serve and receive data to/from a user via the http protocol.
     </p>
 </div>
 

@@ -13,7 +13,7 @@ use database::orders::{Response, ClientGetOpenRequest, ClientGetRequest, PostReq
 #[utoipa::path(
     context_path = "/orders",
     params(
-        ("client_id", description = "Client ID for which to search orders."),
+        ("client_id", description = "Client ID for which to search orders.", example = 1),
         ClientGetOpenRequest
     ),
     responses(
@@ -57,7 +57,7 @@ async fn get_client_related_open(
 #[utoipa::path(
     context_path = "/orders",
     params(
-        ("client_id", description = "Client ID for which to search orders."),
+        ("client_id", description = "Client ID for which to search orders.", example = 1),
         ClientGetRequest
     ),
     responses(
@@ -143,7 +143,7 @@ async fn get_client_related(
 #[utoipa::path(
     context_path = "/orders",
     params(
-        ("client_id", description = "The client id for which to create a new sub-account."),
+        ("client_id", description = "The client id for which to create a new sub-account.", example = 1),
     ),
     request_body = PostRequest,
     responses(
@@ -187,7 +187,8 @@ async fn create(
                     .body(serde_json::to_string(&order).unwrap()) // TODO: Dont confirm otherwise api will halt
                     .build()
             )
-            .await; // .map_err(|e| Exception::Database(e))?;
+            .await
+            .map_err(|e| Exception::RabbitMQ(e))?;
     }
 
     Ok(HttpResponse::Ok().json(order))
@@ -224,7 +225,11 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = web::Data::new(AppState { db: db.clone(), producer: None, stop_handle: StopHandle::default() }); // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server

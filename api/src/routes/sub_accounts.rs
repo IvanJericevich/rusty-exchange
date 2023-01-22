@@ -43,7 +43,7 @@ async fn get(
         (status = 400, description = "Bad request", body = String, example = json!("Client with id <id> does not exist.")),
     ),
     params(
-        ("client_id", description = "Client ID for which to search sub-accounts"),
+        ("client_id", description = "Client ID for which to search sub-accounts", example = 1),
     ),
     tag = "Sub-Accounts",
 )]
@@ -63,7 +63,7 @@ async fn get_by_client_id(
 #[utoipa::path(
     context_path = "/sub_accounts",
     params(
-        ("client_id", description = "The client id for which to create a new sub-account."),
+        ("client_id", description = "The client id for which to create a new sub-account.", example = 1),
     ),
     request_body = PostRequest,
     responses(
@@ -95,7 +95,7 @@ async fn create(
 #[utoipa::path(
     context_path = "/sub_accounts",
     params(
-        ("id", description = "ID of the sub-account to update")
+        ("id", description = "ID of the sub-account to update", example = 1)
     ),
     request_body = PutRequest,
     responses(
@@ -131,7 +131,7 @@ async fn update(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_client_id, create, update),
-    components(schemas(Model)),
+    components(schemas(Model, PostRequest, PutRequest)),
     tags((name = "Sub-Accounts", description = "Sub-account management endpoints.")),
 )]
 pub struct ApiDoc;
@@ -150,6 +150,7 @@ mod tests {
     use actix_web::{test, App};
     use serde_json::json;
     use database::{Engine, Migrator, MigratorTrait, SubAccountStatus};
+    use crate::StopHandle;
 
     use super::*;
 
@@ -157,7 +158,11 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server

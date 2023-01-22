@@ -64,22 +64,22 @@ pub struct GetRequest {
     pub page_size: Option<u64>,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)] // Body parameters require ToSchema macro
 pub struct PostRequest {
-    #[param(example = 0.01)]
+    #[schema(example = 0.01)]
     pub price_increment: f32,
-    #[param(example = 0.01)]
+    #[schema(example = 0.01)]
     pub size_increment: f32,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct PutRequest {
-    #[param(example = "BTC")]
+    #[schema(example = "BTC")]
     pub base_currency: Option<String>,
-    #[param(example = "USD")]
+    #[schema(example = "USD")]
     pub quote_currency: Option<String>,
-    #[param(example = 0.01)]
+    #[schema(example = 0.01)]
     pub price_increment: Option<f32>,
-    #[param(example = 0.01)]
+    #[schema(example = 0.01)]
     pub size_increment: Option<f32>,
 }

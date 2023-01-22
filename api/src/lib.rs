@@ -6,6 +6,7 @@
 // TODO: Hide foreign keys from openapi schema
 // TODO: what about datetime provided as timestamps
 // TODO; Create index.html
+// TODO: Test error responses
 mod models;
 mod routes;
 
@@ -53,31 +54,31 @@ async fn run() -> std::io::Result<()> {
     Migrator::up(&db, None).await.unwrap(); // Allow to panic if unsuccessful
 
     // Establish connection to RabbitMQ
-    let environment = Environment::builder()
-        .host("localhost")
-        .port(5552)
-        .build()
-        .await
-        .unwrap();
-    let _ = environment.delete_stream("orders").await; // Delete stream if it exists
-    environment // Create stream at producer
-        .stream_creator()
-        .max_length(ByteCapacity::MB(50))
-        .max_age(Duration::new(30, 0))
-        .create("orders")
-        .await
-        .unwrap();
-    let producer = Some( // TODO: Mutex?
-        environment
-            .producer()
-            .build("orders")
-            .await
-            .unwrap()
-    );
+    // let environment = Environment::builder()
+    //     .host("localhost")
+    //     .port(5552)
+    //     .build()
+    //     .await
+    //     .unwrap();
+    // let _ = environment.delete_stream("orders").await; // Delete stream if it exists
+    // environment // Create stream at producer
+    //     .stream_creator()
+    //     .max_length(ByteCapacity::MB(50))
+    //     .max_age(Duration::new(30, 0))
+    //     .create("orders")
+    //     .await
+    //     .unwrap();
+    // let producer = Some( // TODO: Mutex?
+    //     environment
+    //         .producer()
+    //         .build("orders")
+    //         .await
+    //         .unwrap()
+    // );
 
     let state = web::Data::new(AppState {
         db,
-        producer,
+        producer: None,
         stop_handle: StopHandle::default()
     }); // Build app state
 

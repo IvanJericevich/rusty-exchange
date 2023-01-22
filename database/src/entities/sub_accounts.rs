@@ -69,7 +69,7 @@ impl ActiveModelBehavior for ActiveModel {}
 
 // ----------------------------------------------------------------------
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, IntoParams)] // TODO: Do get requests need schemas?
 pub struct GetRequest {
     #[param(example = "Active")]
     pub status: Option<SubAccountStatus>,
@@ -79,18 +79,18 @@ pub struct GetRequest {
     pub page_size: Option<u64>,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct PostRequest {
-    #[param(example = "Example")]
+    #[schema(example = "Example")]
     pub name: String,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct PutRequest {
-    #[param(example = 1)]
+    #[schema(example = 1)]
     pub id: i32,
-    #[param(example = "Example")]
+    #[schema(example = "Example")]
     pub name: Option<String>,
-    #[param(example = "Active")]
+    #[schema(example = "Active")]
     pub status: Option<SubAccountStatus>,
 }

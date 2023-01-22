@@ -12,7 +12,7 @@ use database::positions::{ClientGetRequest, Model};
 #[utoipa::path(
     context_path = "/positions",
     params(
-        ("client_id", description = "Client ID for which to search positions."),
+        ("client_id", description = "Client ID for which to search positions.", example = 1),
         ClientGetRequest
     ),
     responses(
@@ -72,6 +72,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 mod tests {
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait, Mutation, SubAccountStatus};
+    use crate::StopHandle;
 
     use super::*;
 
@@ -79,13 +80,17 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
             App::new()
-                .app_data(web::Data::new(state.clone()))
+                .app_data(state.clone())
                 .configure(router)
         ).await;
         let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;

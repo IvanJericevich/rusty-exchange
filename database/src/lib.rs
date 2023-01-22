@@ -1,7 +1,4 @@
 // TODO: Think about using &str so we dont use clone() all the time
-// TODO: having vs filter
-// TODO: should models implement display (for logging and errors)
-// TODO: Use system time instead of datetime
 // Bring modules into scope
 mod core; // Export core SQL queries/mutations
 mod entities; // Do not export entities - re-export them in the "models" module

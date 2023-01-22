@@ -1,6 +1,7 @@
 use actix_web::web;
 
 use database::utoipa::OpenApi;
+
 use utoipa_swagger_ui::{SwaggerUi, Url};
 
 mod clients;
@@ -21,19 +22,19 @@ pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/positions").configure(positions::router));
     cfg.service(SwaggerUi::new("/swagger/{_:.*}").urls(vec![
         (
-            Url::with_primary("clients", "/doc/clients-openapi.json", true),
+            Url::with_primary("clients", "/clients-schema/openapi.json", true),
             clients::ApiDoc::openapi(),
         ),
         (
-            Url::new("markets", "/doc/markets-openapi.json"),
+            Url::new("markets", "/markets-schema/openapi.json"),
             markets::ApiDoc::openapi(),
         ),
         (
-            Url::new("orders", "/doc/orders-openapi.json"),
+            Url::new("orders", "/orders-schema/openapi.json"),
             orders::ApiDoc::openapi(),
         ),
         (
-            Url::new("fills", "/doc/fills-openapi.json"),
+            Url::new("fills", "/fills-schema/openapi.json"),
             fills::ApiDoc::openapi(),
         ),
         (

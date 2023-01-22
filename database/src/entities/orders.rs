@@ -184,35 +184,42 @@ pub struct MarketGetRequest {
     pub page_size: Option<u64>,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct PostRequest {
-    #[param(example = 1)]
+    #[schema(example = 1)]
     pub sub_account_id: i32,
-    #[param(example = 100.0)]
+    #[schema(example = 100.0)]
     pub size: f32,
-    #[param(example = "Buy")]
+    #[schema(example = "Buy")]
     pub side: OrderSide,
-    #[param(example = "Market")]
+    #[schema(example = "Market")]
     pub r#type: OrderType,
-    #[param(example = 50.0)]
+    #[schema(example = 50.0)]
     pub price: Option<f32>,
-    #[param(example = "Test")]
+    #[schema(example = "Test")]
     pub client_order_id: Option<String>,
-    #[param(example = 1)]
+    #[schema(example = 1)]
     pub market_id: Option<i32>,
-    #[param(example = "BTC")]
+    #[schema(example = "BTC")]
     pub base_currency: Option<String>,
-    #[param(example = "USD")]
+    #[schema(example = "USD")]
     pub quote_currency: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, FromQueryResult, Clone, Debug, ToSchema)]
 pub struct Order {
+    #[schema(example = 1)]
     pub id: i32,
+    #[schema(example = 1)]
     pub sub_account_id: i32,
+    #[schema(example = 50.0)]
     pub price: Option<f32>,
+    #[schema(example = 100.0)]
     pub size: f32,
+    #[schema(example = "Buy")]
     pub side: OrderSide,
+    #[schema(example = "Market")]
     pub r#type: OrderType,
+    #[schema(example = "1970-01-01T00:00:00")]
     pub open_at: DateTime
 }

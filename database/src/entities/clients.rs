@@ -43,8 +43,8 @@ pub struct GetRequest {
     pub page_size: Option<u64>,
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct PutRequest {
-    #[param(example = "example@gmail.com")]
+    #[schema(example = "example@gmail.com")]
     pub new_email: String,
 }

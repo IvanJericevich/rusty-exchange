@@ -2,8 +2,8 @@ use crate::models::error::Exception;
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse};
-use database::fills::{Response, ClientGetRequest};
 
+use database::fills::{Response, ClientGetRequest};
 use database::utoipa;
 use database::Query;
 
@@ -12,7 +12,7 @@ use database::Query;
 #[utoipa::path(
     context_path = "/fills",
     params(
-        ("client_id", description = "Client ID for which to search fills."),
+        ("client_id", description = "Client ID for which to search fills.", example = 1),
         ClientGetRequest
     ),
     responses(
@@ -77,6 +77,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 mod tests {
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait, Mutation};
+    use crate::StopHandle;
 
     use super::*;
 
@@ -84,13 +85,17 @@ mod tests {
     async fn main() {
         // Set up
         let db = Engine::connect().await.unwrap();
-        let state = AppState { db: db.clone() }; // Build app state
+        let state = web::Data::new(AppState {
+            db: db.clone(),
+            producer: None,
+            stop_handle: StopHandle::default()
+        }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
         let app = test::init_service(
             App::new()
-                .app_data(web::Data::new(state.clone()))
+                .app_data(state.clone())
                 .configure(router)
         ).await;
         let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
