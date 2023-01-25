@@ -44,13 +44,13 @@ This crate serves to provide all the functionality relating to the database of a
 # Usage
 Begin by starting a postgres server and creating a database instance. Then set the following environment variables in
 the run configurations:
-* `DB_NAME`: The name of the database to connect to (default = `Rust`).
-* `DB_HOST`: The host on which the postgres server is running (default = `localhost`).
-* `DB_USERNAME`: The username associated with the database (default = `postgres`).
-* `DB_PASSWORD`: The password for connecting to the database (default = `Boomers4life!123`).
+* `POSTGRES_DB`: The name of the database to connect to (default = `Exchange`).
+* `POSTGRES_HOST`: The host on which the postgres server is running (default = `localhost`).
+* `POSTGRES_USER`: The username associated with the database (default = `postgres`).
+* `POSTGRES_PASSWORD`: The password for connecting to the database (default = `postgres`).
 
 Alternatively one can choose to rather provide a single environment variable for the `DATABASE_URL`
-(default = `postgresql://postgres:Boomers4life!123@localhost:5432/Rust`).
+(default = `postgresql://postgres:postgres@localhost:5432/Exchange`).
 
 This will allow for the database connection to be properly authenticated when each migration is run. Note that all run
 configurations come with pre-launch commands to build the crate and start postgres.
@@ -83,7 +83,7 @@ of the running database before you execute any of the commands below - otherwise
 commands below. Note that if you are using the IntelliJ IDE the below commands are already set as run configurations
 in the [.idea](.idea) directory.
 ```sh
-export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME>"
+export DATABASE_URL="postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB>"
 ```
 
 - Generate a new migration file
@@ -93,56 +93,56 @@ export DATABASE_URL="postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB
 - Apply all pending migrations
   ```sh
   sea-orm-cli migrate \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
   ```sh
   sea-orm-cli migrate up \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Apply first 10 pending migrations
   ```sh
   sea-orm-cli migrate up \
     -n 10 \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Rollback last applied migrations
   ```sh
   sea-orm-cli migrate down \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Rollback last 10 applied migrations
   ```sh
   sea-orm-cli migrate down \
     -n 10 \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Drop all tables from the database, then reapply all migrations
   ```sh
   sea-orm-cli migrate fresh \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Rollback all applied migrations, then reapply all migrations
   ```sh
   sea-orm-cli migrate refresh \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Rollback all applied migrations
   ```sh
   sea-orm-cli migrate reset \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 - Check the status of all migrations
   ```sh
   sea-orm-cli migrate status \
-    -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+    -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
     -d .
   ```
 
@@ -154,7 +154,7 @@ Once the database has been successfully migrated, the updated models/entities ca
 generates entities/models in the [entities](src/entities) directory.
 ```sh
 sea-orm-cli generate entity --with-serde both \
-  -u postgresql://<DB_USERNAME>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME> \
+  -u postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:5432/<POSTGRES_DB> \
   -o src/entities
   -d .
 ```

@@ -1,29 +1,56 @@
 #![feature(binary_heap_retain)]
 mod queue;
-// TODO: add rmq env variable to run config
+
 use futures::StreamExt;
+use futures::executor;
 use chrono::Utc;
-use rabbitmq_stream_client::Environment;
-use rabbitmq_stream_client::types::OffsetSpecification;
+use rabbitmq_stream_client::{Environment, Producer, Dedup};
+use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
 use database::orders::Order;
 use database::{OrderSide, OrderType};
 use database::fills::Fill;
 use crate::queue::Queue;
+use std::time::Duration;
 
 const QUEUE_CAPACITY: usize = 500;
 
 pub struct OrderBook { // TODO: price and size increment
     id: i32,
-    bids: Queue, // TODO: make the queues accessible from other threads and perhaps cancel orders in new thread
+    bids: Queue,
     asks: Queue,
+    producer: Option<Producer<Dedup>>
 }
 
 impl OrderBook {
-    pub fn new(market_id: i32) -> Self {
+    pub async fn new(market_id: i32) -> Self {
+        // Establish connection to RabbitMQ
+        let environment = Environment::builder()
+            .host("localhost")
+            .port(5552)
+            .build()
+            .await
+            .unwrap();
+        let _ = environment.delete_stream("fills").await; // Delete stream if it exists
+        environment // Create stream at producer
+            .stream_creator()
+            .max_length(ByteCapacity::MB(50))
+            .max_age(Duration::new(30, 0))
+            .create("fills")
+            .await
+            .unwrap();
+        let producer = Some(
+            environment
+                .producer()
+                .name("fills")
+                .build("fills")
+                .await
+                .unwrap()
+        );
         OrderBook {
             id: market_id,
             bids: Queue::new(QUEUE_CAPACITY),
-            asks: Queue::new(QUEUE_CAPACITY)
+            asks: Queue::new(QUEUE_CAPACITY),
+            producer
         }
     }
     
@@ -77,7 +104,7 @@ impl OrderBook {
         }
     }
 
-    fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
+    async fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
         {
             self.publish_fill(
                 contra_order.price.unwrap(),
@@ -126,7 +153,7 @@ impl OrderBook {
     }
 
     fn publish_fill(
-        &self,
+        &mut self,
         price: f32,
         size: f32,
         side: OrderSide,
@@ -134,7 +161,7 @@ impl OrderBook {
         sub_account_id: i32,
         order_id: i32
     ) {
-        let x = Fill {
+        let fill = Fill {
             price,
             size,
             quote_size: price * size,
@@ -144,7 +171,17 @@ impl OrderBook {
             sub_account_id,
             market_id: self.id,
             order_id,
-        }; // TODO: Fill producer
+        };
+        if let Some(producer) = &mut self.producer {
+            let _ = executor::block_on(
+                producer
+                    .send_with_confirm(
+                        Message::builder()
+                            .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
+                            .build()
+                    )
+            );
+        }
     }
     
     pub async fn run(&mut self) {

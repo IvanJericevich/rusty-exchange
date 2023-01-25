@@ -32,9 +32,9 @@ low-latency fullstack matching engine written entirely in Rust.
 
 <!-- CRATES -->
 ## Crates
-* [API](api) ([README.md](api/README.md))
-* [Database](database) ([README.md](database/README.md))
-* * [Order-book](orderbook) ([README.md](orderbook/README.md))
+* [API](api) ([README](api/README.md))
+* [Database](database) ([README](database/README.md))
+* * [Order-book](orderbook) ([README](orderbook/README.md))
 
 <!-- STACK -->
 ## Stack
@@ -63,26 +63,27 @@ low-latency fullstack matching engine written entirely in Rust.
 
 <!-- USAGE -->
 # Usage
+One can start all services either through docker-compose or by running the individual binaries in development.
 <!-- DOCKER -->
 ## Docker
 ### Quick Start
 * Clone or download this repository
-* Go inside of directory,  `cd fullstack-rs`
+* Go inside of directory, `cd rusty-exchange`
 * Run this command `docker-compose up -d`
 
 ### Environments
 This docker-compose file contains the following environment variables:
-
 * `POSTGRES_USER` the default value is **postgres**
-* `POSTGRES_PASSWORD` the default value is **Boomers4life!123**
+* `POSTGRES_PASSWORD` the default value is **postgres**
+* `POSTGRES_DB` the default value is **Exchange**
 * `PGADMIN_PORT` the default value is **5050**
 * `PGADMIN_DEFAULT_EMAIL` the default value is **pgadmin4@pgadmin.org**
 * `PGADMIN_DEFAULT_PASSWORD` the default value is **admin**
 
 ### Access to postgres:
-* **Host** `localhost:5432`
+* **Host** If accessing from localhost then `localhost:5432` else `host.docker.internal`
 * **Username:** postgres (as a default)
-* **Password:** Boomers4life!123 (as a default)
+* **Password:** postgres (as a default)
 
 ### Access to PgAdmin:
 * **URL:** `http://localhost:5050`
@@ -90,21 +91,32 @@ This docker-compose file contains the following environment variables:
 * **Password:** admin (as a default)
 
 ### Add a new server in PgAdmin:
-* **Host name/address** `postgres`
+* **Host name/address** If accessing from localhost then `localhost:5432` else `host.docker.internal`
 * **Port** `5432`
 * **Username** as `POSTGRES_USER`, by default: `postgres`
-* **Password** as `POSTGRES_PASSWORD`, by default `Boomers4life!123`
+* **Password** as `POSTGRES_PASSWORD`, by default `postgres`
 
 ### RabbitMQ
-Begin by starting a RabbitMQ server. Then set the following environment variables in
-the [.env](.env) file:
-* `RMQ_URL`: The name of the database to connect to.
-
+Begin by starting a RabbitMQ server either from the docker-compose.yaml (also defined in the run configurations) or
+from the command line:
+```
 docker run -it --rm --name rabbitmq -p 5552:5552 \
--e RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS='-rabbitmq_stream advertised_host localhost' \
-rabbitmq:3.9
+  -e RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS='-rabbitmq_stream advertised_host localhost' \
+  rabbitmq:3.9
+```
 
-docker exec rabbitmq rabbitmq-plugins enable rabbitmq_stream
+In order to user the Rust stream client one has to start the RabbitMQ server with the correct plugins:
+* `rabbitmq_stream` to enable streaming.
+* `rabbitmq_management` for creating a management UI on the host browser.
+
+These plugins are defined in [rmq_enabled_plugins](rmq_enabled_plugins) and are activated on start-up when running
+through docker-compose. To access the management UI, navigate to [http://localhost:15672/](http://localhost:15672/)
+and login with username `guest` and password `guest`.
+
+### Development
+Run configurations for individual services are provided for those using the IntelliJ IDE. These run configurations
+include commands to run unit tests. Any start scripts also include start scripts before launch for running any dependant
+services.
 
 <!-- CONTRIBUTION -->
 # Contribution

@@ -32,7 +32,8 @@ services:
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Boomers4life!123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -60,7 +61,7 @@ services:
     image: api
     build:
       context: .
-      dockerfile: ./api
+      dockerfile: ./api/Dockerfile
     ports:
       - "8080:8080"
   matching_engine:
@@ -68,4 +69,4 @@ services:
     image: matching_engine
     build:
       context: .
-      dockerfile: ./orderbook
+      dockerfile: ./orderbook/Dockerfile

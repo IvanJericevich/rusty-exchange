@@ -1,27 +1,16 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="API" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package rusty-exchange --bin api" />
-    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-    <option name="channel" value="DEFAULT" />
-    <option name="requiredFeatures" value="true" />
-    <option name="allFeatures" value="false" />
-    <option name="emulateTerminal" value="false" />
-    <option name="withSudo" value="false" />
-    <option name="buildTarget" value="REMOTE" />
-    <option name="backtrace" value="FULL" />
-    <envs>
-      <env name="DB_HOST" value="localhost" />
-      <env name="DB_NAME" value="Rust" />
-      <env name="DB_PASSWORD" value="Boomers4life!123" />
-      <env name="DB_USERNAME" value="postgres" />
-      <env name="RUST_LOG" value="actix_web=trace" />
-    </envs>
-    <option name="isRedirectInput" value="false" />
-    <option name="redirectInputPath" value="" />
-    <method v="2">
-      <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Start Postgres" run_configuration_type="ShConfigurationType" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="RabbitMQ" run_configuration_type="docker-deploy" />
-    </method>
+  <configuration default="false" name="API" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envFilePath" value="" />
+        <option name="services">
+          <list>
+            <option value="api" />
+          </list>
+        </option>
+        <option name="sourceFilePath" value="docker-compose.yaml" />
+      </settings>
+    </deployment>
+    <method v="2" />
   </configuration>
 </component>
