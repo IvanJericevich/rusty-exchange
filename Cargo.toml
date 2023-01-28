@@ -23,3 +23,6 @@ path = "src/bin/api.rs"
 [[bin]]
 name = "matching_engine"
 path = "src/bin/matching_engine.rs"
+
+[profile.release] # Performance optimization at cost of longer build time
+lto = true

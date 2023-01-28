@@ -23,29 +23,33 @@ pub struct OrderBook { // TODO: price and size increment
 
 impl OrderBook {
     pub async fn new(market_id: i32) -> Self {
-        // Establish connection to RabbitMQ
-        let environment = Environment::builder()
-            .host("localhost")
-            .port(5552)
-            .build()
-            .await
-            .unwrap();
-        let _ = environment.delete_stream("fills").await; // Delete stream if it exists
-        environment // Create stream at producer
-            .stream_creator()
-            .max_length(ByteCapacity::MB(50))
-            .max_age(Duration::new(30, 0))
-            .create("fills")
-            .await
-            .unwrap();
-        let producer = Some(
-            environment
-                .producer()
-                .name("fills")
-                .build("fills")
+        let producer = if !cfg!(test) {
+            // Establish connection to RabbitMQ
+            let environment = Environment::builder()
+                .host("localhost")
+                .port(5552)
+                .build()
                 .await
-                .unwrap()
-        );
+                .unwrap();
+            let _ = environment.delete_stream("fills").await; // Delete stream if it exists
+            environment // Create stream at producer
+                .stream_creator()
+                .max_length(ByteCapacity::MB(50))
+                .max_age(Duration::new(30, 0))
+                .create("fills")
+                .await
+                .unwrap();
+            Some(
+                environment
+                    .producer()
+                    .name("fills")
+                    .build("fills")
+                    .await
+                    .unwrap()
+            )
+        } else {
+            None
+        };
         OrderBook {
             id: market_id,
             bids: Queue::new(QUEUE_CAPACITY),
@@ -104,7 +108,7 @@ impl OrderBook {
         }
     }
 
-    async fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
+    fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
         {
             self.publish_fill(
                 contra_order.price.unwrap(),
@@ -161,18 +165,18 @@ impl OrderBook {
         sub_account_id: i32,
         order_id: i32
     ) {
-        let fill = Fill {
-            price,
-            size,
-            quote_size: price * size,
-            side,
-            r#type,
-            created_at: Utc::now().naive_utc(),
-            sub_account_id,
-            market_id: self.id,
-            order_id,
-        };
         if let Some(producer) = &mut self.producer {
+            let fill = Fill {
+                price,
+                size,
+                quote_size: price * size,
+                side,
+                r#type,
+                created_at: Utc::now().naive_utc(),
+                sub_account_id,
+                market_id: self.id,
+                order_id,
+            };
             let _ = executor::block_on(
                 producer
                     .send_with_confirm(
@@ -215,10 +219,33 @@ mod test {
     use super::*;
     use database::orders::Order;
 
-    #[test]
-    fn main() {
-        let mut orderbook = OrderBook::new(1);
-        let order1 = Order {
+    #[async_std::test]
+    async fn add_limit_order_to_empty() {
+        let mut orderbook = OrderBook::new(1).await;
+        assert!(orderbook.process(Order {
+            id: 1,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 2,
+            sub_account_id: 1,
+            price: Some(11.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+    }
+
+    #[async_std::test]
+    async fn add_limit_crossing_spread() {
+        let mut orderbook = OrderBook::new(1).await;
+        assert!(orderbook.process(Order {
             id: 1,
             sub_account_id: 1,
             price: Some(10.0),
@@ -226,17 +253,174 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        };
-        orderbook.process(order1);
-        let order2 = Order {
+        }));
+        assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
             price: Some(11.0),
-            size: 15.0,
+            size: 10.0,
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        };
-        orderbook.process(order2);
+        }));
+        assert!(orderbook.process(Order {
+            id: 3,
+            sub_account_id: 1,
+            price: Some(11.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 4,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+    }
+
+    #[async_std::test]
+    async fn add_limit_to_existing_price_queue() {
+        let mut orderbook = OrderBook::new(1).await;
+        assert!(orderbook.process(Order {
+            id: 1,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 2,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 3,
+            sub_account_id: 1,
+            price: Some(9.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 4,
+            sub_account_id: 1,
+            price: Some(9.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+    }
+
+    #[async_std::test]
+    async fn add_market_order_to_empty() {
+        let mut orderbook = OrderBook::new(1).await;
+        assert!(orderbook.process(Order {
+            id: 1,
+            sub_account_id: 1,
+            price: None,
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 2,
+            sub_account_id: 1,
+            price: None,
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
+    }
+
+    #[async_std::test]
+    async fn add_market_with_liquidity() {
+        let mut orderbook = OrderBook::new(1).await;
+        assert!(orderbook.process(Order {
+            id: 1,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 2,
+            sub_account_id: 1,
+            price: Some(10.0),
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 3,
+            sub_account_id: 1,
+            price: Some(9.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 4,
+            sub_account_id: 1,
+            price: Some(8.0),
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Limit,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 5,
+            sub_account_id: 1,
+            price: None,
+            size: 5.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 6,
+            sub_account_id: 1,
+            price: None,
+            size: 10.0,
+            side: OrderSide::Bid,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 7,
+            sub_account_id: 1,
+            price: None,
+            size: 10.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
+        assert!(orderbook.process(Order {
+            id: 8,
+            sub_account_id: 1,
+            price: None,
+            size: 15.0,
+            side: OrderSide::Ask,
+            r#type: OrderType::Market,
+            open_at: Utc::now().naive_utc(),
+        }));
     }
 }
