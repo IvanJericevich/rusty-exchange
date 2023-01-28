@@ -115,10 +115,12 @@ These plugins are defined in [rmq_enabled_plugins](rmq_enabled_plugins) and are 
 through docker-compose. To access the management UI, navigate to [http://localhost:15672/](http://localhost:15672/)
 and login with username `guest` and password `guest`.
 
-### Development
+## Development
 Run configurations for individual services are provided for those using the IntelliJ IDE. These run configurations
 include commands to run unit tests. Any start scripts also include start scripts before launch for running any dependant
 services.
+
+## Examples
 
 <!-- CONTRIBUTION -->
 # Contribution
