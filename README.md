@@ -3,9 +3,9 @@
     <p align="center">
         A workspace for a financial exchange architecture written entirely in Rust.
     </p>
-</div>
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+</div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -36,7 +36,7 @@ low-latency fullstack matching engine written entirely in Rust.
 ## Crates
 * [API](api) ([README](api/README.md))
 * [Database](database) ([README](database/README.md))
-* * [Order-book](orderbook) ([README](orderbook/README.md))
+* [Order-book](orderbook) ([README](orderbook/README.md))
 
 <!-- STACK -->
 ## Stack
