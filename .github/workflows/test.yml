@@ -26,15 +26,31 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
-
+  check:
+    name: Check
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - name: Run checks
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
 
+  test:
+    name: Test
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Install latest nightly
       uses: actions-rs/toolchain@v1
       with:
+        profile: minimal
         toolchain: nightly
         override: true
     - name: Run tests
@@ -42,3 +58,26 @@ jobs:
       with:
         command: test
         args: --verbose --workspace --exclude api --features mock
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      - name: Run format
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - name: Run clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -- -D warnings
