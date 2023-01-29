@@ -5,6 +5,7 @@
     </p>
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Test](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml)
 </div>
 
 <!-- TABLE OF CONTENTS -->
