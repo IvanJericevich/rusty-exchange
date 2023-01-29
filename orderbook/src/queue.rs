@@ -95,24 +95,24 @@ impl Queue {
         true
     }
 
-    pub fn cancel(&mut self, id: i32) -> bool {
-        match self.orders.remove(&id) {
-            Some(_) => {
-                self.idx_queue.retain(|o| o.id != id);
-                true
-            },
-            None => false
-        }
-    }
-
-    pub fn amend(&mut self, id: i32, size: f32) -> bool {
-        if let Some(order) = self.orders.get_mut(&id) {
-            order.size = size;
-            true
-        } else {
-            false
-        }
-    }
+    // pub fn cancel(&mut self, id: i32) -> bool {
+    //     match self.orders.remove(&id) {
+    //         Some(_) => {
+    //             self.idx_queue.retain(|o| o.id != id);
+    //             true
+    //         },
+    //         None => false
+    //     }
+    // }
+    //
+    // pub fn amend(&mut self, id: i32, size: f32) -> bool {
+    //     if let Some(order) = self.orders.get_mut(&id) {
+    //         order.size = size;
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
     pub fn modify_tob(&mut self, size: f32) -> bool {
         if let Some(order_index) = self.idx_queue.peek() {
