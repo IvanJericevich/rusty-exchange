@@ -1,8 +1,8 @@
-use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
-use chrono::{NaiveDateTime};
+use chrono::NaiveDateTime;
 use database::orders::Order;
 use database::OrderSide;
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap};
 
 #[derive(Clone)]
 struct OrderIndex {
@@ -38,7 +38,7 @@ impl PartialOrd for OrderIndex {
 
 impl PartialEq for OrderIndex {
     fn eq(&self, other: &Self) -> bool {
-        if self.price > other.price || self.price < other.price {
+        if self.price != other.price {
             false
         } else {
             self.timestamp == other.timestamp
@@ -63,7 +63,6 @@ impl Queue {
 
     pub fn peek(&mut self) -> Option<&Order> {
         let id = self.idx_queue.peek()?.id;
-        // self.orders.get(&id)
         if self.orders.contains_key(&id) {
             self.orders.get(&id)
         } else {

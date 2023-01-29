@@ -2,10 +2,10 @@
 
 use super::sea_orm_active_enums::OrderSide;
 use super::sea_orm_active_enums::OrderType;
-use sea_orm::{FromQueryResult};
 use sea_orm::entity::prelude::*;
+use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
-use utoipa::{ToSchema, IntoParams};
+use utoipa::{IntoParams, ToSchema};
 
 // ----------------------------------------------------------------------
 

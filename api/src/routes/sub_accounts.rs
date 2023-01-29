@@ -3,9 +3,9 @@ use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
-use database::{Query, Mutation};
+use database::sub_accounts::{GetRequest, Model, PostRequest, PutRequest};
 use database::utoipa;
-use database::sub_accounts::{GetRequest, PostRequest, PutRequest, Model};
+use database::{Mutation, Query};
 
 // ----------------------------------------------------------------------
 
@@ -23,14 +23,10 @@ async fn get(
     query: web::Query<GetRequest>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let sub_accounts = Query::find_sub_accounts(
-        &data.db,
-        query.status.clone(),
-        query.page.clone(),
-        query.page_size.clone(),
-    )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    let sub_accounts =
+        Query::find_sub_accounts(&data.db, query.status.clone(), query.page, query.page_size)
+            .await
+            .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(sub_accounts))
 }
@@ -55,7 +51,7 @@ async fn get_by_client_id(
     let client_id = path.into_inner();
     let sub_accounts = Query::find_sub_accounts_by_client_id(&data.db, client_id)
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(sub_accounts))
 }
@@ -81,13 +77,9 @@ async fn create(
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
     let client_id = path.into_inner();
-    let sub_account = Mutation::create_sub_account(
-        &data.db,
-        client_id,
-        body.name.clone(),
-    )
+    let sub_account = Mutation::create_sub_account(&data.db, client_id, body.name.clone())
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(sub_account))
 }
@@ -116,12 +108,12 @@ async fn update(
     Mutation::update_sub_account(
         &data.db,
         client_id,
-        body.id.clone(),
+        body.id,
         body.name.clone(),
         body.status.clone(),
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -147,10 +139,10 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App};
-    use serde_json::json;
-    use database::{Engine, Migrator, MigratorTrait, SubAccountStatus};
     use crate::StopHandle;
+    use actix_web::{test, App};
+    use database::{Engine, Migrator, MigratorTrait, SubAccountStatus};
+    use serde_json::json;
 
     use super::*;
 
@@ -161,7 +153,7 @@ mod tests {
         let state = web::Data::new(AppState {
             db: db.clone(),
             producer: None,
-            stop_handle: StopHandle::default()
+            stop_handle: StopHandle::default(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
@@ -169,8 +161,9 @@ mod tests {
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(state.clone()))
-                .configure(router)
-        ).await;
+                .configure(router),
+        )
+        .await;
         let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
         let _ = Mutation::create_client(&db, "b@gmail.com".to_owned()).await;
 
@@ -195,9 +188,7 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get all
-        let req = test::TestRequest::get()
-            .uri("/")
-            .to_request();
+        let req = test::TestRequest::get().uri("/").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
@@ -209,9 +200,7 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get all for client
-        let req = test::TestRequest::get()
-            .uri("/1")
-            .to_request();
+        let req = test::TestRequest::get().uri("/1").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 

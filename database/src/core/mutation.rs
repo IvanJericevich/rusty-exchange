@@ -1,6 +1,6 @@
 use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
 use crate::{OrderSide, OrderStatus, OrderType, SubAccountStatus};
-use chrono::{Utc};
+use chrono::Utc;
 use sea_orm::prelude::*;
 use sea_orm::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
@@ -12,10 +12,11 @@ pub struct Mutation;
 impl Mutation {
     // Clients
     pub async fn create_client(db: &DbConn, email: String) -> Result<clients::Model, DbErr> {
-        if let Some(_) = clients::Entity::find()
+        if clients::Entity::find()
             .filter(clients::Column::Email.eq(email.clone()))
             .one(db)
             .await?
+            .is_some()
         {
             Err(DbErr::Custom(format!(
                 "Client with email {email} already exists."
@@ -62,11 +63,12 @@ impl Mutation {
         price_increment: f32,
         size_increment: f32,
     ) -> Result<markets::Model, DbErr> {
-        if let Some(_) = markets::Entity::find()
+        if markets::Entity::find()
             .filter(markets::Column::BaseCurrency.eq(base_currency.to_uppercase()))
             .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
             .one(db)
             .await?
+            .is_some()
         {
             Err(DbErr::Custom(format!(
                 "Market with base currency {base_currency} and quote currency {quote_currency} already exists."
@@ -136,15 +138,14 @@ impl Mutation {
         client_id: i32,
         name: String,
     ) -> Result<sub_accounts::Model, DbErr> {
-        if let Some(client) = clients::Entity::find_by_id(client_id.clone())
-            .one(db)
-            .await?
-        {
-            if let None = client.find_related(sub_accounts::Entity)
+        if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
+            if client
+                .find_related(sub_accounts::Entity)
                 .filter(sub_accounts::Column::Name.eq(name.clone()))
                 .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
                 .one(db)
                 .await?
+                .is_none()
             {
                 sub_accounts::ActiveModel {
                     name: Set(name),
@@ -153,8 +154,8 @@ impl Mutation {
                     status: Set(SubAccountStatus::Active),
                     ..Default::default()
                 }
-                    .insert(db)
-                    .await
+                .insert(db)
+                .await
             } else {
                 Err(DbErr::Custom(format!(
                     "Sub-account with name {name} already exists."
@@ -175,7 +176,8 @@ impl Mutation {
         status: Option<SubAccountStatus>,
     ) -> Result<(), DbErr> {
         if let Some(client) = clients::Entity::find_by_id(client_id).one(db).await? {
-            if let Some(sub_account) = client.find_related(sub_accounts::Entity)
+            if let Some(sub_account) = client
+                .find_related(sub_accounts::Entity)
                 .filter(sub_accounts::Column::Id.eq(sub_account_id))
                 .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
                 .one(db)
@@ -183,17 +185,19 @@ impl Mutation {
             {
                 let mut sub_account: sub_accounts::ActiveModel = sub_account.into_active_model();
                 if let Some(name) = name {
-                    if let None = client.find_related(sub_accounts::Entity)
+                    if client
+                        .find_related(sub_accounts::Entity)
                         .filter(sub_accounts::Column::Name.eq(name.clone()))
                         .filter(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
                         .one(db)
                         .await?
+                        .is_none()
                     {
                         sub_account.name = Set(name.to_owned())
                     } else {
                         return Err(DbErr::Custom(format!(
                             "Sub-account with name {name} already exists."
-                        )))
+                        )));
                     }
                 }
                 if let Some(status) = status {
@@ -215,19 +219,14 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Orders
-    pub async fn update_order(
-        db: &DbConn,
-        order: orders::ActiveModel,
-    ) -> Result<(), DbErr> {
+    pub async fn update_order(db: &DbConn, order: orders::ActiveModel) -> Result<(), DbErr> {
         let _ = order.update(db).await?;
         Ok(())
     }
 
-    pub async fn update_order_from_fill(
-        db: &DbConn,
-        fill: fills::Model,
-    ) -> Result<(), DbErr> {
-        if let Some(order) = fill.find_related(orders::Entity)
+    pub async fn update_order_from_fill(db: &DbConn, fill: fills::Model) -> Result<(), DbErr> {
+        if let Some(order) = fill
+            .find_related(orders::Entity)
             .filter(orders::Column::Status.eq(OrderStatus::Open))
             .filter(orders::Column::SubAccountId.eq(fill.sub_account_id))
             .filter(orders::Column::MarketId.eq(fill.market_id))
@@ -242,12 +241,13 @@ impl Mutation {
             }
             Ok(())
         } else {
-            Err(DbErr::RecordNotFound(format!(
-                "Found no order matching fill {:?}", fill
-            )))
+            Err(DbErr::RecordNotFound(
+                "Found no order matching fill.".to_string(),
+            ))
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn create_order(
         db: &DbConn,
         client_id: i32,
@@ -268,9 +268,7 @@ impl Mutation {
                 .one(db)
                 .await?;
         let market = if let Some(market_id) = market_id {
-             markets::Entity::find_by_id(market_id)
-                .one(db)
-                .await?
+            markets::Entity::find_by_id(market_id).one(db).await?
         } else {
             match (base_currency, quote_currency) {
                 (Some(base_currency), Some(quote_currency)) => {
@@ -279,26 +277,23 @@ impl Mutation {
                         .filter(markets::Column::QuoteCurrency.eq(quote_currency.to_uppercase()))
                         .one(db)
                         .await?
-                },
-                _ => return Err(DbErr::Custom(format!(
-                    "Missing query arguments."
-                ))),
+                }
+                _ => return Err(DbErr::Custom("Missing query arguments.".to_string())),
             }
         };
         match (sub_account_and_client, market) {
             (Some((sub_account, Some(_))), Some(market)) => {
                 let price: ActiveValue<Option<f32>> = if let Some(price) = price {
-                    if price < market.price_increment || r#type == OrderType::Market || size < market.size_increment {
-                        return Err(DbErr::Custom(format!(
-                            "Invalid order parameters."
-                        )))
+                    if price < market.price_increment
+                        || r#type == OrderType::Market
+                        || size < market.size_increment
+                    {
+                        return Err(DbErr::Custom("Invalid order parameters.".to_string()));
                     }
                     Set(Some(price))
                 } else {
                     if r#type == OrderType::Limit || size < market.size_increment {
-                        return Err(DbErr::Custom(format!(
-                            "Invalid order parameters."
-                        )))
+                        return Err(DbErr::Custom("Invalid order parameters.".to_string()));
                     }
                     NotSet
                 };
@@ -316,9 +311,9 @@ impl Mutation {
                     market_id: Set(market.id),
                     ..Default::default()
                 }
-                    .insert(db)
-                    .await?;
-                Ok(orders::Order{
+                .insert(db)
+                .await?;
+                Ok(orders::Order {
                     id: order.id,
                     sub_account_id: order.sub_account_id,
                     price: order.price,
@@ -334,20 +329,16 @@ impl Mutation {
             (Some((_, None)), _) => Err(DbErr::RecordNotFound(format!(
                 "Client with id {client_id} does not exist."
             ))),
-            (_, None) => Err(DbErr::RecordNotFound(format!(
-                "Market does not exist."
-            ))),
+            (_, None) => Err(DbErr::RecordNotFound("Market does not exist.".to_string())),
         }
     }
     // ----------------------------------------------------------------------
 
     // Fills
-    pub async fn create_fill(
-        db: &DbConn,
-        fill: fills::Model,
-    ) -> Result<fills::Response, DbErr> {
+    pub async fn create_fill(db: &DbConn, fill: fills::Model) -> Result<fills::Response, DbErr> {
         let fill = fill.into_active_model().insert(db).await?;
-        let sub_account = fill.find_related(sub_accounts::Entity)
+        let sub_account = fill
+            .find_related(sub_accounts::Entity)
             .select_only()
             .column(sub_accounts::Column::Name)
             .one(db)
@@ -372,41 +363,41 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Positions
-    pub async fn upsert_position_from_fill(
-        db: &DbConn,
-        fill: fills::Model,
-    ) -> Result<(), DbErr> {
+    pub async fn upsert_position_from_fill(db: &DbConn, fill: fills::Model) -> Result<(), DbErr> {
         if let Some(position) = positions::Entity::find()
             .filter(
-                Condition::all().add(
-                    positions::Column::SubAccountId.in_subquery(
-                        SeaQuery::select()
-                            .column(sub_accounts::Column::Id)
-                            .from(sub_accounts::Entity)
-                            .and_where(sub_accounts::Column::Id.eq(fill.sub_account_id.clone()))
-                            .and_where(sub_accounts::Column::Status.eq(SubAccountStatus::Active))
-                            .to_owned()
+                Condition::all()
+                    .add(
+                        positions::Column::SubAccountId.in_subquery(
+                            SeaQuery::select()
+                                .column(sub_accounts::Column::Id)
+                                .from(sub_accounts::Entity)
+                                .and_where(sub_accounts::Column::Id.eq(fill.sub_account_id))
+                                .and_where(
+                                    sub_accounts::Column::Status.eq(SubAccountStatus::Active),
+                                )
+                                .to_owned(),
+                        ),
                     )
-                ).add(
-                    positions::Column::MarketId.in_subquery(
-                        SeaQuery::select()
-                            .column(markets::Column::Id)
-                            .from(markets::Entity)
-                            .and_where(markets::Column::Id.eq(fill.market_id.clone()))
-                            .to_owned()
-                    )
-                )
+                    .add(
+                        positions::Column::MarketId.in_subquery(
+                            SeaQuery::select()
+                                .column(markets::Column::Id)
+                                .from(markets::Entity)
+                                .and_where(markets::Column::Id.eq(fill.market_id))
+                                .to_owned(),
+                        ),
+                    ),
             )
-            .one(db).await?
+            .one(db)
+            .await?
         {
             let mut position = position.into_active_model();
-            position.size = Set(position.size.unwrap() + fill.size.clone());
-            position.avg_entry_price = Set(
-                (
-                    position.avg_entry_price.unwrap() * position.size.clone().unwrap()
-                        + fill.price.clone() * fill.size
-                ) / position.size.clone().unwrap()
-            );
+            position.size = Set(position.size.unwrap() + fill.size);
+            position.avg_entry_price = Set((position.avg_entry_price.unwrap()
+                * position.size.clone().unwrap()
+                + fill.price * fill.size)
+                / position.size.clone().unwrap());
             let _ = position.update(db).await;
         } else {
             positions::ActiveModel {
@@ -417,8 +408,8 @@ impl Mutation {
                 market_id: Set(fill.market_id),
                 ..Default::default()
             }
-                .insert(db)
-                .await?;
+            .insert(db)
+            .await?;
         }
         Ok(())
     }

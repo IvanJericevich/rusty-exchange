@@ -5,11 +5,11 @@ use database::utoipa::OpenApi;
 use utoipa_swagger_ui::{SwaggerUi, Url};
 
 mod clients;
+mod fills;
 mod markets;
 mod orders;
 mod positions;
 mod sub_accounts;
-mod fills;
 
 // ----------------------------------------------------------------------
 

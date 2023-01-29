@@ -14,13 +14,10 @@ impl Engine {
         let db_url = env::var("POSTGRES_URL").unwrap_or_else(|_| {
             let name = env::var("POSTGRES_DB").expect("POSTGRES_DB environment variable not found");
             let host = env::var("POSTGRES_HOST").unwrap_or_else(|_| "localhost".to_owned());
-            let password =
-                env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD environment variable not found");
+            let password = env::var("POSTGRES_PASSWORD")
+                .expect("POSTGRES_PASSWORD environment variable not found");
             let username = env::var("POSTGRES_USER").unwrap_or_else(|_| "postgres".to_owned());
-            format!(
-                "postgresql://{}:{}@{}:5432/{}",
-                username, password, host, name
-            )
+            format!("postgresql://{username}:{password}@{host}:5432/{name}")
         });
 
         Database::connect(db_url).await // Create database connection pool

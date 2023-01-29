@@ -1,24 +1,25 @@
 #![feature(binary_heap_retain)]
 mod queue;
 
-use futures::StreamExt;
-use futures::executor;
+use crate::queue::Queue;
 use chrono::Utc;
-use rabbitmq_stream_client::{Environment, Producer, Dedup};
-use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
+use database::fills::Fill;
 use database::orders::Order;
 use database::{OrderSide, OrderType};
-use database::fills::Fill;
-use crate::queue::Queue;
+use futures::executor;
+use futures::StreamExt;
+use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
+use rabbitmq_stream_client::{Dedup, Environment, Producer};
 use std::time::Duration;
 
 const QUEUE_CAPACITY: usize = 500;
 
-pub struct OrderBook { // TODO: price and size increment
+pub struct OrderBook {
+    // TODO: price and size increment
     id: i32,
     bids: Queue,
     asks: Queue,
-    producer: Option<Producer<Dedup>>
+    producer: Option<Producer<Dedup>>,
 }
 
 impl OrderBook {
@@ -45,7 +46,7 @@ impl OrderBook {
                     .name("fills")
                     .build("fills")
                     .await
-                    .unwrap()
+                    .unwrap(),
             )
         } else {
             None
@@ -54,10 +55,10 @@ impl OrderBook {
             id: market_id,
             bids: Queue::new(QUEUE_CAPACITY),
             asks: Queue::new(QUEUE_CAPACITY),
-            producer
+            producer,
         }
     }
-    
+
     fn process(&mut self, order: Order) -> bool {
         match order.r#type {
             OrderType::Limit => self.process_limit(order),
@@ -67,12 +68,16 @@ impl OrderBook {
 
     fn process_limit(&mut self, order: Order) -> bool {
         if let Some(contra_order) = match order.side {
-            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => (&mut self.asks).peek().cloned(),
-            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => (&mut self.bids).peek().cloned()
+            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => self.asks.peek().cloned(),
+            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => self.bids.peek().cloned(),
         } {
             if match order.side {
-                OrderSide::Buy | OrderSide::Bid | OrderSide::Long => order.price >= contra_order.price,
-                OrderSide::Sell | OrderSide::Ask | OrderSide::Short => order.price <= contra_order.price
+                OrderSide::Buy | OrderSide::Bid | OrderSide::Long => {
+                    order.price >= contra_order.price
+                }
+                OrderSide::Sell | OrderSide::Ask | OrderSide::Short => {
+                    order.price <= contra_order.price
+                }
             } {
                 let mut order = order; // Take the previous value out of scope
                 if !self.cross(&mut order, contra_order) {
@@ -87,11 +92,11 @@ impl OrderBook {
             self.store(order)
         }
     }
-    
+
     fn process_market(&mut self, order: Order) -> bool {
         if let Some(contra_order) = match order.side {
-            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => (&mut self.asks).peek().cloned(),
-            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => (&mut self.bids).peek().cloned()
+            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => self.asks.peek().cloned(),
+            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => self.bids.peek().cloned(),
         } {
             let mut order = order;
             if !self.cross(&mut order, contra_order) {
@@ -103,8 +108,8 @@ impl OrderBook {
 
     fn store(&mut self, order: Order) -> bool {
         match order.side {
-            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => (&mut self.bids).insert(order),
-            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => (&mut self.asks).insert(order)
+            OrderSide::Buy | OrderSide::Bid | OrderSide::Long => self.bids.insert(order),
+            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => self.asks.insert(order),
         }
     }
 
@@ -116,7 +121,7 @@ impl OrderBook {
                 contra_order.side,
                 contra_order.r#type,
                 contra_order.sub_account_id,
-                contra_order.id
+                contra_order.id,
             );
             self.publish_fill(
                 contra_order.price.unwrap(),
@@ -124,17 +129,19 @@ impl OrderBook {
                 order.side.clone(),
                 order.r#type.clone(),
                 order.sub_account_id,
-                order.id
+                order.id,
             );
         }
         let contra_queue = match order.side {
             OrderSide::Buy | OrderSide::Bid | OrderSide::Long => &mut self.asks,
-            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => &mut self.bids
+            OrderSide::Sell | OrderSide::Ask | OrderSide::Short => &mut self.bids,
         };
-        if order.size < contra_order.size { // Modify the contra order
+        if order.size < contra_order.size {
+            // Modify the contra order
             contra_queue.modify_tob(contra_order.size - order.size);
             true
-        } else if order.size > contra_order.size { // Modify the submitted order
+        } else if order.size > contra_order.size {
+            // Modify the submitted order
             order.size -= contra_queue.pop().unwrap().size;
             false
         } else {
@@ -163,7 +170,7 @@ impl OrderBook {
         side: OrderSide,
         r#type: OrderType,
         sub_account_id: i32,
-        order_id: i32
+        order_id: i32,
     ) {
         if let Some(producer) = &mut self.producer {
             let fill = Fill {
@@ -178,16 +185,15 @@ impl OrderBook {
                 order_id,
             };
             let _ = executor::block_on(
-                producer
-                    .send_with_confirm(
-                        Message::builder()
-                            .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
-                            .build()
-                    )
+                producer.send_with_confirm(
+                    Message::builder()
+                        .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
+                        .build(),
+                ),
             );
         }
     }
-    
+
     pub async fn run(&mut self) {
         let mut consumer = Environment::builder()
             .host("localhost")
@@ -200,13 +206,11 @@ impl OrderBook {
             .build("orders")
             .await
             .unwrap();
-        while let Ok(delivery) = consumer.next().await.unwrap() { // TODO: Handle errors
-            if let Some(order) = delivery
-                .message()
-                .data()
-                .map(|data| serde_json::from_str::<Order>(
-                    std::str::from_utf8(&data.to_vec()).unwrap()).unwrap()
-                ) {
+        while let Ok(delivery) = consumer.next().await.unwrap() {
+            // TODO: Handle errors
+            if let Some(order) = delivery.message().data().map(|data| {
+                serde_json::from_str::<Order>(std::str::from_utf8(data).unwrap()).unwrap()
+            }) {
                 self.process(order);
             }
         }

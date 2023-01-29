@@ -3,8 +3,8 @@ use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
+use database::markets::{GetRequest, Model, PostRequest, PutRequest};
 use database::{Mutation, Query};
-use database::markets::{Model, GetRequest, PostRequest, PutRequest};
 
 use database::utoipa;
 
@@ -24,9 +24,9 @@ async fn get(
     query: web::Query<GetRequest>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let markets = Query::find_markets(&data.db, query.page.clone(), query.page_size.clone())
+    let markets = Query::find_markets(&data.db, query.page, query.page_size)
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(markets))
 }
@@ -52,7 +52,7 @@ async fn get_by_ticker(
     let (base_currency, quote_currency) = path.into_inner();
     let market = Query::find_market_by_ticker(&data.db, base_currency, quote_currency)
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(market))
 }
@@ -82,11 +82,11 @@ async fn create(
         &data.db,
         base_currency,
         quote_currency,
-        body.price_increment.clone(),
-        body.size_increment.clone()
+        body.price_increment,
+        body.size_increment,
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(market))
 }
@@ -116,11 +116,11 @@ async fn update(
         id,
         body.base_currency.clone(),
         body.quote_currency.clone(),
-        body.price_increment.clone(),
-        body.size_increment.clone(),
+        body.price_increment,
+        body.size_increment,
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -146,10 +146,10 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App};
-    use serde_json::json;
-    use database::{Engine, Migrator, MigratorTrait};
     use crate::StopHandle;
+    use actix_web::{test, App};
+    use database::{Engine, Migrator, MigratorTrait};
+    use serde_json::json;
 
     use super::*;
 
@@ -160,16 +160,12 @@ mod tests {
         let state = web::Data::new(AppState {
             db: db.clone(),
             producer: None,
-            stop_handle: StopHandle::default()
+            stop_handle: StopHandle::default(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
-        let app = test::init_service(
-            App::new()
-                .app_data(state.clone())
-                .configure(router)
-        ).await;
+        let app = test::init_service(App::new().app_data(state.clone()).configure(router)).await;
 
         // Create records
         let req = test::TestRequest::post()
@@ -199,9 +195,7 @@ mod tests {
         assert!(resp.status().is_client_error());
 
         // Get all
-        let req = test::TestRequest::get()
-            .uri("/")
-            .to_request();
+        let req = test::TestRequest::get().uri("/").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
@@ -213,16 +207,12 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get one with error
-        let req = test::TestRequest::get()
-            .uri("/LTC/USD")
-            .to_request();
+        let req = test::TestRequest::get().uri("/LTC/USD").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
         // Get one
-        let req = test::TestRequest::get()
-            .uri("/BTC/USD")
-            .to_request();
+        let req = test::TestRequest::get().uri("/BTC/USD").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 

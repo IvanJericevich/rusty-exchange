@@ -1,11 +1,11 @@
-use crate::AppState;
 use crate::models::error::Exception;
+use crate::AppState;
 
 use actix_web::{get, post, put, web, HttpResponse};
 
-use database::{Mutation, Query};
-use database::clients::{Model, GetRequest, PutRequest};
+use database::clients::{GetRequest, Model, PutRequest};
 use database::utoipa;
+use database::{Mutation, Query};
 
 // ----------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ async fn get(
     query: web::Query<GetRequest>,
     data: web::Data<AppState>,
 ) -> Result<HttpResponse, Exception> {
-    let clients = Query::find_clients(&data.db, query.page.clone(), query.page_size.clone())
+    let clients = Query::find_clients(&data.db, query.page, query.page_size)
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(clients))
 }
@@ -50,7 +50,7 @@ async fn get_by_email(
     let email = path.into_inner();
     let client = Query::find_client_by_email(&data.db, email.clone())
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(client))
 }
@@ -75,7 +75,7 @@ async fn create(
     let email = path.into_inner();
     let client = Mutation::create_client(&data.db, email)
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(client))
 }
@@ -103,7 +103,7 @@ async fn update(
     let id = path.into_inner();
     Mutation::update_client(&data.db, id, body.new_email.clone())
         .await
-        .map_err(|e| Exception::Database(e))?;
+        .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().finish())
 }
@@ -129,9 +129,9 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
+    use crate::StopHandle;
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait};
-    use crate::StopHandle;
 
     use super::*;
 
@@ -142,44 +142,30 @@ mod tests {
         let state = web::Data::new(AppState {
             db: db.clone(),
             producer: None,
-            stop_handle: StopHandle::default()
+            stop_handle: StopHandle::default(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
-        let app = test::init_service(
-            App::new()
-                .app_data(state.clone())
-                .configure(router)
-        ).await;
+        let app = test::init_service(App::new().app_data(state.clone()).configure(router)).await;
 
         // Create records
-        let req = test::TestRequest::post()
-            .uri("/a@gmail.com")
-            .to_request();
+        let req = test::TestRequest::post().uri("/a@gmail.com").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::post()
-            .uri("/b@gmail.com")
-            .to_request();
+        let req = test::TestRequest::post().uri("/b@gmail.com").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::post()
-            .uri("/c@gmail.com")
-            .to_request();
+        let req = test::TestRequest::post().uri("/c@gmail.com").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
         // Create one with error
-        let req = test::TestRequest::post()
-            .uri("/a@gmail.com")
-            .to_request();
+        let req = test::TestRequest::post().uri("/a@gmail.com").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
         // Get all
-        let req = test::TestRequest::get()
-            .uri("/")
-            .to_request();
+        let req = test::TestRequest::get().uri("/").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
@@ -191,9 +177,7 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get one
-        let req = test::TestRequest::get()
-            .uri("/a@gmail.com")
-            .to_request();
+        let req = test::TestRequest::get().uri("/a@gmail.com").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 

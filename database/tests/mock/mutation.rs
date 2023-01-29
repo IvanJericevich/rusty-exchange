@@ -78,13 +78,7 @@ async fn markets() {
         .into_connection();
     // Create new
     assert_eq!(
-        Mutation::create_market(
-            &db,
-            "BTC".to_owned(),
-            "USD".to_owned(),
-            0.01,
-            0.01
-        )
+        Mutation::create_market(&db, "BTC".to_owned(), "USD".to_owned(), 0.01, 0.01)
             .await
             .unwrap(),
         markets::Model {
@@ -98,13 +92,7 @@ async fn markets() {
     );
     // Create with existing
     assert_eq!(
-        Mutation::create_market(
-            &db,
-            "BTC".to_owned(),
-            "USD".to_owned(),
-            0.01,
-            0.01
-        )
+        Mutation::create_market(&db, "BTC".to_owned(), "USD".to_owned(), 0.01, 0.01)
             .await
             .unwrap_err(),
         DbErr::Custom(format!(
@@ -135,23 +123,19 @@ async fn sub_accounts() {
                 status: SubAccountStatus::Active,
             }],
         ])
-        .append_query_results(vec![
-            empty_client_vector
-        ])
+        .append_query_results(vec![empty_client_vector])
         .append_query_results(vec![vec![clients::Model {
             id: 1,
             email: "ivanjericevich96@gmail.com".to_owned(),
             created_at: "2022-01-01T00:00:00".parse().unwrap(),
         }]])
-        .append_query_results(vec![
-            vec![sub_accounts::Model {
-                id: 1,
-                name: "Test".to_owned(),
-                created_at: "2022-01-01T00:00:00".parse().unwrap(),
-                client_id: 1,
-                status: SubAccountStatus::Active,
-            }],
-        ])
+        .append_query_results(vec![vec![sub_accounts::Model {
+            id: 1,
+            name: "Test".to_owned(),
+            created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            client_id: 1,
+            status: SubAccountStatus::Active,
+        }]])
         .append_exec_results(vec![MockExecResult {
             last_insert_id: 1,
             rows_affected: 1,
@@ -159,11 +143,9 @@ async fn sub_accounts() {
         .into_connection();
     // Create new
     assert_eq!(
-        Mutation::create_sub_account(
-            &db,
-            1,
-            "Test".to_owned()
-        ).await.unwrap(),
+        Mutation::create_sub_account(&db, 1, "Test".to_owned())
+            .await
+            .unwrap(),
         sub_accounts::Model {
             id: 1,
             name: "Test".to_owned(),
@@ -174,28 +156,16 @@ async fn sub_accounts() {
     );
     // Create with non-existent client
     assert_eq!(
-        Mutation::create_sub_account(
-            &db,
-            1,
-            "Test".to_owned(),
-        )
+        Mutation::create_sub_account(&db, 1, "Test".to_owned(),)
             .await
             .unwrap_err(),
-        DbErr::RecordNotFound(format!(
-            "Client with id 1 does not exist."
-        ))
+        DbErr::RecordNotFound(format!("Client with id 1 does not exist."))
     );
     // Create with existing
     assert_eq!(
-        Mutation::create_sub_account(
-            &db,
-            1,
-            "Test".to_owned(),
-        )
+        Mutation::create_sub_account(&db, 1, "Test".to_owned(),)
             .await
             .unwrap_err(),
-        DbErr::Custom(format!(
-            "Sub-account with name Test already exists."
-        ))
+        DbErr::Custom(format!("Sub-account with name Test already exists."))
     );
 }

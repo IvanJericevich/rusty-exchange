@@ -4,9 +4,9 @@ use crate::AppState;
 use actix_web::{get, post, web, HttpResponse};
 use rabbitmq_stream_client::types::Message;
 
+use database::orders::{ClientGetOpenRequest, ClientGetRequest, PostRequest, Response};
 use database::utoipa;
 use database::{Mutation, Query};
-use database::orders::{Response, ClientGetOpenRequest, ClientGetRequest, PostRequest};
 
 // ----------------------------------------------------------------------
 
@@ -39,17 +39,17 @@ async fn get_client_related_open(
     let order = Query::find_client_related_open_order(
         &data.db,
         client_id,
-        query.id.clone(),
+        query.id,
         query.client_order_id.clone(),
-        query.sub_account_id.clone(),
+        query.sub_account_id,
         query.sub_account_name.clone(),
-        query.market_id.clone(),
+        query.market_id,
         query.base_currency.clone(),
         query.quote_currency.clone(),
         query.side.clone(),
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(order))
 }
@@ -83,22 +83,22 @@ async fn get_client_related(
     let orders = Query::find_client_related_orders(
         &data.db,
         client_id,
-        query.sub_account_id.clone(),
+        query.sub_account_id,
         query.sub_account_name.clone(),
-        query.market_id.clone(),
+        query.market_id,
         query.base_currency.clone(),
         query.quote_currency.clone(),
         query.client_order_id.clone(),
         query.side.clone(),
         query.r#type.clone(),
         query.status.clone(),
-        query.start_time.clone(),
-        query.end_time.clone(),
-        query.page.clone(),
-        query.page_size.clone()
+        query.start_time,
+        query.end_time,
+        query.page,
+        query.page_size,
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(orders))
 }
@@ -167,28 +167,28 @@ async fn create(
     let order = Mutation::create_order(
         &data.db,
         client_id,
-        body.sub_account_id.clone(),
-        body.size.clone(),
+        body.sub_account_id,
+        body.size,
         body.side.clone(),
         body.r#type.clone(),
-        body.price.clone(),
+        body.price,
         body.client_order_id.clone(),
-        body.market_id.clone(),
+        body.market_id,
         body.base_currency.clone(),
         body.quote_currency.clone(),
     )
-        .await
-        .map_err(|e| Exception::Database(e))?;
+    .await
+    .map_err(Exception::Database)?;
 
     if let Some(producer) = &data.producer {
         let _ = producer
             .send_with_confirm(
                 Message::builder()
                     .body(serde_json::to_string(&order).unwrap()) // TODO: Dont confirm otherwise api will halt
-                    .build()
+                    .build(),
             )
             .await
-            .map_err(|e| Exception::RabbitMQ(e))?;
+            .map_err(Exception::RabbitMQ)?;
     }
 
     Ok(HttpResponse::Ok().json(order))
@@ -214,10 +214,10 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App};
-    use serde_json::json;
-    use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
     use crate::StopHandle;
+    use actix_web::{test, App};
+    use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
+    use serde_json::json;
 
     use super::*;
 
@@ -228,32 +228,16 @@ mod tests {
         let state = web::Data::new(AppState {
             db: db.clone(),
             producer: None,
-            stop_handle: StopHandle::default()
+            stop_handle: StopHandle::default(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
-        let app = test::init_service(
-            App::new()
-                .app_data(state.clone())
-                .configure(router)
-        ).await;
+        let app = test::init_service(App::new().app_data(state.clone()).configure(router)).await;
         let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
         let _ = Mutation::create_sub_account(&db, 1, "Test".to_owned()).await;
-        let _ = Mutation::create_market(
-            &db,
-            "BTC".to_owned(),
-            "USD".to_owned(),
-            0.01,
-            0.01
-        ).await;
-        let _ = Mutation::create_market(
-            &db,
-            "ETH".to_owned(),
-            "USD".to_owned(),
-            0.01,
-            0.01
-        ).await;
+        let _ = Mutation::create_market(&db, "BTC".to_owned(), "USD".to_owned(), 0.01, 0.01).await;
+        let _ = Mutation::create_market(&db, "ETH".to_owned(), "USD".to_owned(), 0.01, 0.01).await;
         // Create records
         let req = test::TestRequest::post()
             .uri("/1")
@@ -289,16 +273,12 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get all for client with error
-        let req = test::TestRequest::get()
-            .uri("/2")
-            .to_request();
+        let req = test::TestRequest::get().uri("/2").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_client_error());
 
         // Get all for client
-        let req = test::TestRequest::get()
-            .uri("/1")
-            .to_request();
+        let req = test::TestRequest::get().uri("/1").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
@@ -315,9 +295,7 @@ mod tests {
         assert!(resp.status().is_success());
 
         // Get all open for client
-        let req = test::TestRequest::get()
-            .uri("/open/1")
-            .to_request();
+        let req = test::TestRequest::get().uri("/open/1").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 

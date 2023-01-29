@@ -12,14 +12,14 @@ mod routes;
 
 use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
 
-use actix_web::{middleware::Logger, web, App, HttpServer, HttpResponse, post};
+use actix_web::{middleware::Logger, post, web, App, HttpResponse, HttpServer};
 
-use std::time::Duration;
 use actix_web::dev::ServerHandle;
 use parking_lot::Mutex;
+use std::time::Duration;
 
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 use rabbitmq_stream_client::types::ByteCapacity;
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 
 use routes::router;
 
@@ -28,15 +28,16 @@ use routes::router;
 struct AppState {
     db: DatabaseConnection,
     producer: Option<Producer<NoDedup>>, // Make optional for unit tests
-    stop_handle: StopHandle
+    stop_handle: StopHandle,
 }
 
 // ----------------------------------------------------------------------
 
 #[post("/stop/{graceful}")]
-async fn stop(path: web::Path<bool>, data: web::Data<AppState>,) -> HttpResponse {
+async fn stop(path: web::Path<bool>, data: web::Data<AppState>) -> HttpResponse {
     let graceful = path.into_inner();
-    if let Some(producer) = data.producer.clone() { // TODO: Is it correct to clone the producer
+    if let Some(producer) = data.producer.clone() {
+        // TODO: Is it correct to clone the producer
         producer.close().await.unwrap();
     }
     let _ = &data.stop_handle.stop(graceful);
@@ -69,12 +70,9 @@ async fn run() -> std::io::Result<()> {
             .create("orders")
             .await
             .unwrap();
-        Some( // TODO: Mutex?
-             environment
-                 .producer()
-                 .build("orders")
-                 .await
-                 .unwrap()
+        Some(
+            // TODO: Mutex?
+            environment.producer().build("orders").await.unwrap(),
         )
     } else {
         None
@@ -83,7 +81,7 @@ async fn run() -> std::io::Result<()> {
     let state = web::Data::new(AppState {
         db,
         producer,
-        stop_handle: StopHandle::default()
+        stop_handle: StopHandle::default(),
     }); // Build app state
 
     let server = HttpServer::new({
@@ -119,12 +117,13 @@ impl StopHandle {
 
     /// Sends stop signal through contained server handle.
     pub(crate) fn stop(&self, graceful: bool) {
-        let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
+        let future = self.inner.lock().as_ref().unwrap().stop(graceful);
+        drop(future);
     }
 }
 
 pub fn main() {
     if let Some(err) = run().err() {
-        println!("Error: {}", err);
+        println!("Error: {err}");
     }
 }

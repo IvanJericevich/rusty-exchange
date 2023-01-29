@@ -6,8 +6,10 @@ mod migrator; // Export migrator - one may want to run migrations in an API on s
 
 // Export required modules
 pub use crate::core::*;
+pub use crate::entities::{
+    clients, fills, markets, orders, positions, sea_orm_active_enums::*, sub_accounts,
+};
 pub use crate::migrator::*;
-pub use crate::entities::{clients, markets, orders, fills, sea_orm_active_enums::*, sub_accounts, positions};
 
 // Re-export sea-orm functionality
 pub use sea_orm::ActiveValue::Set;

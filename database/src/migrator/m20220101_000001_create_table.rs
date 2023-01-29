@@ -33,7 +33,7 @@ impl MigrationTrait for Migration {
                         OrderSide::Bid,
                         OrderSide::Sell,
                         OrderSide::Short,
-                        OrderSide::Ask
+                        OrderSide::Ask,
                     ])
                     .to_owned(),
             )
@@ -69,7 +69,12 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Clients::Email).string().unique_key().not_null())
+                    .col(
+                        ColumnDef::new(Clients::Email)
+                            .string()
+                            .unique_key()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Clients::CreatedAt).timestamp().not_null())
                     .to_owned(),
             )
@@ -160,8 +165,8 @@ impl MigrationTrait for Migration {
                                     OrderSide::Bid,
                                     OrderSide::Sell,
                                     OrderSide::Short,
-                                    OrderSide::Ask
-                                ]
+                                    OrderSide::Ask,
+                                ],
                             )
                             .not_null(),
                     )
@@ -223,8 +228,8 @@ impl MigrationTrait for Migration {
                                     OrderSide::Bid,
                                     OrderSide::Sell,
                                     OrderSide::Short,
-                                    OrderSide::Ask
-                                ]
+                                    OrderSide::Ask,
+                                ],
                             )
                             .not_null(),
                     )
@@ -283,8 +288,8 @@ impl MigrationTrait for Migration {
                                     OrderSide::Bid,
                                     OrderSide::Sell,
                                     OrderSide::Short,
-                                    OrderSide::Ask
-                                ]
+                                    OrderSide::Ask,
+                                ],
                             )
                             .not_null(),
                     )
@@ -461,7 +466,7 @@ enum Orders {
     OpenAt,
     ClosedAt,
     SubAccountId, // Foreign key
-    MarketId, // Foreign key
+    MarketId,     // Foreign key
 }
 
 #[derive(Iden)]
@@ -475,8 +480,8 @@ enum Fills {
     Type,
     CreatedAt,
     SubAccountId, // Foreign key
-    MarketId, // Foreign key
-    OrderId // Foreign key
+    MarketId,     // Foreign key
+    OrderId,      // Foreign key
 }
 
 #[derive(Iden)]
@@ -487,5 +492,5 @@ enum Positions {
     Size,
     Side,
     SubAccountId, // Foreign key
-    MarketId, // Foreign key
+    MarketId,     // Foreign key
 }

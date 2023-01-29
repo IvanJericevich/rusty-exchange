@@ -3,10 +3,10 @@
 use super::sea_orm_active_enums::OrderSide;
 use super::sea_orm_active_enums::OrderStatus;
 use super::sea_orm_active_enums::OrderType;
-use sea_orm::{FromQueryResult};
 use sea_orm::entity::prelude::*;
+use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
-use utoipa::{ToSchema, IntoParams};
+use utoipa::{IntoParams, ToSchema};
 
 // ----------------------------------------------------------------------
 
@@ -221,5 +221,5 @@ pub struct Order {
     #[schema(example = "Market")]
     pub r#type: OrderType,
     #[schema(example = "1970-01-01T00:00:00")]
-    pub open_at: DateTime
+    pub open_at: DateTime,
 }
