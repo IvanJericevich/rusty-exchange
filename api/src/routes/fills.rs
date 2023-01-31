@@ -1,8 +1,9 @@
-use crate::models::error::Exception;
+use crate::models::Exception;
 use crate::AppState;
 
-use actix_web::{get, web, HttpResponse};
+use actix_web::{get, web, HttpResponse, Responder};
 
+use crate::models::Stream;
 use database::fills::{ClientGetRequest, Response};
 use database::utoipa;
 use database::Query;
@@ -57,11 +58,24 @@ async fn get_client_related(
     Ok(HttpResponse::Ok().json(fills))
 }
 
+#[utoipa::path(
+    context_path = "/fills",
+    responses(
+        (status = 200, description = "Returns a SSE streaming connection."),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+    ),
+    tag = "Fills",
+)]
+#[get("/stream")]
+async fn stream(data: web::Data<AppState>) -> impl Responder {
+    data.broadcaster.new_client(Stream::Fills).await
+}
+
 // ----------------------------------------------------------------------
 
 #[derive(utoipa::OpenApi)]
 #[openapi(
-    paths(get_client_related),
+    paths(get_client_related, stream),
     components(schemas(Response)),
     tags((name = "Fills", description = "Fill management endpoints.")),
 )]
@@ -69,12 +83,14 @@ pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(get_client_related);
+    cfg.service(stream);
 }
 
 // ----------------------------------------------------------------------
 
 #[cfg(test)]
 mod tests {
+    use crate::jobs::Broadcaster;
     use crate::StopHandle;
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait, Mutation};
@@ -89,6 +105,7 @@ mod tests {
             db: db.clone(),
             producer: None,
             stop_handle: StopHandle::default(),
+            broadcaster: Broadcaster::create(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 

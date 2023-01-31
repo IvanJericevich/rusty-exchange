@@ -7,21 +7,25 @@
 // TODO: what about datetime provided as timestamps
 // TODO; Create index.html
 // TODO: Test error responses
+mod jobs;
 mod models;
 mod routes;
 
+use std::sync::Arc;
+use std::time::Duration;
+
 use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
 
-use actix_web::{middleware::Logger, post, web, App, HttpResponse, HttpServer};
-
 use actix_web::dev::ServerHandle;
+use actix_web::{middleware::Logger, web, App, HttpServer};
+
 use parking_lot::Mutex;
-use std::time::Duration;
 
 use rabbitmq_stream_client::types::ByteCapacity;
 use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 
-use routes::router;
+use crate::jobs::Broadcaster;
+use crate::routes::router;
 
 // ----------------------------------------------------------------------
 
@@ -29,25 +33,12 @@ struct AppState {
     db: DatabaseConnection,
     producer: Option<Producer<NoDedup>>, // Make optional for unit tests
     stop_handle: StopHandle,
+    broadcaster: Arc<Broadcaster>,
 }
 
 // ----------------------------------------------------------------------
 
-#[post("/stop/{graceful}")]
-async fn stop(path: web::Path<bool>, data: web::Data<AppState>) -> HttpResponse {
-    let graceful = path.into_inner();
-    if let Some(producer) = data.producer.clone() {
-        // TODO: Is it correct to clone the producer
-        producer.close().await.unwrap();
-    }
-    let _ = &data.stop_handle.stop(graceful);
-    HttpResponse::NoContent().finish()
-}
-
-// ----------------------------------------------------------------------
-
-#[actix_web::main]
-async fn run() -> std::io::Result<()> {
+async fn init() -> AppState {
     tracing_subscriber::fmt().init(); // Log SQL operations
 
     // Establish connection to database and apply migrations
@@ -55,6 +46,7 @@ async fn run() -> std::io::Result<()> {
     Migrator::up(&db, None).await.unwrap(); // Allow to panic if unsuccessful
 
     let producer = if !cfg!(test) {
+        // TODO: env variable if in dev
         // Establish connection to RabbitMQ
         let environment = Environment::builder()
             .host("localhost")
@@ -70,22 +62,27 @@ async fn run() -> std::io::Result<()> {
             .create("orders")
             .await
             .unwrap();
-        Some(
-            // TODO: Mutex?
-            environment.producer().build("orders").await.unwrap(),
-        )
+        Some(environment.producer().build("orders").await.unwrap()) // TODO: Understand dedup
     } else {
         None
     };
 
-    let state = web::Data::new(AppState {
+    AppState {
         db,
         producer,
         stop_handle: StopHandle::default(),
-    }); // Build app state
+        broadcaster: Broadcaster::create(),
+    }
+}
+
+// ----------------------------------------------------------------------
+
+#[actix_web::main]
+pub async fn main() -> std::io::Result<()> {
+    let state = web::Data::new(init().await); // Build app state
 
     let server = HttpServer::new({
-        let state = state.clone(); // Ensure that state isn't moved
+        let state = state.clone();
         move || {
             App::new()
                 .wrap(Logger::new("%r %s (%Ts)"))
@@ -99,10 +96,10 @@ async fn run() -> std::io::Result<()> {
 
     state.stop_handle.register(server.handle());
 
-    server.await?;
-
-    Ok(())
+    server.await
 }
+
+// ----------------------------------------------------------------------
 
 #[derive(Default)]
 struct StopHandle {
@@ -117,13 +114,7 @@ impl StopHandle {
 
     /// Sends stop signal through contained server handle.
     pub(crate) fn stop(&self, graceful: bool) {
-        let future = self.inner.lock().as_ref().unwrap().stop(graceful);
-        drop(future);
-    }
-}
-
-pub fn main() {
-    if let Some(err) = run().err() {
-        println!("Error: {err}");
+        #[allow(clippy::let_underscore_future)]
+        let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
     }
 }

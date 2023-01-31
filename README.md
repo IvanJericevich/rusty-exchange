@@ -4,7 +4,6 @@
         A workspace for a financial exchange architecture written entirely in Rust.
     </p>
 
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![Test](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml)
 </div>
 
@@ -83,17 +82,19 @@ This docker-compose file contains the following environment variables:
 * `PGADMIN_DEFAULT_EMAIL` the default value is **pgadmin4@pgadmin.org**
 * `PGADMIN_DEFAULT_PASSWORD` the default value is **admin**
 
-### Access to postgres:
+### Postgres:
+One can access the postgres server using the following credentials:
 * **Host** If accessing from localhost then `localhost:5432` else `host.docker.internal`
 * **Username:** postgres (as a default)
 * **Password:** postgres (as a default)
 
-### Access to PgAdmin:
+### PgAdmin:
+To access PgAdmin in your browser, enter the following URL and credentials in your browser:
 * **URL:** `http://localhost:5050`
 * **Username:** pgadmin4@pgadmin.org (as a default)
 * **Password:** admin (as a default)
-
-### Add a new server in PgAdmin:
+* 
+Thereafter, add a new server in PgAdmin:
 * **Host name/address** If accessing from localhost then `localhost:5432` else `host.docker.internal`
 * **Port** `5432`
 * **Username** as `POSTGRES_USER`, by default: `postgres`
@@ -146,6 +147,6 @@ IntelliJ).
 * [CoinTossX](https://github.com/dharmeshsing/CoinTossX)
 
 <!-- TODO -->
-# To-do
-* Create github workflows
-* Create dockerfiles for each service
+# To-Do
+* Create github workflows for docker
+* Integrate postgres into github test workflow

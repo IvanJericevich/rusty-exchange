@@ -59,6 +59,10 @@ services:
   api:
     container_name: api_container
     image: api
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
     build:
       context: .
       dockerfile: ./api/Dockerfile

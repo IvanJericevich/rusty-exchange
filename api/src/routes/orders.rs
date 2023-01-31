@@ -1,4 +1,4 @@
-use crate::models::error::Exception;
+use crate::models::Exception;
 use crate::AppState;
 
 use actix_web::{get, post, web, HttpResponse};
@@ -214,6 +214,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
+    use crate::jobs::Broadcaster;
     use crate::StopHandle;
     use actix_web::{test, App};
     use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
@@ -229,6 +230,7 @@ mod tests {
             db: db.clone(),
             producer: None,
             stop_handle: StopHandle::default(),
+            broadcaster: Broadcaster::create(),
         }); // Build app state
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 

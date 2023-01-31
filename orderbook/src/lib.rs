@@ -206,12 +206,13 @@ impl OrderBook {
             .build("orders")
             .await
             .unwrap();
-        while let Ok(delivery) = consumer.next().await.unwrap() {
-            // TODO: Handle errors
-            if let Some(order) = delivery.message().data().map(|data| {
-                serde_json::from_str::<Order>(std::str::from_utf8(data).unwrap()).unwrap()
-            }) {
-                self.process(order);
+        loop {
+            if let Some(Ok(delivery)) = consumer.next().await {
+                if let Some(order) = delivery.message().data().map(|data| {
+                    serde_json::from_str::<Order>(std::str::from_utf8(data).unwrap()).unwrap()
+                }) {
+                    self.process(order);
+                }
             }
         }
     }
