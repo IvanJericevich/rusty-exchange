@@ -8,14 +8,12 @@ use database::orders::Order;
 use database::{OrderSide, OrderType};
 use futures::executor;
 use futures::StreamExt;
-use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
+use rabbitmq_stream_client::types::{Message, OffsetSpecification};
 use rabbitmq_stream_client::{Dedup, Environment, Producer};
-use std::time::Duration;
 
 const QUEUE_CAPACITY: usize = 500;
 
 pub struct OrderBook {
-    // TODO: price and size increment
     id: i32,
     bids: Queue,
     asks: Queue,
@@ -26,22 +24,13 @@ impl OrderBook {
     pub async fn new(market_id: i32) -> Self {
         let producer = if !cfg!(test) {
             // Establish connection to RabbitMQ
-            let environment = Environment::builder()
-                .host("localhost")
-                .port(5552)
-                .build()
-                .await
-                .unwrap();
-            let _ = environment.delete_stream("fills").await; // Delete stream if it exists
-            environment // Create stream at producer
-                .stream_creator()
-                .max_length(ByteCapacity::MB(50))
-                .max_age(Duration::new(30, 0))
-                .create("fills")
-                .await
-                .unwrap();
             Some(
-                environment
+                Environment::builder()
+                    .host("localhost")
+                    .port(5552)
+                    .build()
+                    .await
+                    .unwrap()
                     .producer()
                     .name("fills")
                     .build("fills")

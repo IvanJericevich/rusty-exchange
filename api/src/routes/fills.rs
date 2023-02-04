@@ -5,8 +5,7 @@ use actix_web::{get, web, HttpResponse, Responder};
 
 use crate::models::Stream;
 use database::fills::{ClientGetRequest, Response};
-use database::utoipa;
-use database::Query;
+use database::{utoipa, OrderSide, OrderType, Query};
 
 // ----------------------------------------------------------------------
 
@@ -76,7 +75,7 @@ async fn stream(data: web::Data<AppState>) -> impl Responder {
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related, stream),
-    components(schemas(Response)),
+    components(schemas(Response, OrderSide, OrderType)),
     tags((name = "Fills", description = "Fill management endpoints.")),
 )]
 pub struct ApiDoc;

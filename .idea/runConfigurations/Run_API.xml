@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run API" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package rusty-exchange --bin api" />
+    <option name="command" value="run --package rusty-exchange --bin api -- enable_rabbit" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
@@ -10,8 +10,8 @@
     <option name="buildTarget" value="REMOTE" />
     <option name="backtrace" value="FULL" />
     <envs>
-      <env name="POSTGRES_DB" value="Rust" />
-      <env name="POSTGRES_PASSWORD" value="Boomers4life!123" />
+      <env name="POSTGRES_DB" value="Exchange" />
+      <env name="POSTGRES_PASSWORD" value="postgres" />
       <env name="RUST_LOG" value="actix_web=trace" />
     </envs>
     <option name="isRedirectInput" value="false" />

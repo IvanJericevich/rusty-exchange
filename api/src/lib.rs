@@ -1,27 +1,18 @@
-// TODO: Improve error documentation
-// TODO: Make sure swagger-docs have the correct headers
-// TODO: Ensure correct type definitions for OpenApi models/schemas
-// TODO: Improve OpenApi schema code
-// TODO: Research the use of clone() or copy(). Should String arguments be &str?
-// TODO: Hide foreign keys from openapi schema
 // TODO: what about datetime provided as timestamps
-// TODO; Create index.html
-// TODO: Test error responses
 mod jobs;
 mod models;
 mod routes;
 
+use std::env;
 use std::sync::Arc;
-use std::time::Duration;
 
-use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
+use database::{DatabaseConnection, Engine, Migrator, MigratorTrait}; // TODO: move this to prelude
 
 use actix_web::dev::ServerHandle;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 
 use parking_lot::Mutex;
 
-use rabbitmq_stream_client::types::ByteCapacity;
 use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 
 use crate::jobs::Broadcaster;
@@ -41,28 +32,25 @@ struct AppState {
 async fn init() -> AppState {
     tracing_subscriber::fmt().init(); // Log SQL operations
 
-    // Establish connection to database and apply migrations
-    let db = Engine::connect().await.unwrap(); // Allow to panic if unsuccessful
-    Migrator::up(&db, None).await.unwrap(); // Allow to panic if unsuccessful
+    let enable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "enable_rabbitmq");
 
-    let producer = if !cfg!(test) {
-        // TODO: env variable if in dev
+    let db = Engine::connect().await.unwrap();
+    Migrator::up(&db, None).await.unwrap(); // Always run migration
+
+    let producer = if !cfg!(test) && enable_rabbitmq {
         // Establish connection to RabbitMQ
-        let environment = Environment::builder()
-            .host("localhost")
-            .port(5552)
-            .build()
-            .await
-            .unwrap();
-        let _ = environment.delete_stream("orders").await; // Delete stream if it exists
-        environment // Create stream at producer
-            .stream_creator()
-            .max_length(ByteCapacity::MB(50))
-            .max_age(Duration::new(30, 0))
-            .create("orders")
-            .await
-            .unwrap();
-        Some(environment.producer().build("orders").await.unwrap()) // TODO: Understand dedup
+        Some(
+            Environment::builder()
+                .host("localhost")
+                .port(5552)
+                .build()
+                .await
+                .unwrap()
+                .producer()
+                .build("orders")
+                .await
+                .unwrap(), // TODO: Should this be Arc? check the internals
+        )
     } else {
         None
     };

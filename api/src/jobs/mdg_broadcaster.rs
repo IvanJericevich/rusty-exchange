@@ -2,7 +2,7 @@ use futures::StreamExt;
 use rabbitmq_stream_client::types::OffsetSpecification;
 use rabbitmq_stream_client::Environment;
 
-use std::{sync::Arc, time::Duration};
+use std::{env, sync::Arc, time::Duration};
 
 use actix_web::rt::time::interval;
 use actix_web_lab::__reexports::futures_util::future;
@@ -23,12 +23,15 @@ struct BroadcasterInner {
 impl Broadcaster {
     /// Constructs a single new broadcaster that handles all clients and spawns ping loop.
     pub fn create() -> Arc<Self> {
+        let enable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "enable_rabbitmq");
+
         let this = Arc::new(Broadcaster {
             inner: Mutex::new(BroadcasterInner::default()),
         });
 
         Broadcaster::spawn_ping(Arc::clone(&this));
-        if !cfg!(test) {
+
+        if !cfg!(test) && enable_rabbitmq {
             let _ = Stream::iter()
                 .map(|s| Broadcaster::spawn_broadcaster(Arc::clone(&this), s.clone()));
         }
@@ -115,7 +118,7 @@ impl Broadcaster {
                         .data()
                         .map(|data| std::str::from_utf8(data).unwrap())
                     {
-                        this.broadcast(fill, Stream::Fills).await;
+                        this.broadcast(fill, stream.clone()).await;
                     }
                 }
             }

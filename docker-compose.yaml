@@ -51,11 +51,27 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
       - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - postgres
     restart: unless-stopped
+  database_manager:
+    container_name: database_manager_container
+    image: database_manager
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
+    build:
+      context: .
+      dockerfile: ./database/Dockerfile
+    depends_on:
+      - rabbitmq
+      - postgres
+      - pgadmin
   api:
     container_name: api_container
     image: api
@@ -66,6 +82,8 @@ services:
     build:
       context: .
       dockerfile: ./api/Dockerfile
+    depends_on:
+      - database_manager
     ports:
       - "8080:8080"
   matching_engine:
@@ -74,3 +92,5 @@ services:
     build:
       context: .
       dockerfile: ./orderbook/Dockerfile
+    depends_on:
+      - api

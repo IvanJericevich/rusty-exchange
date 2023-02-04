@@ -399,7 +399,7 @@ enum Markets {
 }
 
 #[derive(Iden)]
-pub enum SubAccountStatus {
+enum SubAccountStatus {
     Table,
     #[iden = "active"]
     Active,
@@ -418,7 +418,7 @@ enum SubAccounts {
 }
 
 #[derive(Iden)]
-pub enum OrderSide {
+enum OrderSide {
     Table,
     #[iden = "buy"]
     Buy,
@@ -435,7 +435,7 @@ pub enum OrderSide {
 }
 
 #[derive(Iden)]
-pub enum OrderType {
+enum OrderType {
     Table,
     #[iden = "market"]
     Market,
@@ -444,7 +444,7 @@ pub enum OrderType {
 }
 
 #[derive(Iden)]
-pub enum OrderStatus {
+enum OrderStatus {
     Table,
     #[iden = "open"]
     Open,

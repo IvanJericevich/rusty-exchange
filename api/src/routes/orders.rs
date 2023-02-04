@@ -4,9 +4,8 @@ use crate::AppState;
 use actix_web::{get, post, web, HttpResponse};
 use rabbitmq_stream_client::types::Message;
 
-use database::orders::{ClientGetOpenRequest, ClientGetRequest, PostRequest, Response};
-use database::utoipa;
-use database::{Mutation, Query};
+use database::orders::{ClientGetOpenRequest, ClientGetRequest, Order, PostRequest, Response};
+use database::{utoipa, Mutation, OrderSide, OrderStatus, OrderType, Query};
 
 // ----------------------------------------------------------------------
 
@@ -199,7 +198,7 @@ async fn create(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related_open, get_client_related, create),
-    components(schemas(Response)),
+    components(schemas(Response, PostRequest, Order, OrderSide, OrderType, OrderStatus)),
     tags((name = "Orders", description = "Order management endpoints.")),
 )]
 pub struct ApiDoc;

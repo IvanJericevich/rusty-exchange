@@ -14,11 +14,16 @@ members = [".", "api", "database", "orderbook"]
 [dependencies]
 api = { path = "api" }
 orderbook = { path = "orderbook" }
+database = { path = "database" }
 async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
 
 [[bin]]
 name = "api"
 path = "src/bin/api.rs"
+
+[[bin]]
+name = "database_manager"
+path = "src/bin/database_manager.rs"
 
 [[bin]]
 name = "matching_engine"

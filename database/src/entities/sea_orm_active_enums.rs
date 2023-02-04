@@ -2,8 +2,11 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_status")]
 pub enum OrderStatus {
     #[sea_orm(string_value = "closed")]
@@ -11,7 +14,9 @@ pub enum OrderStatus {
     #[sea_orm(string_value = "open")]
     Open,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_side")]
 pub enum OrderSide {
     #[sea_orm(string_value = "ask")]
@@ -27,7 +32,9 @@ pub enum OrderSide {
     #[sea_orm(string_value = "short")]
     Short,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "sub_account_status")]
 pub enum SubAccountStatus {
     #[sea_orm(string_value = "active")]
@@ -35,7 +42,9 @@ pub enum SubAccountStatus {
     #[sea_orm(string_value = "inactive")]
     Inactive,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "order_type")]
 pub enum OrderType {
     #[sea_orm(string_value = "limit")]

@@ -1,0 +1,15 @@
+# Rust official image (First stage)
+FROM rustlang/rust:nightly AS builder
+# Copy source files
+COPY . .
+# Run build --locked
+RUN cargo build --release --bin database_manager --locked
+
+# Debian lightweight image (Second stage)
+FROM debian:buster-slim
+# Install required SSL packages
+RUN apt update && apt-get install -y libssl-dev pkg-config openssl
+# Copy binary from first stage
+COPY --from=builder /target/release/database_manager ./target/release/database_manager
+# Execute binary
+CMD ["/target/release/database_manager"]

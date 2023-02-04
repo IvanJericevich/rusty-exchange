@@ -150,3 +150,4 @@ IntelliJ).
 # To-Do
 * Create github workflows for docker
 * Integrate postgres into github test workflow
+* API templating

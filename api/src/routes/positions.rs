@@ -4,8 +4,7 @@ use crate::AppState;
 use actix_web::{get, web, HttpResponse};
 
 use database::positions::{ClientGetRequest, Model};
-use database::utoipa;
-use database::Query;
+use database::{utoipa, OrderSide, Query};
 
 // ----------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ async fn get_client_related(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get_client_related),
-    components(schemas(Model)),
+    components(schemas(Model, OrderSide)),
     tags((name = "Positions", description = "Position management endpoints.")),
 )]
 pub struct ApiDoc;
@@ -73,7 +72,7 @@ mod tests {
     use crate::jobs::Broadcaster;
     use crate::StopHandle;
     use actix_web::{test, App};
-    use database::{Engine, Migrator, MigratorTrait, Mutation, SubAccountStatus};
+    use database::{Engine, Migrator, MigratorTrait, Mutation};
 
     use super::*;
 

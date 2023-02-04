@@ -219,6 +219,10 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Orders
+    fn round_down_to_precision(num: f32, precision: f32) -> f32 {
+        num - (num % precision)
+    }
+
     pub async fn update_order(db: &DbConn, order: orders::ActiveModel) -> Result<(), DbErr> {
         let _ = order.update(db).await?;
         Ok(())
@@ -290,7 +294,10 @@ impl Mutation {
                     {
                         return Err(DbErr::Custom("Invalid order parameters.".to_string()));
                     }
-                    Set(Some(price))
+                    Set(Some(Mutation::round_down_to_precision(
+                        price,
+                        market.price_increment,
+                    )))
                 } else {
                     if r#type == OrderType::Limit || size < market.size_increment {
                         return Err(DbErr::Custom("Invalid order parameters.".to_string()));
@@ -300,7 +307,10 @@ impl Mutation {
                 let order = orders::ActiveModel {
                     client_order_id: Set(client_order_id),
                     price,
-                    size: Set(size),
+                    size: Set(Mutation::round_down_to_precision(
+                        size,
+                        market.size_increment,
+                    )),
                     filled_size: Set(0.0),
                     side: Set(side),
                     r#type: Set(r#type),

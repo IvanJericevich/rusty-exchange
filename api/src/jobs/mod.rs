@@ -1,3 +1,3 @@
-mod broadcaster;
+mod mdg_broadcaster;
 
-pub use broadcaster::*;
+pub use mdg_broadcaster::*;

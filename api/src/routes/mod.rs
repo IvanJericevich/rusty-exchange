@@ -34,7 +34,7 @@ pub struct ApiDoc;
     ),
     tag = "Index",
 )]
-#[post("/shutdown/{graceful}")]
+#[post("shutdown/{graceful}")]
 async fn shutdown(path: web::Path<bool>, data: web::Data<AppState>) -> HttpResponse {
     let graceful = path.into_inner();
     let _ = &data.stop_handle.stop(graceful);

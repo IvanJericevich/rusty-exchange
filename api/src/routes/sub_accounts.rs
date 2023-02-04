@@ -4,8 +4,7 @@ use crate::AppState;
 use actix_web::{get, post, put, web, HttpResponse};
 
 use database::sub_accounts::{GetRequest, Model, PostRequest, PutRequest};
-use database::utoipa;
-use database::{Mutation, Query};
+use database::{utoipa, Mutation, Query, SubAccountStatus};
 
 // ----------------------------------------------------------------------
 
@@ -123,7 +122,7 @@ async fn update(
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(get, get_by_client_id, create, update),
-    components(schemas(Model, PostRequest, PutRequest)),
+    components(schemas(Model, PostRequest, PutRequest, SubAccountStatus)),
     tags((name = "Sub-Accounts", description = "Sub-account management endpoints.")),
 )]
 pub struct ApiDoc;
@@ -160,12 +159,7 @@ mod tests {
         Migrator::refresh(&db).await.unwrap(); // Apply all pending migrations
 
         // Mock server
-        let app = test::init_service(
-            App::new()
-                .app_data(web::Data::new(state.clone()))
-                .configure(router),
-        )
-        .await;
+        let app = test::init_service(App::new().app_data(state.clone()).configure(router)).await;
         let _ = Mutation::create_client(&db, "a@gmail.com".to_owned()).await;
         let _ = Mutation::create_client(&db, "b@gmail.com".to_owned()).await;
 
