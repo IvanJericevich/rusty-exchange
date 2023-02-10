@@ -151,3 +151,4 @@ IntelliJ).
 * Create github workflows for docker
 * Integrate postgres into github test workflow
 * API templating
+* Consider using tokio runtime and choose correct features

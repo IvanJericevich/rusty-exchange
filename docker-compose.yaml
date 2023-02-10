@@ -13,7 +13,7 @@ networks:
 
 services:
   rabbitmq:
-    image: rabbitmq:management  # arm64v8/  add this to beginning if on m1 mac
+    image: rabbitmq:management
     container_name: rabbitmq_container
     ports:
       - '5672:5672'
@@ -22,18 +22,24 @@ services:
     volumes:
       - rabbitmq:/var/lib/rabbitmq/
       - rabbitmq:/var/log/rabbitmq
-      - $PWD/rmq_enabled_plugins:/etc/rabbitmq/enabled_plugins # Enable stream plugin
+      - ./rmq_enabled_plugins:/etc/rabbitmq/enabled_plugins # Enable stream plugin
     networks:
       - rabbitmq
+    restart: unless-stopped # Always restart
     environment:
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_stream advertised_host localhost
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_stream advertised_host rabbitmq # TODO: Change to localhost if outside container
+    healthcheck: # Conduct healthcheck to prevent dependent services from starting before RabbitMQ is set up
+      test: rabbitmq-diagnostics -q ping # TODO: Research all health checks
+      interval: 5s
+      timeout: 20s
+      retries: 5
   postgres:
     container_name: postgres_container
     image: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange} # Defaults to Exchange if env variable not set. Automatically creates the db on startup
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
@@ -41,56 +47,66 @@ services:
       - "5432:5432"
     networks:
       - postgres
-    restart: unless-stopped
+    restart: unless-stopped # Always restart
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org} # Defaults to pgadmin4@pgadmin.org if env variable not set
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin} # Defaults to admin if env variable not set
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
       - pgadmin:/var/lib/pgadmin
-    depends_on:
+    depends_on: # Only start when dependents are up
       - postgres
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - postgres
-    restart: unless-stopped
+    restart: unless-stopped # Always restart
   database_manager:
     container_name: database_manager_container
     image: database_manager
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange} # Defaults to Exchange if env variable not set
+    networks:
+      - postgres
+      - rabbitmq
     build:
       context: .
       dockerfile: ./database/Dockerfile
-    depends_on:
+    depends_on: # Only start when dependents are up
       - rabbitmq
       - postgres
-      - pgadmin
+  matching_engine:
+    container_name: matching_engine_container
+    image: matching_engine
+    networks:
+      - rabbitmq
+    build:
+      context: .
+      dockerfile: ./orderbook/Dockerfile
+    restart: on-failure # Restart on failure
+    depends_on: # Only start when dependents are up
+      - rabbitmq
+      - postgres
+      - database_manager
   api:
     container_name: api_container
     image: api
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-Exchange}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} # Defaults to postgres if env variable not set
+      POSTGRES_DB: ${POSTGRES_DB:-Exchange} # Defaults to Exchange if env variable not set
+    networks:
+      - postgres
+      - rabbitmq
     build:
       context: .
       dockerfile: ./api/Dockerfile
-    depends_on:
+    restart: on-failure # Restart on failure
+    depends_on: # Only start when dependents are up
       - database_manager
-    ports:
-      - "8080:8080"
-  matching_engine:
-    container_name: matching_engine_container
-    image: matching_engine
-    build:
-      context: .
-      dockerfile: ./orderbook/Dockerfile
-    depends_on:
-      - api
+      - matching_engine

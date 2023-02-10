@@ -15,7 +15,8 @@ members = [".", "api", "database", "orderbook"]
 api = { path = "api" }
 orderbook = { path = "orderbook" }
 database = { path = "database" }
-async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
+rabbitmq-stream-client = "0.1.0"
+tokio = "1.25.0" # TODO: tokio vs async-std
 
 [[bin]]
 name = "api"
