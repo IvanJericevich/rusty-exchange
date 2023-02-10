@@ -19,6 +19,7 @@ services:
       - '5672:5672'
       - '5552:5552'
       - '15672:15672'
+      - '15692:15692'
     volumes:
       - rabbitmq:/var/lib/rabbitmq/
       - rabbitmq:/var/log/rabbitmq
