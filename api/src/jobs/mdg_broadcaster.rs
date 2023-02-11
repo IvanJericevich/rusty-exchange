@@ -8,8 +8,9 @@ use actix_web::rt::time::interval;
 use actix_web_lab::__reexports::futures_util::future;
 use actix_web_lab::sse::{self, ChannelStream, Sse};
 
-use crate::models::Stream;
 use parking_lot::Mutex;
+use common::rabbitmq::Stream;
+use common::util;
 
 pub struct Broadcaster {
     inner: Mutex<BroadcasterInner>,
@@ -23,7 +24,7 @@ struct BroadcasterInner {
 impl Broadcaster {
     /// Constructs a single new broadcaster that handles all clients and spawns ping loop.
     pub fn create() -> Arc<Self> {
-        let enable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "enable_rabbitmq");
+        let disable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "disable_rabbitmq");
 
         let this = Arc::new(Broadcaster {
             inner: Mutex::new(BroadcasterInner::default()),
@@ -31,8 +32,8 @@ impl Broadcaster {
 
         Broadcaster::spawn_ping(Arc::clone(&this));
 
-        if !cfg!(test) && enable_rabbitmq {
-            let _ = Stream::iter()
+        if !cfg!(test) && !disable_rabbitmq {
+            let _ = [Stream::Fills]
                 .map(|s| Broadcaster::spawn_broadcaster(Arc::clone(&this), s.clone()));
         }
 
@@ -101,7 +102,7 @@ impl Broadcaster {
         actix_web::rt::spawn(async move {
             // Spawns a future on the current thread as a new task
             let mut consumer = Environment::builder()
-                .host("localhost")
+                .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
                 .port(5552)
                 .build()
                 .await
@@ -116,7 +117,7 @@ impl Broadcaster {
                     if let Some(fill) = delivery
                         .message()
                         .data()
-                        .map(|data| std::str::from_utf8(data).unwrap())
+                        .map(|data| std::str::from_utf8(data).unwrap()) // TODO: Should this rather be typed
                     {
                         this.broadcast(fill, stream.clone()).await;
                     }

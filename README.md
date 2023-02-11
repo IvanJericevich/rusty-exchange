@@ -155,3 +155,5 @@ IntelliJ).
 * Set up with kompose and minikube
 * Improve README
 * MR template
+* Update cargo.toml descriptions
+* Implement health endpoint

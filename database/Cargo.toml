@@ -13,13 +13,14 @@ name = "database"
 path = "src/lib.rs"
 
 [dependencies]
+common = { path = "../common" }
 async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
-sea-orm = { version = "^0.10.0", features = ["sqlx-postgres", "runtime-async-std-native-tls", "debug-print"] } # Support for postgres and standard async library with macros and mock features, "mock"
-sea-orm-migration = { version = "^0.10.0" } # For database migrations
+sea-orm = { version = "0.11.0", features = ["sqlx-postgres", "runtime-async-std-native-tls", "debug-print"] } # Support for postgres and standard async library with macros and mock features, "mock"
+sea-orm-migration = { version = "0.11.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
 serde = { version = "1", features = ["derive"] } # Serialization and deserialization of entities
 chrono = "0.4.23"
-utoipa = { version = "2.4.2", features = ["actix_extras", "json", "chrono"] } # OpenApi schema
+utoipa = { version = "3.0.2", features = ["actix_extras", "chrono"] } # OpenApi schema
 serde_json = "1.0.91"
 
 [features]
@@ -27,7 +28,7 @@ mock = ["sea-orm/mock"]
 
 [dev-dependencies]
 futures = "^0.3.25" # Asynchronous utilities
-sea-orm-cli = "^0.10.1"
+sea-orm-cli = "0.11.0"
 
 [[test]]
 name = "main"

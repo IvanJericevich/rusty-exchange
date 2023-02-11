@@ -9,7 +9,8 @@ keywords = ["orderbook,", "matching engine"]
 publish = false
 
 [dependencies]
-async-std = "1.12.0" # TODO: Should this be a dev dependency?
+common = { path = "../common" }
+async-std = "1.12.0" # TODO: Should this be a dev dependency? Tokio?
 chrono = "0.4.23"
 database = { path = "../database" }
 futures = "0.3.25"

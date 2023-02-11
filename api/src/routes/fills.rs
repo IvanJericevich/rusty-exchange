@@ -2,8 +2,7 @@ use crate::models::Exception;
 use crate::AppState;
 
 use actix_web::{get, web, HttpResponse, Responder};
-
-use crate::models::Stream;
+use common::rabbitmq::Stream;
 use database::fills::{ClientGetRequest, Response};
 use database::{utoipa, OrderSide, OrderType, Query};
 

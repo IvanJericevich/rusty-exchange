@@ -1,0 +1,15 @@
+[package]
+name = "common"
+version = "0.0.0"
+edition = "2021"
+authors = ["ivanjericevich96@gmail.com"]
+description = "A crate for general utilities/functionalities that common across the project."
+readme = "README.md"
+keywords = ["rabbitmq", "async"]
+publish = false
+
+[lib]
+name = "common"
+path = "src/lib.rs"
+
+[dependencies]

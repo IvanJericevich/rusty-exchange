@@ -14,6 +14,8 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 use parking_lot::Mutex;
 
 use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+use common::rabbitmq::Stream;
+use common::util;
 
 use crate::jobs::Broadcaster;
 use crate::routes::router;
@@ -32,24 +34,24 @@ struct AppState {
 async fn init() -> AppState {
     tracing_subscriber::fmt().init(); // Log SQL operations
 
-    let enable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "enable_rabbitmq");
+    let disable_rabbitmq = env::args().any(|arg| arg.to_lowercase() == "disable_rabbitmq");
 
     let db = Engine::connect().await.unwrap();
     Migrator::up(&db, None).await.unwrap(); // Always run migration
 
-    let producer = if !cfg!(test) && enable_rabbitmq {
+    let producer = if !cfg!(test) && !disable_rabbitmq {
         // Establish connection to RabbitMQ
         Some(
             Environment::builder()
-                .host("localhost")
+                .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
                 .port(5552)
                 .build()
                 .await
                 .unwrap()
                 .producer()
-                .build("orders")
+                .build(Stream::Orders.as_str())
                 .await
-                .unwrap(), // TODO: Should this be Arc? check the internals
+                .unwrap(),
         )
     } else {
         None
@@ -78,7 +80,7 @@ pub async fn main() -> std::io::Result<()> {
                 .configure(router)
         }
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .workers(1)
     .run();
 

@@ -9,9 +9,10 @@ keywords = [""]
 publish = false
 
 [workspace]
-members = [".", "api", "database", "orderbook"]
+members = [".", "api", "database", "orderbook", "common"]
 
 [dependencies]
+common = { path = "common" }
 api = { path = "api" }
 orderbook = { path = "orderbook" }
 database = { path = "database" }

@@ -6,10 +6,11 @@ use chrono::Utc;
 use database::fills::Fill;
 use database::orders::Order;
 use database::{OrderSide, OrderType};
-use futures::executor;
 use futures::StreamExt;
-use rabbitmq_stream_client::types::{Message, OffsetSpecification};
-use rabbitmq_stream_client::{Dedup, Environment, Producer};
+use rabbitmq_stream_client::types::{OffsetSpecification};
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+use common::rabbitmq::Stream;
+use common::util;
 
 const QUEUE_CAPACITY: usize = 500;
 
@@ -17,7 +18,7 @@ pub struct OrderBook {
     id: i32,
     bids: Queue,
     asks: Queue,
-    producer: Option<Producer<Dedup>>,
+    producer: Option<Producer<NoDedup>>,
 }
 
 impl OrderBook {
@@ -26,14 +27,13 @@ impl OrderBook {
             // Establish connection to RabbitMQ
             Some(
                 Environment::builder()
-                    .host("localhost")
+                    .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
                     .port(5552)
                     .build()
                     .await
                     .unwrap()
                     .producer()
-                    .name("fills")
-                    .build("fills")
+                    .build(Stream::Fills.as_str())
                     .await
                     .unwrap(),
             )
@@ -173,26 +173,27 @@ impl OrderBook {
                 market_id: self.id,
                 order_id,
             };
-            let _ = executor::block_on(
-                producer.send_with_confirm(
-                    Message::builder()
-                        .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
-                        .build(),
-                ),
-            );
+            println!("{:?}", fill);
+            // let _ = executor::block_on( // TODO: THIS IS CASUING AN ERROR
+            //     producer.send_with_confirm(
+            //         Message::builder()
+            //             .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
+            //             .build(),
+            //     ),
+            // );
         }
     }
 
     pub async fn run(&mut self) {
         let mut consumer = Environment::builder()
-            .host("localhost")
+            .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
             .port(5552)
             .build()
             .await
             .unwrap()
             .consumer()
             .offset(OffsetSpecification::First)
-            .build("orders")
+            .build(Stream::Orders.as_str())
             .await
             .unwrap();
         loop {
