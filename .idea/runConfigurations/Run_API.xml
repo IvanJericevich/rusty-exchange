@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run API" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --package rusty-exchange --bin api -- enable_rabbit" />
+    <option name="command" value="run --package rusty-exchange --bin api -- disable_rabbitmq" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
@@ -19,6 +19,7 @@
     <method v="2">
       <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Start Postgres" run_configuration_type="ShConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="RabbitMQ" run_configuration_type="docker-deploy" />
     </method>
   </configuration>
 </component>

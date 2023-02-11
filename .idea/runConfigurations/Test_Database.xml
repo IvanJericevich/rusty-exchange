@@ -11,7 +11,7 @@
     <option name="backtrace" value="FULL" />
     <envs>
       <env name="POSTGRES_DB" value="Exchange" />
-      <env name="DB_PASSWORD" value="postgres" />
+      <env name="POSTGRES_PASSWORD" value="postgres" />
     </envs>
     <option name="isRedirectInput" value="false" />
     <option name="redirectInputPath" value="" />
