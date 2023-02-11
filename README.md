@@ -152,3 +152,6 @@ IntelliJ).
 * Integrate postgres into github test workflow
 * API templating
 * Consider using tokio runtime and choose correct features
+* Set up with kompose and minikube
+* Improve README
+* MR template
