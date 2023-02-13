@@ -1,9 +1,11 @@
 // TODO: what about datetime provided as timestamps
+// TODO: Should common dependencies be exported from a single source
 mod jobs;
 mod models;
 mod routes;
 
 use std::env;
+use std::net::Ipv4Addr;
 use std::sync::Arc;
 
 use database::{DatabaseConnection, Engine, Migrator, MigratorTrait}; // TODO: move this to prelude
@@ -13,9 +15,9 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 
 use parking_lot::Mutex;
 
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 use common::rabbitmq::Stream;
 use common::util;
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 
 use crate::jobs::Broadcaster;
 use crate::routes::router;
@@ -43,7 +45,11 @@ async fn init() -> AppState {
         // Establish connection to RabbitMQ
         Some(
             Environment::builder()
-                .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
+                .host(if util::is_running_in_container() {
+                    "rabbitmq"
+                } else {
+                    "localhost"
+                })
                 .port(5552)
                 .build()
                 .await
@@ -80,7 +86,7 @@ pub async fn main() -> std::io::Result<()> {
                 .configure(router)
         }
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind((Ipv4Addr::UNSPECIFIED, 8080))?
     .workers(1)
     .run();
 

@@ -1,5 +1,5 @@
-pub mod util;
 pub mod rabbitmq;
+pub mod util;
 
 #[cfg(test)]
 mod tests {

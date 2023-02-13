@@ -8,9 +8,9 @@ use actix_web::rt::time::interval;
 use actix_web_lab::__reexports::futures_util::future;
 use actix_web_lab::sse::{self, ChannelStream, Sse};
 
-use parking_lot::Mutex;
 use common::rabbitmq::Stream;
 use common::util;
+use parking_lot::Mutex;
 
 pub struct Broadcaster {
     inner: Mutex<BroadcasterInner>,
@@ -33,8 +33,7 @@ impl Broadcaster {
         Broadcaster::spawn_ping(Arc::clone(&this));
 
         if !cfg!(test) && !disable_rabbitmq {
-            let _ = [Stream::Fills]
-                .map(|s| Broadcaster::spawn_broadcaster(Arc::clone(&this), s.clone()));
+            let _ = [Stream::Fills].map(|s| Broadcaster::spawn_broadcaster(Arc::clone(&this), s));
         }
 
         this
@@ -102,7 +101,11 @@ impl Broadcaster {
         actix_web::rt::spawn(async move {
             // Spawns a future on the current thread as a new task
             let mut consumer = Environment::builder()
-                .host(if util::is_running_in_container() { "rabbitmq" } else { "localhost" })
+                .host(if util::is_running_in_container() {
+                    "rabbitmq"
+                } else {
+                    "localhost"
+                })
                 .port(5552)
                 .build()
                 .await
@@ -117,7 +120,8 @@ impl Broadcaster {
                     if let Some(fill) = delivery
                         .message()
                         .data()
-                        .map(|data| std::str::from_utf8(data).unwrap()) // TODO: Should this rather be typed
+                        .map(|data| std::str::from_utf8(data).unwrap())
+                    // TODO: Should this rather be typed
                     {
                         this.broadcast(fill, stream.clone()).await;
                     }

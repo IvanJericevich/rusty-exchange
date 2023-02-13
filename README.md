@@ -1,10 +1,22 @@
 <div align="center">
-    <h3 align="center">Rusty Exchange</h3>
-    <p align="center">
-        A workspace for a financial exchange architecture written entirely in Rust.
-    </p>
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0f/Original_Ferris.svg" alt="Logo" width="80" height="80">
+  </a>
 
+  <h3 align="center">Rusty Exchange</h3>
+
+  <p align="center">
+    A workspace for a financial exchange architecture written entirely in Rust.
+  </p>
+
+[![Issues][issues-shield]][issues-url]
 [![Test](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml)
+
+<a href="https://github.com/IvanJericevich/rusty-exchange/issues/new?assignees=&labels=&template=bug.md&title=">Report Bug</a>
+·
+<a href="https://github.com/IvanJericevich/rusty-exchange/issues/new?assignees=&labels=&template=feature.md&title=">Request Feature</a>
+·
+<a href="https://github.com/othneildrew/Best-README-Template">Explore the docs</a>
 </div>
 
 <!-- TABLE OF CONTENTS -->

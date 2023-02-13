@@ -10,6 +10,19 @@ use database::{utoipa, OrderSide, OrderType, Query};
 
 #[utoipa::path(
     context_path = "/fills",
+    responses(
+        (status = 200, description = "Returns a SSE streaming connection."),
+        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+    ),
+    tag = "Fills",
+)]
+#[get("/stream")]
+async fn stream(data: web::Data<AppState>) -> impl Responder {
+    data.broadcaster.new_client(Stream::Fills).await
+}
+
+#[utoipa::path(
+    context_path = "/fills",
     params(
         ("client_id", description = "Client ID for which to search fills.", example = 1),
         ClientGetRequest
@@ -54,19 +67,6 @@ async fn get_client_related(
     .map_err(Exception::Database)?;
 
     Ok(HttpResponse::Ok().json(fills))
-}
-
-#[utoipa::path(
-    context_path = "/fills",
-    responses(
-        (status = 200, description = "Returns a SSE streaming connection."),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-    ),
-    tag = "Fills",
-)]
-#[get("/stream")]
-async fn stream(data: web::Data<AppState>) -> impl Responder {
-    data.broadcaster.new_client(Stream::Fills).await
 }
 
 // ----------------------------------------------------------------------

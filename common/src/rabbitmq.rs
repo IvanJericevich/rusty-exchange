@@ -4,7 +4,7 @@ use std::slice::Iter;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Stream {
     Fills,
-    Orders
+    Orders,
 }
 
 impl Stream {
