@@ -9,7 +9,6 @@
     A workspace for a financial exchange architecture written entirely in Rust.
   </p>
 
-[![Issues][issues-shield]][issues-url]
 [![Test](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/IvanJericevich/rusty-exchange/actions/workflows/test.yml)
 
 <a href="https://github.com/IvanJericevich/rusty-exchange/issues/new?assignees=&labels=&template=bug.md&title=">Report Bug</a>

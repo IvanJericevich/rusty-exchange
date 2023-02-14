@@ -1,21 +1,21 @@
-use crate::models::Exception;
-use crate::AppState;
-
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, HttpResponse, post, web};
 use rabbitmq_stream_client::types::Message;
 
+use database::{Mutation, OrderSide, OrderStatus, OrderType, Query, utoipa};
 use database::orders::{ClientGetOpenRequest, ClientGetRequest, Order, PostRequest, Response};
-use database::{utoipa, Mutation, OrderSide, OrderStatus, OrderType, Query};
+
+use crate::AppState;
+use crate::models::Exception;
 
 // ----------------------------------------------------------------------
 
 #[utoipa::path(
-    context_path = "/orders",
-    params(
-        ("client_id", description = "Client ID for which to search orders.", example = 1),
-        ClientGetOpenRequest
-    ),
-    responses(
+context_path = "/orders",
+params(
+("client_id", description = "Client ID for which to search orders.", example = 1),
+ClientGetOpenRequest
+),
+responses(
         (status = 200, description = "Returns all orders.", body = Response),
         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
         (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
@@ -183,7 +183,7 @@ async fn create(
         let _ = producer
             .send_with_confirm(
                 Message::builder()
-                    .body(serde_json::to_string(&order).unwrap()) // TODO: Dont confirm otherwise api will halt
+                    .body(serde_json::to_string(&order).unwrap())
                     .build(),
             )
             .await
@@ -213,11 +213,13 @@ pub fn router(cfg: &mut web::ServiceConfig) {
 
 #[cfg(test)]
 mod tests {
+    use actix_web::{App, test};
+    use serde_json::json;
+
+    use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
+
     use crate::jobs::Broadcaster;
     use crate::StopHandle;
-    use actix_web::{test, App};
-    use database::{Engine, Migrator, MigratorTrait, Mutation, OrderSide, OrderType};
-    use serde_json::json;
 
     use super::*;
 

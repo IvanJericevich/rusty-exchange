@@ -1,4 +1,5 @@
 use std::slice::Iter;
+
 // pub use rabbitmq_stream_client::error::ProducerPublishError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -26,10 +27,17 @@ impl Stream {
 // }
 //
 // impl Consumer {
-//     pub async fn consume<F>(&mut self, f: F) where F: Fn(Delivery) {
+//     pub async fn consume<F, T>(&mut self, f: F) where F: Fn(T) {
 //         loop {
 //             if let Some(Ok(delivery)) = self.consumer.next().await {
-//                 f(delivery)
+//                 if let Some(msg) = delivery
+//                     .message()
+//                     .data()
+//                     .map(|data|
+//                         serde_json::from_str::<T>(std::str::from_utf8(data).unwrap())
+//                     )
+//                 { f(msg); }
+//
 //             }
 //         }
 //     }
@@ -60,7 +68,11 @@ impl Stream {
 // impl RabbitMQ {
 //     pub async fn new(refresh: bool) -> Self {
 //         let environment = Environment::builder()
-//             .host("rabbitmq")
+//             .host(if util::is_running_in_container() {
+//                 "rabbitmq"
+//             } else {
+//                 "localhost"
+//             })
 //             .port(5552)
 //             .build()
 //             .await

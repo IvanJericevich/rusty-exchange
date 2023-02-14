@@ -1,26 +1,26 @@
+use std::env;
+use std::net::Ipv4Addr;
+use std::sync::Arc;
+use std::time::Duration;
+
+use actix_web::{App, HttpServer, middleware::Logger, web};
+use actix_web::dev::ServerHandle;
+use actix_web::rt::time::sleep;
+use parking_lot::Mutex;
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+
+use common::rabbitmq::Stream;
+use common::util;
+use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
+
+use crate::jobs::Broadcaster;
+use crate::routes::router;
+
 // TODO: what about datetime provided as timestamps
 // TODO: Should common dependencies be exported from a single source
 mod jobs;
 mod models;
 mod routes;
-
-use std::env;
-use std::net::Ipv4Addr;
-use std::sync::Arc;
-
-use database::{DatabaseConnection, Engine, Migrator, MigratorTrait}; // TODO: move this to prelude
-
-use actix_web::dev::ServerHandle;
-use actix_web::{middleware::Logger, web, App, HttpServer};
-
-use parking_lot::Mutex;
-
-use common::rabbitmq::Stream;
-use common::util;
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
-
-use crate::jobs::Broadcaster;
-use crate::routes::router;
 
 // ----------------------------------------------------------------------
 
@@ -75,6 +75,8 @@ async fn init() -> AppState {
 
 #[actix_web::main]
 pub async fn main() -> std::io::Result<()> {
+    sleep(Duration::from_secs(5)).await;
+
     let state = web::Data::new(init().await); // Build app state
 
     let server = HttpServer::new({

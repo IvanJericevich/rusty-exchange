@@ -1,16 +1,20 @@
 #![feature(binary_heap_retain)]
-mod queue;
 
-use crate::queue::Queue;
+use async_recursion::async_recursion;
 use chrono::Utc;
+use futures::StreamExt;
+use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+use rabbitmq_stream_client::types::{Message, OffsetSpecification};
+
 use common::rabbitmq::Stream;
 use common::util;
+use database::{OrderSide, OrderType};
 use database::fills::Fill;
 use database::orders::Order;
-use database::{OrderSide, OrderType};
-use futures::{executor, StreamExt};
-use rabbitmq_stream_client::types::{Message, OffsetSpecification};
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
+
+use crate::queue::Queue;
+
+mod queue;
 
 const QUEUE_CAPACITY: usize = 500;
 
@@ -52,14 +56,15 @@ impl OrderBook {
         }
     }
 
-    fn process(&mut self, order: Order) -> bool {
+    async fn process(&mut self, order: Order) -> bool {
         match order.r#type {
-            OrderType::Limit => self.process_limit(order),
-            OrderType::Market => self.process_market(order),
+            OrderType::Limit => self.process_limit(order).await,
+            OrderType::Market => self.process_market(order).await,
         }
     }
 
-    fn process_limit(&mut self, order: Order) -> bool {
+    #[async_recursion]
+    async fn process_limit(&mut self, order: Order) -> bool {
         if let Some(contra_order) = match order.side {
             OrderSide::Buy | OrderSide::Bid | OrderSide::Long => self.asks.peek().cloned(),
             OrderSide::Sell | OrderSide::Ask | OrderSide::Short => self.bids.peek().cloned(),
@@ -73,8 +78,8 @@ impl OrderBook {
                 }
             } {
                 let mut order = order; // Take the previous value out of scope
-                if !self.cross(&mut order, contra_order) {
-                    self.process_limit(order)
+                if !self.cross(&mut order, contra_order).await {
+                    self.process_limit(order).await
                 } else {
                     true
                 }
@@ -86,14 +91,15 @@ impl OrderBook {
         }
     }
 
-    fn process_market(&mut self, order: Order) -> bool {
+    #[async_recursion]
+    async fn process_market(&mut self, order: Order) -> bool {
         if let Some(contra_order) = match order.side {
             OrderSide::Buy | OrderSide::Bid | OrderSide::Long => self.asks.peek().cloned(),
             OrderSide::Sell | OrderSide::Ask | OrderSide::Short => self.bids.peek().cloned(),
         } {
             let mut order = order;
-            if !self.cross(&mut order, contra_order) {
-                self.process_market(order);
+            if !self.cross(&mut order, contra_order).await {
+                self.process_market(order).await;
             }
         }
         true
@@ -106,8 +112,8 @@ impl OrderBook {
         }
     }
 
-    fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
-        {
+    async fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
+        async {
             self.publish_fill(
                 contra_order.price.unwrap(),
                 f32::min(order.size, contra_order.size),
@@ -115,7 +121,7 @@ impl OrderBook {
                 contra_order.r#type,
                 contra_order.sub_account_id,
                 contra_order.id,
-            );
+            ).await;
             self.publish_fill(
                 contra_order.price.unwrap(),
                 f32::min(order.size, contra_order.size),
@@ -123,8 +129,8 @@ impl OrderBook {
                 order.r#type.clone(),
                 order.sub_account_id,
                 order.id,
-            );
-        }
+            ).await;
+        }.await;
         let contra_queue = match order.side {
             OrderSide::Buy | OrderSide::Bid | OrderSide::Long => &mut self.asks,
             OrderSide::Sell | OrderSide::Ask | OrderSide::Short => &mut self.bids,
@@ -156,7 +162,7 @@ impl OrderBook {
         Some((bid, ask))
     }
 
-    fn publish_fill(
+    async fn publish_fill(
         &mut self,
         price: f32,
         size: f32,
@@ -177,14 +183,11 @@ impl OrderBook {
                 market_id: self.id,
                 order_id,
             };
-            let _ = executor::block_on(
-                // TODO: THIS IS CASUING AN ERROR
-                producer.send_with_confirm(
-                    Message::builder()
-                        .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
-                        .build(),
-                ),
-            );
+            let _ = producer.send_with_confirm(
+                Message::builder()
+                    .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
+                    .build(),
+            ).await;
         }
     }
 
@@ -209,7 +212,7 @@ impl OrderBook {
                 if let Some(order) = delivery.message().data().map(|data| {
                     serde_json::from_str::<Order>(std::str::from_utf8(data).unwrap()).unwrap()
                 }) {
-                    self.process(order);
+                    self.process(order).await;
                 }
             }
         }
@@ -218,9 +221,9 @@ impl OrderBook {
 
 #[cfg(test)]
 mod test {
+    use database::orders::Order;
 
     use super::*;
-    use database::orders::Order;
 
     #[async_std::test]
     async fn add_limit_order_to_empty() {
@@ -233,7 +236,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
@@ -242,7 +245,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
     }
 
     #[async_std::test]
@@ -256,7 +259,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
@@ -265,7 +268,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 3,
             sub_account_id: 1,
@@ -274,7 +277,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 4,
             sub_account_id: 1,
@@ -283,7 +286,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
     }
 
     #[async_std::test]
@@ -297,7 +300,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
@@ -306,7 +309,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 3,
             sub_account_id: 1,
@@ -315,7 +318,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 4,
             sub_account_id: 1,
@@ -324,7 +327,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
     }
 
     #[async_std::test]
@@ -338,7 +341,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
@@ -347,7 +350,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
     }
 
     #[async_std::test]
@@ -361,7 +364,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 2,
             sub_account_id: 1,
@@ -370,7 +373,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 3,
             sub_account_id: 1,
@@ -379,7 +382,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 4,
             sub_account_id: 1,
@@ -388,7 +391,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Limit,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 5,
             sub_account_id: 1,
@@ -397,7 +400,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 6,
             sub_account_id: 1,
@@ -406,7 +409,7 @@ mod test {
             side: OrderSide::Bid,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 7,
             sub_account_id: 1,
@@ -415,7 +418,7 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
         assert!(orderbook.process(Order {
             id: 8,
             sub_account_id: 1,
@@ -424,6 +427,6 @@ mod test {
             side: OrderSide::Ask,
             r#type: OrderType::Market,
             open_at: Utc::now().naive_utc(),
-        }));
+        }).await);
     }
 }

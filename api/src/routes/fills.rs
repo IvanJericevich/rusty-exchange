@@ -1,20 +1,21 @@
-use crate::models::Exception;
-use crate::AppState;
+use actix_web::{get, HttpResponse, Responder, web};
 
-use actix_web::{get, web, HttpResponse, Responder};
 use common::rabbitmq::Stream;
+use database::{OrderSide, OrderType, Query, utoipa};
 use database::fills::{ClientGetRequest, Response};
-use database::{utoipa, OrderSide, OrderType, Query};
+
+use crate::AppState;
+use crate::models::Exception;
 
 // ----------------------------------------------------------------------
 
 #[utoipa::path(
-    context_path = "/fills",
-    responses(
-        (status = 200, description = "Returns a SSE streaming connection."),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-    ),
-    tag = "Fills",
+context_path = "/fills",
+responses(
+(status = 200, description = "Returns a SSE streaming connection."),
+(status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
+),
+tag = "Fills",
 )]
 #[get("/stream")]
 async fn stream(data: web::Data<AppState>) -> impl Responder {
@@ -80,18 +81,20 @@ async fn get_client_related(
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_client_related);
     cfg.service(stream);
+    cfg.service(get_client_related);
 }
 
 // ----------------------------------------------------------------------
 
 #[cfg(test)]
 mod tests {
+    use actix_web::{App, test};
+
+    use database::{Engine, Migrator, MigratorTrait, Mutation};
+
     use crate::jobs::Broadcaster;
     use crate::StopHandle;
-    use actix_web::{test, App};
-    use database::{Engine, Migrator, MigratorTrait, Mutation};
 
     use super::*;
 
