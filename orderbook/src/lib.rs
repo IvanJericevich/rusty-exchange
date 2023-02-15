@@ -2,12 +2,8 @@
 
 use async_recursion::async_recursion;
 use chrono::Utc;
-use futures::StreamExt;
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
-use rabbitmq_stream_client::types::{Message, OffsetSpecification};
 
-use common::rabbitmq::Stream;
-use common::util;
+use common::rabbitmq::{Producer, RabbitMQ, Stream};
 use database::{OrderSide, OrderType};
 use database::fills::Fill;
 use database::orders::Order;
@@ -22,7 +18,8 @@ pub struct OrderBook {
     id: i32,
     bids: Queue,
     asks: Queue,
-    producer: Option<Producer<NoDedup>>,
+    // TODO: Make consumer owned here
+    producer: Option<Producer>,
 }
 
 impl OrderBook {
@@ -30,20 +27,8 @@ impl OrderBook {
         let producer = if !cfg!(test) {
             // Establish connection to RabbitMQ
             Some(
-                Environment::builder()
-                    .host(if util::is_running_in_container() {
-                        "rabbitmq"
-                    } else {
-                        "localhost"
-                    })
-                    .port(5552)
-                    .build()
-                    .await
-                    .unwrap()
-                    .producer()
-                    .build(Stream::Fills.as_str())
-                    .await
-                    .unwrap(),
+                RabbitMQ::new(false).await
+                    .producer(Stream::Fills).await
             )
         } else {
             None
@@ -113,24 +98,22 @@ impl OrderBook {
     }
 
     async fn cross(&mut self, order: &mut Order, contra_order: Order) -> bool {
-        async {
-            self.publish_fill(
-                contra_order.price.unwrap(),
-                f32::min(order.size, contra_order.size),
-                contra_order.side,
-                contra_order.r#type,
-                contra_order.sub_account_id,
-                contra_order.id,
-            ).await;
-            self.publish_fill(
-                contra_order.price.unwrap(),
-                f32::min(order.size, contra_order.size),
-                order.side.clone(),
-                order.r#type.clone(),
-                order.sub_account_id,
-                order.id,
-            ).await;
-        }.await;
+        self.publish_fill(
+            contra_order.price.unwrap(),
+            f32::min(order.size, contra_order.size),
+            contra_order.side,
+            contra_order.r#type,
+            contra_order.sub_account_id,
+            contra_order.id,
+        ).await;
+        self.publish_fill(
+            contra_order.price.unwrap(),
+            f32::min(order.size, contra_order.size),
+            order.side.clone(),
+            order.r#type.clone(),
+            order.sub_account_id,
+            order.id,
+        ).await;
         let contra_queue = match order.side {
             OrderSide::Buy | OrderSide::Bid | OrderSide::Long => &mut self.asks,
             OrderSide::Sell | OrderSide::Ask | OrderSide::Short => &mut self.bids,
@@ -183,37 +166,32 @@ impl OrderBook {
                 market_id: self.id,
                 order_id,
             };
-            let _ = producer.send_with_confirm(
-                Message::builder()
-                    .body(serde_json::to_string(&fill).unwrap()) // TODO: Dont confirm otherwise api will halt
-                    .build(),
-            ).await;
+            println!("{:?}", fill);
+            let _ = producer.send(&fill).await;
         }
     }
 
-    pub async fn run(&mut self) {
-        let mut consumer = Environment::builder()
-            .host(if util::is_running_in_container() {
-                "rabbitmq"
-            } else {
-                "localhost"
-            })
-            .port(5552)
-            .build()
-            .await
-            .unwrap()
-            .consumer()
-            .offset(OffsetSpecification::First)
-            .build(Stream::Orders.as_str())
-            .await
-            .unwrap();
+    pub async fn run(market_id: i32) {
+        let producer = if !cfg!(test) {
+            // Establish connection to RabbitMQ
+            Some(
+                RabbitMQ::new(false).await
+                    .producer(Stream::Fills).await
+            )
+        } else {
+            None
+        };
+        let mut orderbook = OrderBook {
+            id: market_id,
+            bids: Queue::new(QUEUE_CAPACITY),
+            asks: Queue::new(QUEUE_CAPACITY),
+            producer,
+        };
+        let mut consumer = RabbitMQ::new(false).await
+            .consumer(Stream::Orders).await;
         loop {
-            if let Some(Ok(delivery)) = consumer.next().await {
-                if let Some(order) = delivery.message().data().map(|data| {
-                    serde_json::from_str::<Order>(std::str::from_utf8(data).unwrap()).unwrap()
-                }) {
-                    self.process(order).await;
-                }
+            if let Some(order) = consumer.next::<Order>().await {
+                orderbook.process(order).await;
             }
         }
     }

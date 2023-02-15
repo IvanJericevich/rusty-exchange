@@ -841,6 +841,12 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.0.0"
+dependencies = [
+ "futures",
+ "rabbitmq-stream-client",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "concurrent-queue"
@@ -1935,9 +1941,6 @@ dependencies = [
  "chrono",
  "common",
  "database",
- "futures",
- "rabbitmq-stream-client",
- "serde_json",
 ]
 
 [[package]]
