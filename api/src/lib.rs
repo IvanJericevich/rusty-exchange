@@ -1,3 +1,5 @@
+// TODO: what about datetime provided as timestamps
+// TODO: Should common dependencies be exported from a single source
 use std::env;
 use std::net::Ipv4Addr;
 use std::sync::Arc;
@@ -7,17 +9,13 @@ use actix_web::{App, HttpServer, middleware::Logger, web};
 use actix_web::dev::ServerHandle;
 use actix_web::rt::time::sleep;
 use parking_lot::Mutex;
-use rabbitmq_stream_client::{Environment, NoDedup, Producer};
 
-use common::rabbitmq::Stream;
-use common::util;
+use common::rabbitmq::{Producer, RabbitMQ, Stream};
 use database::{DatabaseConnection, Engine, Migrator, MigratorTrait};
 
 use crate::jobs::Broadcaster;
 use crate::routes::router;
 
-// TODO: what about datetime provided as timestamps
-// TODO: Should common dependencies be exported from a single source
 mod jobs;
 mod models;
 mod routes;
@@ -26,7 +24,8 @@ mod routes;
 
 struct AppState {
     db: DatabaseConnection,
-    producer: Option<Producer<NoDedup>>, // Make optional for unit tests
+    producer: Option<Producer>,
+    // Make optional for unit tests
     stop_handle: StopHandle,
     broadcaster: Arc<Broadcaster>,
 }
@@ -44,20 +43,8 @@ async fn init() -> AppState {
     let producer = if !cfg!(test) && !disable_rabbitmq {
         // Establish connection to RabbitMQ
         Some(
-            Environment::builder()
-                .host(if util::is_running_in_container() {
-                    "rabbitmq"
-                } else {
-                    "localhost"
-                })
-                .port(5552)
-                .build()
-                .await
-                .unwrap()
-                .producer()
-                .build(Stream::Orders.as_str())
-                .await
-                .unwrap(),
+            RabbitMQ::new(false).await
+                .producer(Stream::Orders).await
         )
     } else {
         None

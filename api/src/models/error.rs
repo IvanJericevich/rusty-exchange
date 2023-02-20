@@ -2,12 +2,10 @@ use actix_web::{
     http::{header, StatusCode},
     HttpResponse, ResponseError,
 };
-
-use database::DbErr;
-
 use derive_more::{Display, Error};
 
-use rabbitmq_stream_client::error::ProducerPublishError;
+use common::rabbitmq::ProducerPublishError;
+use database::DbErr;
 
 // ----------------------------------------------------------------------
 

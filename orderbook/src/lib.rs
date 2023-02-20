@@ -18,7 +18,6 @@ pub struct OrderBook {
     id: i32,
     bids: Queue,
     asks: Queue,
-    // TODO: Make consumer owned here
     producer: Option<Producer>,
 }
 
@@ -170,6 +169,17 @@ impl OrderBook {
             let _ = producer.send(&fill).await;
         }
     }
+
+    // async fn publish_order(
+    //     &mut self,
+    //     order: Order,
+    // ) -> bool {
+    //     if let Some(producer) = &mut self.producer {
+    //         println!("{:?}", order);
+    //         let _ = producer.send(&order).await;
+    //     }
+    //     true
+    // }
 
     pub async fn run(market_id: i32) {
         let producer = if !cfg!(test) {

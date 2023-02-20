@@ -1,16 +1,12 @@
-use futures::StreamExt;
-use rabbitmq_stream_client::types::OffsetSpecification;
-use rabbitmq_stream_client::Environment;
-
 use std::{env, sync::Arc, time::Duration};
 
 use actix_web::rt::time::interval;
 use actix_web_lab::__reexports::futures_util::future;
 use actix_web_lab::sse::{self, ChannelStream, Sse};
-
-use common::rabbitmq::Stream;
-use common::util;
 use parking_lot::Mutex;
+
+use common::rabbitmq::{RabbitMQ, Stream};
+use database::fills::Fill;
 
 pub struct Broadcaster {
     inner: Mutex<BroadcasterInner>,
@@ -33,7 +29,7 @@ impl Broadcaster {
         Broadcaster::spawn_ping(Arc::clone(&this));
 
         if !cfg!(test) && !disable_rabbitmq {
-            let _ = [Stream::Fills].map(|s| Broadcaster::spawn_broadcaster(Arc::clone(&this), s));
+            Broadcaster::spawn_fills_broadcaster(Arc::clone(&this));
         }
 
         this
@@ -50,9 +46,7 @@ impl Broadcaster {
                 .send(sse::Event::Comment("ping".into()))
                 .await
                 .is_ok()
-            {
-                ok_clients.push((stream, client.clone()));
-            }
+            { ok_clients.push((stream, client.clone())); }
         }
 
         self.inner.lock().clients = ok_clients;
@@ -97,34 +91,17 @@ impl Broadcaster {
         });
     }
 
-    fn spawn_broadcaster(this: Arc<Self>, stream: Stream) {
+    fn spawn_fills_broadcaster(this: Arc<Self>) {
         actix_web::rt::spawn(async move {
             // Spawns a future on the current thread as a new task
-            let mut consumer = Environment::builder()
-                .host(if util::is_running_in_container() {
-                    "rabbitmq"
-                } else {
-                    "localhost"
-                })
-                .port(5552)
-                .build()
-                .await
-                .unwrap()
-                .consumer()
-                .offset(OffsetSpecification::First)
-                .build(stream.as_str())
-                .await
-                .unwrap();
+            let mut consumer = RabbitMQ::new(false).await
+                .consumer(Stream::Fills).await;
             loop {
-                if let Some(Ok(delivery)) = consumer.next().await {
-                    if let Some(fill) = delivery
-                        .message()
-                        .data()
-                        .map(|data| std::str::from_utf8(data).unwrap())
-                    // TODO: Should this rather be typed
-                    {
-                        this.broadcast(fill, stream.clone()).await;
-                    }
+                if let Some(fill) = consumer.next::<Fill>().await {
+                    this.broadcast(
+                        serde_json::to_string(&fill).unwrap().as_str(),
+                        Stream::Fills,
+                    ).await;
                 }
             }
         });

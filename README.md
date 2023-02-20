@@ -168,3 +168,5 @@ IntelliJ).
 * MR template
 * Update cargo.toml descriptions
 * Implement health endpoint
+* cargo-bloat
+* cargo-unused-features

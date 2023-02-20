@@ -16,7 +16,6 @@ common = { path = "common" }
 api = { path = "api" }
 orderbook = { path = "orderbook" }
 database = { path = "database" }
-rabbitmq-stream-client = "0.1.0"
 tokio = "1.25.0" # TODO: tokio vs async-std
 
 [[bin]]
@@ -31,5 +30,7 @@ path = "src/bin/database_manager.rs"
 name = "matching_engine"
 path = "src/bin/matching_engine.rs"
 
-[profile.release] # Performance optimization at cost of longer build time
+[profile.release] # Performance optimization and binary size reduction at cost of longer build time (see https://github.com/johnthagen/min-sized-rust)
 lto = true
+strip = true
+codegen-units = 1

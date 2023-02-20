@@ -1,9 +1,10 @@
-use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
-use crate::{OrderSide, OrderStatus, OrderType, SubAccountStatus};
 use chrono::Utc;
-use sea_orm::prelude::*;
 use sea_orm::*;
+use sea_orm::prelude::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
+
+use crate::{OrderSide, OrderStatus, OrderType, SubAccountStatus};
+use crate::entities::{clients, fills, markets, orders, positions, sub_accounts};
 
 // ----------------------------------------------------------------------
 
@@ -345,30 +346,19 @@ impl Mutation {
     // ----------------------------------------------------------------------
 
     // Fills
-    pub async fn create_fill(db: &DbConn, fill: fills::Model) -> Result<fills::Response, DbErr> {
-        let fill = fill.into_active_model().insert(db).await?;
-        let sub_account = fill
-            .find_related(sub_accounts::Entity)
-            .select_only()
-            .column(sub_accounts::Column::Name)
-            .one(db)
-            .await?
-            .unwrap();
-        let market = fill.find_related(markets::Entity).one(db).await?.unwrap();
-        Ok(fills::Response {
-            price: fill.price,
-            size: fill.size,
-            quote_size: fill.quote_size,
-            side: fill.side,
-            r#type: fill.r#type,
-            created_at: fill.created_at,
-            base_currency: market.base_currency,
-            quote_currency: market.quote_currency,
-            price_increment: market.price_increment,
-            size_increment: market.size_increment,
-            sub_account: sub_account.name,
-            order_id: fill.order_id,
-        })
+    pub async fn create_fill(db: &DbConn, fill: fills::Fill) -> Result<fills::Model, DbErr> {
+        fills::ActiveModel {
+            price: Set(fill.price),
+            size: Set(fill.size),
+            quote_size: Set(fill.quote_size),
+            side: Set(fill.side),
+            r#type: Set(fill.r#type),
+            created_at: Set(fill.created_at),
+            sub_account_id: Set(fill.sub_account_id),
+            market_id: Set(fill.market_id),
+            order_id: Set(fill.order_id),
+            ..Default::default()
+        }.insert(db).await
     }
     // ----------------------------------------------------------------------
 

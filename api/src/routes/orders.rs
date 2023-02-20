@@ -1,5 +1,4 @@
 use actix_web::{get, HttpResponse, post, web};
-use rabbitmq_stream_client::types::Message;
 
 use database::{Mutation, OrderSide, OrderStatus, OrderType, Query, utoipa};
 use database::orders::{ClientGetOpenRequest, ClientGetRequest, Order, PostRequest, Response};
@@ -180,13 +179,7 @@ async fn create(
     .map_err(Exception::Database)?;
 
     if let Some(producer) = &data.producer {
-        let _ = producer
-            .send_with_confirm(
-                Message::builder()
-                    .body(serde_json::to_string(&order).unwrap())
-                    .build(),
-            )
-            .await
+        let _ = producer.send(&order).await
             .map_err(Exception::RabbitMQ)?;
     }
 

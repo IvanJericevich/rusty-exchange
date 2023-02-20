@@ -1,9 +1,8 @@
-use actix_web::{post, web, HttpResponse};
+use actix_web::{HttpResponse, post, web};
+use utoipa_swagger_ui::{SwaggerUi, Url};
 
 use database::utoipa;
 use database::utoipa::OpenApi;
-
-use utoipa_swagger_ui::{SwaggerUi, Url};
 
 use crate::AppState;
 
@@ -30,14 +29,27 @@ pub struct ApiDoc;
     ),
     responses(
         (status = 200, description = "Gracefully shuts down the server."),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
+        (status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
     ),
-    tag = "Index",
+tag = "Index",
 )]
 #[post("shutdown/{graceful}")]
 async fn shutdown(path: web::Path<bool>, data: web::Data<AppState>) -> HttpResponse {
     let graceful = path.into_inner();
     let _ = &data.stop_handle.stop(graceful);
+    HttpResponse::NoContent().finish()
+}
+
+#[utoipa::path(
+context_path = "/",
+responses(
+(status = 200, description = "Return the health status of running services."),
+(status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
+),
+tag = "Index",
+)]
+#[post("health")]
+async fn health() -> HttpResponse {
     HttpResponse::NoContent().finish()
 }
 
@@ -51,6 +63,7 @@ pub fn router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/fills").configure(fills::router));
     cfg.service(web::scope("/positions").configure(positions::router));
     cfg.service(shutdown);
+    cfg.service(health);
     cfg.service(SwaggerUi::new("/swagger/{_:.*}").urls(vec![
         (
             Url::with_primary("index", "/index-schema/openapi.json", true),

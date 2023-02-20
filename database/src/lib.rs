@@ -1,8 +1,11 @@
-// Bring modules into scope
-mod core; // Export core SQL queries/mutations
-mod entities; // Do not export entities - re-export them in the "models" module
-mod migrator; // Export migrator - one may want to run migrations in an API on start-up
+pub use sea_orm::{Database, DatabaseConnection, DbErr};
+// Re-export sea-orm functionality
+pub use sea_orm::ActiveValue::Set;
+// Re-export utoipa functionality
+pub use utoipa;
 
+// Export migrator - one may want to run migrations in an API on start-up
+// TODO: implement streaming
 // Export required modules
 pub use crate::core::*;
 pub use crate::entities::{
@@ -10,9 +13,9 @@ pub use crate::entities::{
 };
 pub use crate::migrator::*;
 
-// Re-export sea-orm functionality
-pub use sea_orm::ActiveValue::Set;
-pub use sea_orm::{Database, DatabaseConnection, DbErr};
-
-// Re-export utoipa functionality
-pub use utoipa;
+// Bring modules into scope
+mod core;
+// Export core SQL queries/mutations
+mod entities;
+// Do not export entities - re-export them in the "models" module
+mod migrator;

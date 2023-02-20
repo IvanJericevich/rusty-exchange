@@ -55,15 +55,15 @@ pub struct Producer {
 }
 
 impl Producer {
-    pub async fn send<T>(&self, msg: &T) -> Option<ProducerPublishError> where T: serde::Serialize {
+    pub async fn send<T>(&self, msg: &T) -> Result<(), ProducerPublishError> where T: serde::Serialize {
         self.producer
             .send_with_confirm(
                 Message::builder()
                     .body(serde_json::to_string(msg).unwrap())
                     .build(),
             )
-            .await
-            .err()
+            .await?;
+        Ok(())
     }
 }
 

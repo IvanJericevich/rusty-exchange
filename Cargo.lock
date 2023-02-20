@@ -340,9 +340,7 @@ dependencies = [
  "common",
  "database",
  "derive_more",
- "futures",
  "parking_lot 0.12.1",
- "rabbitmq-stream-client",
  "serde",
  "serde_json",
  "tracing-subscriber",
@@ -2472,7 +2470,6 @@ dependencies = [
  "common",
  "database",
  "orderbook",
- "rabbitmq-stream-client",
  "tokio",
 ]
 
