@@ -1,7 +1,8 @@
-use sea_orm::prelude::*;
-use sea_orm::*;
-use sea_orm_migration::sea_query::Query as SeaQuery;
 use std::cmp::min;
+
+use sea_orm::*;
+use sea_orm::prelude::*;
+use sea_orm_migration::sea_query::Query as SeaQuery;
 
 use crate::entities::{
     clients, fills, markets, orders, positions,
@@ -324,17 +325,17 @@ impl Query {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub async fn find_client_related_orders(
-        db: &DbConn,
-        client_id: i32,
-        sub_account_id: Option<i32>,
-        sub_account_name: Option<String>,
-        market_id: Option<i32>,
-        base_currency: Option<String>,
-        quote_currency: Option<String>,
-        client_order_id: Option<String>,
-        side: Option<OrderSide>,
-        r#type: Option<OrderType>,
+    pub async fn find_client_related_orders( // TODO: Fetch client and sub account first; then get related (but what about market)
+                                             db: &DbConn,
+                                             client_id: i32,
+                                             sub_account_id: Option<i32>,
+                                             sub_account_name: Option<String>,
+                                             market_id: Option<i32>,
+                                             base_currency: Option<String>,
+                                             quote_currency: Option<String>,
+                                             client_order_id: Option<String>,
+                                             side: Option<OrderSide>,
+                                             r#type: Option<OrderType>,
         status: Option<OrderStatus>,
         start_time: Option<DateTime>,
         end_time: Option<DateTime>,
@@ -1014,5 +1015,590 @@ impl Query {
             )))
         }
     }
+    // ----------------------------------------------------------------------
+}
+
+#[cfg(test)]
+#[cfg(feature = "mock")]
+mod tests {
+    use sea_orm::{DatabaseBackend, DbErr, MockDatabase};
+
+    use crate::{clients, markets, orders, OrderSide, OrderStatus, OrderType, sub_accounts, SubAccountStatus};
+
+    use super::Query;
+
+// ----------------------------------------------------------------------
+
+    #[async_std::test]
+    pub async fn clients() {
+        let db = &MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![
+                    clients::Model {
+                        id: 1,
+                        email: "ivanjericevich96@gmail.com".to_owned(),
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                    clients::Model {
+                        id: 2,
+                        email: "ivanjericevich@gmail.com".to_owned(),
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                ], // (1)
+                vec![], // (2)
+                vec![
+                    clients::Model {
+                        id: 1,
+                        email: "ivanjericevich96@gmail.com".to_owned(),
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                    clients::Model {
+                        id: 2,
+                        email: "ivanjericevich@gmail.com".to_owned(),
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                ], // (3)
+                vec![], // (4)
+            ])
+            .into_connection();
+
+        // (1) PASS - Find one by id
+        assert_eq!(
+            Query::find_client_by_id(db, 1).await.unwrap(),
+            clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // (2) FAIL - Find None by id
+        assert_eq!(
+            Query::find_client_by_id(db, 3).await.unwrap_err(),
+            DbErr::RecordNotFound("Client with id 3 does not exist.".to_owned())
+        );
+        // (3) PASS - Find one by email
+        assert_eq!(
+            Query::find_client_by_email(db, "ivanjericevich96@gmail.com".to_owned())
+                .await
+                .unwrap(),
+            clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // (4) FAIL - Find None by email
+        assert_eq!(
+            Query::find_client_by_email(db, "ivan@gmail.com".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::RecordNotFound("Client with email ivan@gmail.com does not exist.".to_owned())
+        );
+    }
+
+    // ----------------------------------------------------------------------
+
+    #[async_std::test]
+    pub async fn markets() {
+        let db = &MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![
+                    markets::Model {
+                        id: 1,
+                        base_currency: "BTC".to_owned(),
+                        quote_currency: "USD".to_owned(),
+                        price_increment: 0.01,
+                        size_increment: 0.01,
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                    markets::Model {
+                        id: 2,
+                        base_currency: "ETH".to_owned(),
+                        quote_currency: "USD".to_owned(),
+                        price_increment: 0.01,
+                        size_increment: 0.01,
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                ], // (1)
+                vec![], // (2)
+                vec![
+                    markets::Model {
+                        id: 1,
+                        base_currency: "BTC".to_owned(),
+                        quote_currency: "USD".to_owned(),
+                        price_increment: 0.01,
+                        size_increment: 0.01,
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                    markets::Model {
+                        id: 2,
+                        base_currency: "ETH".to_owned(),
+                        quote_currency: "USD".to_owned(),
+                        price_increment: 0.01,
+                        size_increment: 0.01,
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    },
+                ], // (3)
+                vec![], // (4)
+                vec![
+                    markets::Model {
+                        id: 1,
+                        base_currency: "BTC".to_owned(),
+                        quote_currency: "USD".to_owned(),
+                        price_increment: 0.01,
+                        size_increment: 0.01,
+                        created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    }
+                ], // (5)
+            ])
+            .into_connection();
+
+        // (1) PASS - Find one by id
+        assert_eq!(
+            Query::find_market_by_id(db, 1).await.unwrap(),
+            markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // (2) FAIL - Find None by id
+        assert_eq!(
+            Query::find_market_by_id(db, 3).await.unwrap_err(),
+            DbErr::RecordNotFound("Market with id 3 does not exist.".to_owned())
+        );
+        // (3) PASS - Find one by ticker
+        assert_eq!(
+            Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned())
+                .await
+                .unwrap(),
+            markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // (4) FAIL - Find None by ticker
+        assert_eq!(
+            Query::find_market_by_ticker(db, "BTC".to_owned(), "USD".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::RecordNotFound(
+                "Market with base currency BTC and quote currency USD does not exist.".to_owned()
+            )
+        );
+        // (5) PASS - Find markets
+        assert_eq!(
+            Query::find_markets(db, None, None)
+                .await
+                .unwrap(),
+            [markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }]
+        );
+    }
+
+    // ----------------------------------------------------------------------
+
+    #[async_std::test]
+    pub async fn sub_accounts() {
+        let empty_sub_account_vector: Vec<sub_accounts::Model> = vec![];
+        let empty_client_vector: Vec<clients::Model> = vec![];
+        let db = &MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![sub_accounts::Model {
+                    id: 1,
+                    name: "Test".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    client_id: 1,
+                    status: SubAccountStatus::Active,
+                }], // (1)
+                vec![], // (2)
+            ])
+            .append_query_results(vec![vec![clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }]])
+            .append_query_results(vec![vec![sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }]]) // (3)
+            .append_query_results(vec![vec![clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }]])
+            .append_query_results(vec![empty_sub_account_vector]) // (4)
+            .append_query_results(vec![empty_client_vector]) // (5)
+            .into_connection();
+        // (1) PASS - Find one by id
+        assert_eq!(
+            Query::find_sub_account_by_id(db, 1).await.unwrap(),
+            sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }
+        );
+        // (2) FAIL - Find None by id
+        assert_eq!(
+            Query::find_sub_account_by_id(db, 1).await.unwrap_err(),
+            DbErr::RecordNotFound("Sub-account with id 1 does not exist.".to_owned())
+        );
+        // (3) PASS - Find some by client_id
+        assert_eq!(
+            Query::find_sub_accounts_by_client_id(db, 1).await.unwrap(),
+            vec![sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }]
+        );
+        // (4) PASS - Find None by client_id
+        assert_eq!(
+            Query::find_sub_accounts_by_client_id(db, 1).await.unwrap(),
+            vec![]
+        );
+        // (5) FAIL - client_id does not exist
+        assert_eq!(
+            Query::find_sub_accounts_by_client_id(db, 1).await.unwrap_err(),
+            DbErr::RecordNotFound("Client with id 1 does not exist.".to_owned())
+        );
+        // (6) TODO
+    }
+
+    // ----------------------------------------------------------------------
+
+    #[async_std::test]
+    pub async fn orders() {
+        let empty_sub_account_vector: Vec<sub_accounts::Model> = vec![];
+        let empty_market_vector: Vec<markets::Model> = vec![];
+        let empty_client_vector: Vec<clients::Model> = vec![];
+        let empty_order_vector: Vec<orders::Model> = vec![];
+        let db = &MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                vec![orders::Model {
+                    id: 1,
+                    client_order_id: None,
+                    price: Some(10.0),
+                    size: 10.0,
+                    filled_size: 0.0,
+                    side: OrderSide::Ask,
+                    r#type: OrderType::Limit,
+                    status: OrderStatus::Open,
+                    open_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    closed_at: None,
+                    sub_account_id: 1,
+                    market_id: 1,
+                }],
+            ]) // (1)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_order_vector,
+            ]) // (2)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                vec![orders::Model {
+                    id: 1,
+                    client_order_id: Some("1".to_string()),
+                    price: Some(10.0),
+                    size: 10.0,
+                    filled_size: 0.0,
+                    side: OrderSide::Ask,
+                    r#type: OrderType::Limit,
+                    status: OrderStatus::Open,
+                    open_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    closed_at: None,
+                    sub_account_id: 1,
+                    market_id: 1,
+                }],
+            ]) // (3)
+            .append_query_results(vec![
+                empty_client_vector
+            ]) // (4)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_sub_account_vector.clone(),
+            ]) // (5)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_sub_account_vector,
+            ]) // (6)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_market_vector.clone(),
+            ]) // (7)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_market_vector.clone(),
+            ]) // (8)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_market_vector.clone(),
+            ]) // (9)
+            .append_query_results(vec![
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }]
+            ])
+            .append_query_results(vec![
+                empty_market_vector,
+            ]) // (10)
+            .into_connection();
+        // (1) PASS - Find one by id
+        assert_eq!(
+            Query::find_client_related_open_order(db, 1, Some(1), None, None, None, None, None, None, None).await.unwrap(),
+            orders::Model {
+                id: 1,
+                client_order_id: None,
+                price: Some(10.0),
+                size: 10.0,
+                filled_size: 0.0,
+                side: OrderSide::Ask,
+                r#type: OrderType::Limit,
+                status: OrderStatus::Open,
+                open_at: "2022-01-01T00:00:00".parse().unwrap(),
+                closed_at: None,
+                sub_account_id: 1,
+                market_id: 1,
+            }
+        );
+        // (2) FAIL - Find None by id
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Order does not exist.".to_string())
+        );
+        // (3) PASS - Find one by client_order_id
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                None,
+                Some("1".to_string()),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ).await.unwrap(),
+            orders::Model {
+                id: 1,
+                client_order_id: Some("1".to_string()),
+                price: Some(10.0),
+                size: 10.0,
+                filled_size: 0.0,
+                side: OrderSide::Ask,
+                r#type: OrderType::Limit,
+                status: OrderStatus::Open,
+                open_at: "2022-01-01T00:00:00".parse().unwrap(),
+                closed_at: None,
+                sub_account_id: 1,
+                market_id: 1,
+            }
+        );
+        // (4) FAIL - client_id does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Client with id 1 does not exist.".to_string())
+        );
+        // (5) FAIL - sub_account_id does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Sub-account with id 1 does not exist.".to_string())
+        );
+        // (6) FAIL - sub_account_name does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                Some("Test".to_string()),
+                None,
+                None,
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Sub-account with name Test does not exist.".to_string())
+        );
+        // (7) FAIL - market_id does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                Some(1),
+                None,
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Market with id 1 does not exist.".to_string())
+        );
+        // (8) FAIL - Market with base_currency and quote_currency does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                Some("BTC".to_string()),
+                Some("USD".to_string()),
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Market with base currency BTC and quote currency USD does not exist.".to_string())
+        );
+        // (9) FAIL - Market with base_currency does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                Some("BTC".to_string()),
+                None,
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Market with base currency BTC does not exist.".to_string())
+        );
+        // (10) FAIL - Market with quote_currency does not exist
+        assert_eq!(
+            Query::find_client_related_open_order(
+                db,
+                1,
+                Some(1),
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some("USD".to_string()),
+                None,
+            ).await.unwrap_err(),
+            DbErr::RecordNotFound("Market with quote currency USD does not exist.".to_string())
+        );
+        // (11) PASS - Find many
+        // (12) FAIL - Find many with non-existent client
+        // (13) FAIL - Find many with non-existent sub-account id
+        // (14) FAIL - Find many with non-existent sub-account name
+        // (15) FAIL - Find many with non-existent market id
+        // (16) FAIL - Find many with non-existent market base and quote currency
+        // (17) FAIL - Find many with non-existent market base_currency
+        // (18) FAIL - Find many with non-existent market quote_currency
+    }
+
     // ----------------------------------------------------------------------
 }

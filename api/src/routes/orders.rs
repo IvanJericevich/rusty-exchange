@@ -1,7 +1,8 @@
-use actix_web::{get, HttpResponse, post, web};
+use actix_web::{get, HttpResponse, post, Responder, web};
 
+use common::rabbitmq::Stream;
 use database::{Mutation, OrderSide, OrderStatus, OrderType, Query, utoipa};
-use database::orders::{ClientGetOpenRequest, ClientGetRequest, Order, PostRequest, Response};
+use database::orders::{ClientGetOpenRequest, ClientGetRequest, MarketGetRequest, Order, PostRequest, Response};
 
 use crate::AppState;
 use crate::models::Exception;
@@ -10,21 +11,71 @@ use crate::models::Exception;
 
 #[utoipa::path(
 context_path = "/orders",
+responses(
+(status = 200, description = "Returns a SSE streaming connection."),
+(status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
+),
+tag = "Orders",
+)]
+#[get("/stream")]
+async fn stream(data: web::Data<AppState>) -> impl Responder {
+    data.broadcaster.new_client(Stream::OpenOrders).await
+}
+
+#[utoipa::path(
+context_path = "/orders",
+params(
+("market_id", description = "Market ID for which to search orders."),
+MarketGetRequest
+),
+responses(
+(status = 200, description = "Returns all orders.", body = [Order]),
+(status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Market with id <market_id> does not exist.")),
+),
+tag = "Orders",
+)]
+#[get("/market/{market_id}")]
+async fn get_market_related(
+    path: web::Path<i32>,
+    query: web::Query<MarketGetRequest>,
+    data: web::Data<AppState>,
+) -> Result<HttpResponse, Exception> {
+    let market_id = path.into_inner();
+    let orders = Query::find_market_related_orders(
+        &data.db,
+        market_id,
+        query.side.clone(),
+        query.r#type.clone(),
+        query.status.clone(),
+        query.start_time.clone(),
+        query.end_time.clone(),
+        query.page.clone(),
+        query.page_size.clone(),
+    )
+        .await
+        .map_err(|e| Exception::Database(e))?;
+
+    Ok(HttpResponse::Ok().json(orders))
+}
+
+#[utoipa::path(
+context_path = "/orders",
 params(
 ("client_id", description = "Client ID for which to search orders.", example = 1),
 ClientGetOpenRequest
 ),
 responses(
-        (status = 200, description = "Returns all orders.", body = Response),
-        (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with id <sub_account_id> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Sub-account with name <sub_account_name> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Client with id <client_id> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with quote currency <quote_currency> does not exist.")),
-        (status = 400, description = "Bad request.", body = String, example = json!("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
-    ),
+(status = 200, description = "Returns all orders.", body = Response),
+(status = 500, description = "Internal server error.", body = String, example = json ! ("An internal server error occurred. Please try again later.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Sub-account with id <sub_account_id> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Sub-account with name <sub_account_name> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Client with id <client_id> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Market with id <market_id> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Market with base currency <base_currency> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Market with quote currency <quote_currency> does not exist.")),
+(status = 400, description = "Bad request.", body = String, example = json ! ("Market with base currency <base_currency> and quote currency <quote_currency> does not exist.")),
+),
     tag = "Orders",
 )]
 #[get("/open/{client_id}")]
@@ -101,43 +152,6 @@ async fn get_client_related(
     Ok(HttpResponse::Ok().json(orders))
 }
 
-// #[utoipa::path(
-//     context_path = "/orders",
-//     params(
-//         ("market_id", description = "Market ID for which to search orders."),
-//         MarketGetRequest
-//     ),
-//     responses(
-//         (status = 200, description = "Returns all orders.", body = [Order]),
-//         (status = 500, description = "Internal server error.", body = String, example = json!("An internal server error occurred. Please try again later.")),
-//         (status = 400, description = "Bad request.", body = String, example = json!("Market with id <market_id> does not exist.")),
-//     ),
-//     tag = "Orders",
-// )]
-// #[get("/{market_id}")]
-// async fn get_market_related(
-//     path: web::Path<i32>,
-//     query: web::Query<MarketGetRequest>,
-//     data: web::Data<AppState>,
-// ) -> Result<HttpResponse, Exception> {
-//     let market_id = path.into_inner();
-//     let orders = Query::find_market_related_orders(
-//         &data.db,
-//         market_id,
-//         query.side.clone(),
-//         query.r#type.clone(),
-//         query.status.clone(),
-//         query.start_time.clone(),
-//         query.end_time.clone(),
-//         query.page.clone(),
-//         query.page_size.clone()
-//     )
-//         .await
-//         .map_err(|e| Exception::Database(e))?;
-//
-//     Ok(HttpResponse::Ok().json(orders))
-// }
-
 #[utoipa::path(
     context_path = "/orders",
     params(
@@ -190,13 +204,15 @@ async fn create(
 
 #[derive(utoipa::OpenApi)]
 #[openapi(
-    paths(get_client_related_open, get_client_related, create),
-    components(schemas(Response, PostRequest, Order, OrderSide, OrderType, OrderStatus)),
-    tags((name = "Orders", description = "Order management endpoints.")),
+paths(stream, get_market_related, get_client_related_open, get_client_related, create),
+components(schemas(Response, PostRequest, Order, OrderSide, OrderType, OrderStatus)),
+tags((name = "Orders", description = "Order management endpoints.")),
 )]
 pub struct ApiDoc;
 
 pub fn router(cfg: &mut web::ServiceConfig) {
+    cfg.service(stream);
+    cfg.service(get_market_related);
     cfg.service(get_client_related_open);
     cfg.service(get_client_related);
     cfg.service(create);

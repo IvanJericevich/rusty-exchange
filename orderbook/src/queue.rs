@@ -1,8 +1,11 @@
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::collections::binary_heap::BinaryHeap;
+
 use chrono::NaiveDateTime;
+
 use database::orders::Order;
 use database::OrderSide;
-use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
 
 #[derive(Clone)]
 struct OrderIndex {
@@ -116,7 +119,7 @@ impl Queue {
     pub fn modify_tob(&mut self, size: f32) -> bool {
         if let Some(order_index) = self.idx_queue.peek() {
             if let Some(order) = self.orders.get_mut(&order_index.id) {
-                order.size = size; // TODO: Rather insert than modify inplace
+                order.size = size;
                 return true;
             }
         }

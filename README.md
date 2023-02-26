@@ -170,3 +170,7 @@ IntelliJ).
 * Implement health endpoint
 * cargo-bloat
 * cargo-unused-features
+* cancel and modify orders
+* Implement removal of stale orders
+* Redis orderbook cache and stream
+* improve database tests

@@ -7,6 +7,7 @@ use parking_lot::Mutex;
 
 use common::rabbitmq::{RabbitMQ, Stream};
 use database::fills::Fill;
+use database::orders::Order;
 
 pub struct Broadcaster {
     inner: Mutex<BroadcasterInner>,
@@ -30,6 +31,7 @@ impl Broadcaster {
 
         if !cfg!(test) && !disable_rabbitmq {
             Broadcaster::spawn_fills_broadcaster(Arc::clone(&this));
+            Broadcaster::spawn_orders_broadcaster(Arc::clone(&this));
         }
 
         this
@@ -101,6 +103,22 @@ impl Broadcaster {
                     this.broadcast(
                         serde_json::to_string(&fill).unwrap().as_str(),
                         Stream::Fills,
+                    ).await;
+                }
+            }
+        });
+    }
+
+    fn spawn_orders_broadcaster(this: Arc<Self>) {
+        actix_web::rt::spawn(async move {
+            // Spawns a future on the current thread as a new task
+            let mut consumer = RabbitMQ::new(false).await
+                .consumer(Stream::OpenOrders).await;
+            loop {
+                if let Some(order) = consumer.next::<Order>().await {
+                    this.broadcast(
+                        serde_json::to_string(&order).unwrap().as_str(),
+                        Stream::OpenOrders,
                     ).await;
                 }
             }

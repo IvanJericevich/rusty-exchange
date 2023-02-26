@@ -28,7 +28,7 @@ services:
       - rabbitmq
     restart: unless-stopped # Always restart
     environment:
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_stream advertised_host rabbitmq # TODO: Change to localhost if outside container
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbitmq_stream advertised_host ${RABBITMQ_HOST:-rabbitmq} # Change to localhost if outside container
     healthcheck: # Conduct healthcheck to prevent dependent services from starting before RabbitMQ is set up
       test: rabbitmq-diagnostics -q ping
       interval: 5s
@@ -89,7 +89,7 @@ services:
     build:
       context: .
       dockerfile: ./orderbook/Dockerfile
-    restart: on-failure # Restart on failure
+    restart: unless-stopped # Restart on failure
     depends_on: # Only start when dependents are up
       - rabbitmq
       - postgres
@@ -109,7 +109,6 @@ services:
       dockerfile: ./api/Dockerfile
     ports:
       - "8080:8080"
-    restart: on-failure # Restart on failure
+    restart: unless-stopped # Restart on failure
     depends_on: # Only start when dependents are up
-      - database_manager
       - matching_engine

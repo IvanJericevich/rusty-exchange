@@ -1,5 +1,7 @@
 #![feature(binary_heap_retain)]
 
+use std::collections::HashMap;
+
 use async_recursion::async_recursion;
 use chrono::Utc;
 
@@ -18,17 +20,17 @@ pub struct OrderBook {
     id: i32,
     bids: Queue,
     asks: Queue,
-    producer: Option<Producer>,
+    producer: Option<HashMap<Stream, Producer>>,
 }
 
 impl OrderBook {
     pub async fn new(market_id: i32) -> Self {
         let producer = if !cfg!(test) {
-            // Establish connection to RabbitMQ
-            Some(
-                RabbitMQ::new(false).await
-                    .producer(Stream::Fills).await
-            )
+            let rabbitmq = RabbitMQ::new(false).await;
+            Some(HashMap::from([
+                (Stream::Fills, rabbitmq.producer(Stream::Fills).await),
+                (Stream::Orders, rabbitmq.producer(Stream::Orders).await),
+            ]))
         } else {
             None
         };
@@ -65,6 +67,7 @@ impl OrderBook {
                 if !self.cross(&mut order, contra_order).await {
                     self.process_limit(order).await
                 } else {
+                    self.publish_order(order).await; // Publish order after its been fully processed
                     true
                 }
             } else {
@@ -153,41 +156,45 @@ impl OrderBook {
         sub_account_id: i32,
         order_id: i32,
     ) {
-        if let Some(producer) = &mut self.producer {
-            let fill = Fill {
-                price,
-                size,
-                quote_size: price * size,
-                side,
-                r#type,
-                created_at: Utc::now().naive_utc(),
-                sub_account_id,
-                market_id: self.id,
-                order_id,
-            };
-            println!("{:?}", fill);
-            let _ = producer.send(&fill).await;
+        if let Some(producer) = &self.producer {
+            let _ = producer.get(&Stream::Fills)
+                .unwrap()
+                .send(&Fill {
+                    price,
+                    size,
+                    quote_size: price * size,
+                    side,
+                    r#type,
+                    created_at: Utc::now().naive_utc(),
+                    sub_account_id,
+                    market_id: self.id,
+                    order_id,
+                })
+                .await;
         }
     }
 
-    // async fn publish_order(
-    //     &mut self,
-    //     order: Order,
-    // ) -> bool {
-    //     if let Some(producer) = &mut self.producer {
-    //         println!("{:?}", order);
-    //         let _ = producer.send(&order).await;
-    //     }
-    //     true
-    // }
+    async fn publish_order(
+        &mut self,
+        order: Order,
+    ) -> bool {
+        if let Some(producer) = &self.producer {
+            let _ = producer
+                .get(&Stream::Orders)
+                .unwrap()
+                .send(&order)
+                .await;
+        }
+        true
+    }
 
     pub async fn run(market_id: i32) {
         let producer = if !cfg!(test) {
-            // Establish connection to RabbitMQ
-            Some(
-                RabbitMQ::new(false).await
-                    .producer(Stream::Fills).await
-            )
+            let rabbitmq = RabbitMQ::new(false).await;
+            Some(HashMap::from([
+                (Stream::Fills, rabbitmq.producer(Stream::Fills).await),
+                (Stream::OpenOrders, rabbitmq.producer(Stream::OpenOrders).await),
+            ]))
         } else {
             None
         };

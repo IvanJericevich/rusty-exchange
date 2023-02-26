@@ -1,6 +1,5 @@
 use chrono::Utc;
 use sea_orm::*;
-use sea_orm::prelude::*;
 use sea_orm_migration::sea_query::Query as SeaQuery;
 
 use crate::{OrderSide, OrderStatus, OrderType, SubAccountStatus};
@@ -34,24 +33,29 @@ impl Mutation {
     }
 
     pub async fn update_client(db: &DbConn, id: i32, new_email: String) -> Result<(), DbErr> {
-        let other_client = clients::Entity::find()
+        if clients::Entity::find()
             .filter(clients::Column::Email.eq(new_email.clone()))
             .one(db)
-            .await?;
-        let client = clients::Entity::find_by_id(id).one(db).await?;
-        match (client, other_client) {
-            (Some(client), None) => {
+            .await?
+            .is_some()
+        {
+            Err(DbErr::Custom(format!(
+                "Client with email {new_email} already exists."
+            )))
+        } else {
+            if let Some(client) = clients::Entity::find_by_id(id)
+                .one(db)
+                .await?
+            {
                 let mut client: clients::ActiveModel = client.into();
                 client.email = Set(new_email);
                 let _ = client.update(db).await;
                 Ok(())
+            } else {
+                Err(DbErr::RecordNotFound(format!(
+                    "Client with id {id} does not exist."
+                )))
             }
-            (None, _) => Err(DbErr::RecordNotFound(format!(
-                "Client with id {id} does not exist."
-            ))),
-            (_, Some(_)) => Err(DbErr::Custom(format!(
-                "Client with email {new_email} already exists."
-            ))),
         }
     }
     // ----------------------------------------------------------------------
@@ -408,10 +412,232 @@ impl Mutation {
                 market_id: Set(fill.market_id),
                 ..Default::default()
             }
-            .insert(db)
-            .await?;
+                .insert(db)
+                .await?;
         }
         Ok(())
     }
     // ----------------------------------------------------------------------
+}
+
+#[cfg(test)]
+#[cfg(feature = "mock")]
+mod tests {
+    use sea_orm::{DatabaseBackend, DbErr, MockDatabase, MockExecResult};
+
+    use crate::{clients, markets, sub_accounts, SubAccountStatus};
+
+    use super::Mutation;
+
+// ----------------------------------------------------------------------
+
+    #[async_std::test]
+    async fn clients() {
+        let empty_client_vector: Vec<clients::Model> = vec![];
+        let db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![],
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }], // (1)
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }], // (2)
+                vec![],
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivanjericevich96@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }],
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivan@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }], // (3)
+                vec![clients::Model {
+                    id: 1,
+                    email: "ivan@gmail.com".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }], // (4)
+                empty_client_vector.clone(),
+                empty_client_vector, // (5)
+            ])
+            .append_exec_results(vec![MockExecResult {
+                last_insert_id: 1,
+                rows_affected: 1,
+            }])
+            .into_connection();
+        // (1) PASS - Create new
+        assert_eq!(
+            Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned())
+                .await
+                .unwrap(),
+            clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // (2) FAIL - Create with existing
+        assert_eq!(
+            Mutation::create_client(&db, "ivanjericevich96@gmail.com".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::Custom(format!(
+                "Client with email ivanjericevich96@gmail.com already exists."
+            ))
+        );
+        // (3) PASS - Update with existing and non-existent email
+        assert_eq!(
+            Mutation::update_client(&db, 1, "ivan@gmail.com".to_owned())
+                .await
+                .unwrap(),
+            ()
+        );
+        // (4) FAIL - Update with existing email
+        assert_eq!(
+            Mutation::update_client(&db, 1, "ivan@gmail.com".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::Custom(format!(
+                "Client with email ivan@gmail.com already exists."
+            ))
+        );
+        // (5) FAIL - Update with non-existent client
+        assert_eq!(
+            Mutation::update_client(&db, 1, "ivan@gmail.com".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::RecordNotFound(format!(
+                "Client with id 1 does not exist."
+            ))
+        );
+    }
+
+// ----------------------------------------------------------------------
+
+    #[async_std::test]
+    async fn markets() {
+        let db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![
+                vec![],
+                vec![markets::Model {
+                    id: 1,
+                    base_currency: "BTC".to_owned(),
+                    quote_currency: "USD".to_owned(),
+                    price_increment: 0.01,
+                    size_increment: 0.01,
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }],
+                vec![markets::Model {
+                    id: 1,
+                    base_currency: "BTC".to_owned(),
+                    quote_currency: "USD".to_owned(),
+                    price_increment: 0.01,
+                    size_increment: 0.01,
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                }],
+            ])
+            .append_exec_results(vec![MockExecResult {
+                last_insert_id: 1,
+                rows_affected: 1,
+            }])
+            .into_connection();
+        // Create new
+        assert_eq!(
+            Mutation::create_market(&db, "BTC".to_owned(), "USD".to_owned(), 0.01, 0.01)
+                .await
+                .unwrap(),
+            markets::Model {
+                id: 1,
+                base_currency: "BTC".to_owned(),
+                quote_currency: "USD".to_owned(),
+                price_increment: 0.01,
+                size_increment: 0.01,
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }
+        );
+        // Create with existing
+        assert_eq!(
+            Mutation::create_market(&db, "BTC".to_owned(), "USD".to_owned(), 0.01, 0.01)
+                .await
+                .unwrap_err(),
+            DbErr::Custom(format!(
+                "Market with base currency BTC and quote currency USD already exists."
+            ))
+        );
+    }
+
+// ----------------------------------------------------------------------
+
+    #[async_std::test]
+    async fn sub_accounts() {
+        let empty_sub_account_vector: Vec<sub_accounts::Model> = vec![];
+        let empty_client_vector: Vec<clients::Model> = vec![];
+        let db = MockDatabase::new(DatabaseBackend::Postgres)
+            .append_query_results(vec![vec![clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }]])
+            .append_query_results(vec![
+                empty_sub_account_vector,
+                vec![sub_accounts::Model {
+                    id: 1,
+                    name: "Test".to_owned(),
+                    created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                    client_id: 1,
+                    status: SubAccountStatus::Active,
+                }],
+            ])
+            .append_query_results(vec![empty_client_vector])
+            .append_query_results(vec![vec![clients::Model {
+                id: 1,
+                email: "ivanjericevich96@gmail.com".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+            }]])
+            .append_query_results(vec![vec![sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }]])
+            .append_exec_results(vec![MockExecResult {
+                last_insert_id: 1,
+                rows_affected: 1,
+            }])
+            .into_connection();
+        // Create new
+        assert_eq!(
+            Mutation::create_sub_account(&db, 1, "Test".to_owned())
+                .await
+                .unwrap(),
+            sub_accounts::Model {
+                id: 1,
+                name: "Test".to_owned(),
+                created_at: "2022-01-01T00:00:00".parse().unwrap(),
+                client_id: 1,
+                status: SubAccountStatus::Active,
+            }
+        );
+        // Create with non-existent client
+        assert_eq!(
+            Mutation::create_sub_account(&db, 1, "Test".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::RecordNotFound(format!("Client with id 1 does not exist."))
+        );
+        // Create with existing
+        assert_eq!(
+            Mutation::create_sub_account(&db, 1, "Test".to_owned())
+                .await
+                .unwrap_err(),
+            DbErr::Custom(format!("Sub-account with name Test already exists."))
+        );
+    }
 }

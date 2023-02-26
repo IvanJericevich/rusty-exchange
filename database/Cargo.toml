@@ -14,7 +14,7 @@ path = "src/lib.rs"
 
 [dependencies]
 common = { path = "../common" }
-async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library
+async-std = { version = "^1", features = ["attributes", "tokio1"] } # Standard async library TODO: dev dependency?
 sea-orm = { version = "0.11.0", features = ["sqlx-postgres", "runtime-async-std-native-tls", "debug-print"] } # Support for postgres and standard async library with macros and mock features, "mock"
 sea-orm-migration = { version = "0.11.0" } # For database migrations
 dotenv = "0.15.0" # For dev environment variables
@@ -29,7 +29,3 @@ mock = ["sea-orm/mock"]
 [dev-dependencies]
 futures = "^0.3.25" # Asynchronous utilities
 sea-orm-cli = "0.11.0"
-
-[[test]]
-name = "main"
-required-features = ["mock"]

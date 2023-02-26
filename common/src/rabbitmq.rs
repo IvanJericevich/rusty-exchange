@@ -8,10 +8,11 @@ use rabbitmq_stream_client::types::{ByteCapacity, Message, OffsetSpecification};
 
 use crate::util;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Stream {
     Fills,
     Orders,
+    OpenOrders
 }
 
 impl Stream {
@@ -19,11 +20,12 @@ impl Stream {
         match self {
             Stream::Fills => "fills",
             Stream::Orders => "orders",
+            Stream::OpenOrders => "open-orders"
         }
     }
 
     pub fn iter() -> Iter<'static, Stream> {
-        static STREAMS: [Stream; 2] = [Stream::Fills, Stream::Orders];
+        static STREAMS: [Stream; 3] = [Stream::Fills, Stream::Orders, Stream::OpenOrders];
         STREAMS.iter()
     }
 }
